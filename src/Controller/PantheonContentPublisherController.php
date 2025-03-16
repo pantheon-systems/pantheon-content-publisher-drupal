@@ -48,22 +48,16 @@ class PantheonContentPublisherController extends ControllerBase {
 
   /**
    * @param \Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl $collection
+   *   The Pantheon content publisher collection.
    * @param array $decoded
    *   The decoded webhook payload.
-   *
-   * @return void
    */
-  public function handleEvent(PantheonContentPublisherCollInterface $collection, array $decoded): void {
+  protected function handleEvent(PantheonContentPublisherCollInterface $collection, array $decoded): void {
     switch ($decoded['event']) {
       case 'article.publish':
         $pantheon_content_publisher = PantheonContentPublisher::load($collection->id() . ':' . $decoded['payload']['articleId']);
         search_api_entity_update($pantheon_content_publisher);
-        $index_ids = \Drupal::entityQuery('search_api_index')
-          ->condition('third_party_settings.pantheon_collection_publisher.collection', $collection->id())
-          ->execute();
-        if ($index_ids) {
-          Index::load(reset($index_ids))->indexItems();
-        }
+        Index::load($collection->id())->indexItems();
         break;
     }
   }
