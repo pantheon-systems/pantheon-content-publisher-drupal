@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Provides a pantheon content publisher entity type.
+ */
+
+use Drupal\Core\Render\Element;
+
+/**
+ * Implements hook_theme().
+ */
+function pantheon_content_publisher_theme(): array {
+  return [
+    'pantheon_content_publisher' => ['render element' => 'elements'],
+  ];
+}
+
+/**
+ * Prepares variables for pantheon content publisher templates.
+ *
+ * Default template: pantheon-content-publisher.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the pantheon content publisher information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_pantheon_content_publisher(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+

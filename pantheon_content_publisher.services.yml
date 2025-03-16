@@ -1,0 +1,11 @@
+services:
+  pantheon_content_publisher.query:
+    class: Drupal\pantheon_content_publisher\Query\QueryFactory
+    arguments: ['@pantheon_content_publisher.converter']
+  pantheon_content_publisher.converter:
+    class: Drupal\pantheon_content_publisher\PantheonContentPublisherConverter
+    arguments: ['@keyvalue', '@entity.memory_cache']
+  pantheon_content_publisher.event_subscriber:
+    class: Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber
+    tags:
+      - { name: event_subscriber }

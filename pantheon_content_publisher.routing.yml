@@ -1,0 +1,45 @@
+entity.pantheon_content_publisher_coll.collection:
+  path: '/admin/structure/pantheon-content-publisher-collection'
+  defaults:
+    _entity_list: 'pantheon_content_publisher_coll'
+    _title: 'Pantheon content publisher collection configuration'
+  requirements:
+    _permission: 'administer pantheon_content_publisher_coll'
+
+entity.pantheon_content_publisher_coll.add_form:
+  path: '/admin/structure/pantheon_content_publisher_coll/add'
+  defaults:
+    _entity_form: 'pantheon_content_publisher_coll.add'
+    _title: 'Add a pantheon content publisher collection'
+  requirements:
+    _permission: 'administer pantheon_content_publisher_coll'
+
+entity.pantheon_content_publisher_coll.edit_form:
+  path: '/admin/structure/pantheon-content-publisher-collection/{pantheon_content_publisher_coll}'
+  defaults:
+    _entity_form: 'pantheon_content_publisher_coll.edit'
+    _title: 'Edit a pantheon content publisher collection'
+  requirements:
+    _permission: 'administer pantheon_content_publisher_coll'
+
+entity.pantheon_content_publisher_coll.delete_form:
+  path: '/admin/structure/pantheon-content-publisher-collection/{pantheon_content_publisher_coll}/delete'
+  defaults:
+    _entity_form: 'pantheon_content_publisher_coll.delete'
+    _title: 'Delete a pantheon content publisher collection'
+  requirements:
+    _permission: 'administer pantheon_content_publisher_coll'
+
+pantheon_content_publisher.webhook:
+  path: '/pantheon_content_publisher/webhook'
+  defaults:
+    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController::webhook'
+  requirements:
+    _access: 'TRUE'
+
+pantheon_content_publisher.preview:
+  path: '/api/pantheoncloud/document/{pantheon_id}'
+  defaults:
+    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController::preview'
+  requirements:
+    _access: 'TRUE'

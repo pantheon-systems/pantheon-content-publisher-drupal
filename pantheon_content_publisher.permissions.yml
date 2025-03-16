@@ -1,0 +1,7 @@
+administer pantheon_content_publisher_coll:
+  title: 'Administer pantheon content publisher collection'
+
+administer pantheon_content_publisher types:
+  title: 'Administer pantheon content publisher types'
+  description: 'Maintain the types of pantheon content publisher entity.'
+  restrict access: true

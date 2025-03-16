@@ -1,0 +1,34 @@
+pantheon_content_publisher.pantheon_content_publisher_coll.*:
+  type: config_entity
+  label: Pantheon content publisher collection
+  mapping:
+    id:
+      type: machine_name
+      label: 'ID'
+    label:
+      type: required_label
+      label: 'Label'
+    description:
+      type: text
+      label: 'Description'
+    site_id:
+      type: string
+      label: 'Site id'
+    token:
+      type: string
+      label: Token
+    url:
+      type: string
+      label: 'Site Url'
+search_api.search_api_index.*.third_party_settings.pantheon_content_publisher:
+  type: mapping
+  label: Pantheon specific third party settings
+  mapping:
+    collection:
+      type: string
+      label: 'The collection this index was created for'
+field.field.pantheon_content_publisher.*.*.third_party_settings.pantheon_content_publisher.pantheon_data:
+  type: sequence
+  label: The data as received from Pantheon
+  sequence:
+    type: ignore

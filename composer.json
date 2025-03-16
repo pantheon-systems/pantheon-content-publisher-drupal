@@ -1,0 +1,23 @@
+{
+    "name": "drupal/pantheon_content_publisher",
+    "type": "drupal-module",
+    "description": "Pantheon Content Publisher",
+    "keywords": ["Drupal"],
+    "license": "GPL-2.0+",
+    "homepage": "https://www.drupal.org/project/pantheon_content_publisher",
+    "authors": [
+        {
+            "name": "ghost of drupal past",
+            "homepage": "https://www.drupal.org/u/ghost-of-drupal-past",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "drupal/search_api": "^1.0",
+        "dpauli/graphql-request-builder": "^1.0"
+    },
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/pantheon_content_publisher",
+        "source": "http://cgit.drupalcode.org/pantheon_content_publisher"
+    }
+}

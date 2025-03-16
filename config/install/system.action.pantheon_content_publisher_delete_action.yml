@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - pantheon_content_publisher
+id: pantheon_content_publisher_delete_action
+label: 'Delete pantheon content publishers'
+type: pantheon_content_publisher
+plugin: entity:delete_action:pantheon_content_publisher
+configuration: {  }

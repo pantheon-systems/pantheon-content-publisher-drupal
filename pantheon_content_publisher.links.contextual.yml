@@ -1,0 +1,10 @@
+entity.pantheon_content_publisher.edit_form:
+  route_name: entity.pantheon_content_publisher.edit_form
+  group: pantheon_content_publisher
+  title: 'Edit'
+
+entity.pantheon_content_publisher.delete_form:
+  route_name: entity.pantheon_content_publisher.delete_form
+  group: pantheon_content_publisher
+  title: 'Delete'
+  weight: 10

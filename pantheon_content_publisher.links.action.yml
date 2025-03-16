@@ -1,0 +1,11 @@
+entity.pantheon_content_publisher_coll.add_form:
+  route_name: 'entity.pantheon_content_publisher_coll.add_form'
+  title: 'Add pantheon content publisher collection'
+  appears_on:
+    - entity.pantheon_content_publisher_coll.collection
+
+pantheon_content_publisher.add_page:
+  title: 'Add pantheon content publisher'
+  route_name: entity.pantheon_content_publisher.add_page
+  appears_on:
+    - entity.pantheon_content_publisher.collection
