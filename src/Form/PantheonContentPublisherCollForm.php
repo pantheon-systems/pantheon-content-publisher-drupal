@@ -4,15 +4,29 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher\Form;
 
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Form\EnforcedResponseException;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\LocalRedirectResponse;
+use Drupal\Core\Routing\RedirectDestinationTrait;
+use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use Drupal\search_api\Entity\Server;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Pantheon content publisher collection form.
  */
-class PantheonContentPublisherCollForm extends EntityForm {
+class PantheonContentPublisherCollForm extends EntityForm implements ContainerInjectionInterface {
+
+  use RedirectDestinationTrait;
+
+  public function __construct(protected UrlGeneratorInterface $urlGenerator) {}
+
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('url_generator'));
+  }
 
   /**
    * {@inheritdoc}
@@ -58,7 +72,11 @@ class PantheonContentPublisherCollForm extends EntityForm {
       '#default_value' => $this->entity->get('description'),
     ];
 
-    $servers = Server::loadMultiple();
+    if (!$servers = Server::loadMultiple()) {
+      \Drupal::messenger()->addMessage(t('Please add a search API server first'));
+      $url = $this->urlGenerator->generateFromRoute('entity.search_api_server.add_form', [], ['query' => $this->getDestinationArray()]);
+      throw new EnforcedResponseException(new LocalRedirectResponse($url));
+    }
     $form['search_api_server'] = [
       '#type' => 'select',
       '#title' => $this->t('Search server'),
