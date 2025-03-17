@@ -1,4 +1,6 @@
-import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pantheon-systems/pcc-sdk-core";
+<script src="https://some.domain.com/path/to/PantheonClient.js"/>
+<script src="https://some.domain.com/path/to/ARTICLE_UPDATE_SUBSCRIPTION.js"/>
+<script src="https://some.domain.com/path/to/PublishingLevel.js"/>
 
 const documentId = window.drupalSettings.pantheon_content_publisher.pantheon_id;
 
