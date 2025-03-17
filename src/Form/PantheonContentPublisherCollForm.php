@@ -73,7 +73,7 @@ class PantheonContentPublisherCollForm extends EntityForm implements ContainerIn
     ];
 
     if (!$servers = Server::loadMultiple()) {
-      \Drupal::messenger()->addMessage(t('Please add a search API server first'));
+      $this->messenger()->addMessage(t('Please add a search API server first'));
       $url = $this->urlGenerator->generateFromRoute('entity.search_api_server.add_form', [], ['query' => $this->getDestinationArray()]);
       throw new EnforcedResponseException(new LocalRedirectResponse($url));
     }
