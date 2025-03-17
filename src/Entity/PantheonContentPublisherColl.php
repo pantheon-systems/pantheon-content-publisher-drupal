@@ -137,27 +137,30 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
         $fields[] = $field;
       }
     }
-    $datasource = 'entity:pantheon_content_publisher';
-    $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
-    $index = Index::create([
-      'name' => $this->label(),
-      'id' => $this->id,
-      'status' => 1,
-      'server' => $this->search_api_server,
-      'datasource_settings' => [$datasource => []],
-      'dependencies' => $dependencies,
-    ]);
-    $fields_helper = \Drupal::service('search_api.fields_helper');
-    assert($fields_helper instanceof FieldsHelperInterface);
-    foreach ($fields ?? [] as $field) {
-      $storage = $field->getFieldStorageDefinition();
-      $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
-      $index->addField($fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName()));
+    if (!$update) {
+      $datasource = 'entity:pantheon_content_publisher';
+      $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
+      $index = Index::create([
+        'name' => $this->label(),
+        'id' => $this->id,
+        'status' => 1,
+        'server' => $this->search_api_server,
+        'datasource_settings' => [$datasource => []],
+        'dependencies' => $dependencies,
+      ]);
+      $index->getDatasource($datasource)->getEntityTypeBundleInfo()->clearCachedBundles();
+      $fields_helper = \Drupal::service('search_api.fields_helper');
+      assert($fields_helper instanceof FieldsHelperInterface);
+      foreach ($fields ?? [] as $field) {
+        $storage = $field->getFieldStorageDefinition();
+        $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
+        $index->addField($fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName()));
+      }
+      // Save automatically tracks all items in a batch.
+      $index->save();
+      // Index all items in the batch as well.
+      IndexBatchHelper::create($index);
     }
-    // Save automatically tracks all items in a batch.
-    $index->save();
-    // Index all items in the batch as well.
-    IndexBatchHelper::create($index);
     unset($txn);
     parent::postSave($entity_storage);
   }
