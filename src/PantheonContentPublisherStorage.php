@@ -74,7 +74,7 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
   }
 
   public function countFieldData($storage_definition, $as_bool = FALSE) {
-    // TODO: Implement countFieldData() method.
+    return 0;
   }
 
   protected function readFieldItemsToPurge(FieldDefinitionInterface $field_definition, $batch_size) {
