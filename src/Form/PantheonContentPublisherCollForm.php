@@ -32,7 +32,6 @@ class PantheonContentPublisherCollForm extends EntityForm implements ContainerIn
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state): array {
-
     $form = parent::form($form, $form_state);
     assert($this->entity instanceof PantheonContentPublisherCollInterface);
 

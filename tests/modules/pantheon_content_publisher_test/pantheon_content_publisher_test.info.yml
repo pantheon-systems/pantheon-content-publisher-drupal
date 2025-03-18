@@ -1,0 +1,5 @@
+name: 'pantheon_content_publisher_test'
+type: module
+description: 'Test module'
+package: Testing
+core_version_requirement: ^10 || ^11

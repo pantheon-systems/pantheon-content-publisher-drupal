@@ -20,8 +20,16 @@ pantheon_content_publisher.pantheon_content_publisher_coll.*:
     url:
       type: string
       label: 'Site Url'
-field.field.pantheon_content_publisher.*.*.third_party_settings.pantheon_content_publisher.pantheon_data:
-  type: sequence
-  label: The data as received from Pantheon
-  sequence:
-    type: ignore
+    search_api_server:
+      type: string
+      label: 'Search API server'
+field.storage.pantheon_content_publisher.*:
+  type: field.storage.*.*
+field.storage.pantheon_content_publisher.*.third_party.pantheon_content_publisher:
+  type: mapping
+  mapping:
+    pantheon_data:
+      type: sequence
+      label: The data as received from Pantheon
+      sequence:
+        type: ignore

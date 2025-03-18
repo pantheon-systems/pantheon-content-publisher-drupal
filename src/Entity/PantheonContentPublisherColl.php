@@ -77,7 +77,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
 
   protected string $label;
 
-  protected string $description;
+  protected string $description = '';
 
   protected string $search_api_server = '';
 
@@ -127,7 +127,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
     $prefix = 'field.storage.pantheon_content_publisher.';
     $field_storage_ids = array_flip(\Drupal::service('config.storage')->listAll($prefix));
     foreach ($metadata as $pantheon_field => $pantheon_data) {
-      $candidate_base = preg_replace('/[^a-z0-9_]+/', '', $pantheon_field);
+      $candidate_base = strtolower(preg_replace('/[^a-z0-9_]+/i', '', $pantheon_field));
       /** @noinspection PhpStatementHasEmptyBodyInspection */
       for ($counter = 0, $drupal_field_name = $candidate_base; isset($field_storage_ids["$prefix$drupal_field_name"]); $drupal_field_name = sprintf('%s_%d', $candidate_base, $counter++));
       if (isset(self::TYPE_MAP[$pantheon_data['type']])) {
