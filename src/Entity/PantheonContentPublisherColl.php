@@ -157,7 +157,8 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
         $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
         $index->addField($fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName()));
       }
-      // Save automatically tracks all items in a batch.
+      // Save automatically tracks all items in a batch. This tracking does
+      // not happen during config sync so handle that separately.
       $index->save();
       // @TODO Check what happens in the core config UI.
       $is_drush_batch = !\Drupal::service('config.installer')->isSyncing() && function_exists('drush_backend_batch_process');
