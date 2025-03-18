@@ -110,7 +110,7 @@ class PantheonContentPublisherCollForm extends EntityForm implements ContainerIn
       }
     }
     catch (\Exception $e) {
-      $form_state->setErrorByName('id', t('Unable to retrieve metadata for this collection with this token'));
+      $form_state->setErrorByName('id', t('Invalid collection ID/access token pair.'));
     }
   }
 
