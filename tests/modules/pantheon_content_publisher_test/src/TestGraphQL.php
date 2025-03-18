@@ -23,7 +23,7 @@ readonly class TestGraphQL extends GraphQL {
   }
 
   public function getArticleIds(?int $page_size = NULL, ?string $cursor = NULL): array {
-    return \Drupal::keyValue('pantheon_content_publisher_test')->get(implode('.', array_filter(['getArticleIds', (string) $cursor])));
+    return \Drupal::keyValue('pantheon_content_publisher_test')->get($cursor ? "getArticleIds.$cursor" : 'getArticleIds');
   }
 
 }
