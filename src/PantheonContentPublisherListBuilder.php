@@ -21,7 +21,7 @@ class PantheonContentPublisherListBuilder extends EntityListBuilder {
     $header['status'] = $this->t('Status');
     $header['created'] = $this->t('Created');
     $header['changed'] = $this->t('Updated');
-    return $header + parent::buildHeader();
+    return $header;
   }
 
   /**
@@ -34,7 +34,7 @@ class PantheonContentPublisherListBuilder extends EntityListBuilder {
     $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');
     $row['created']['data'] = $entity->get('created')->view(['label' => 'hidden']);
     $row['changed']['data'] = $entity->get('changed')->view(['label' => 'hidden']);
-    return $row + parent::buildRow($entity);
+    return $row;
   }
 
 }
