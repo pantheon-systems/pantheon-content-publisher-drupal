@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
+use Drupal\search_api\Entity\Index;
 
 /**
  * Test description.
@@ -32,6 +33,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['search_api']);
+    $this->installSchema('search_api', ['search_api_item']);
     $this->installEntitySchema('search_api_task');
   }
 
@@ -46,6 +48,8 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $articleIds['articles'] = [];
     $this->keyValue->get('pantheon_content_publisher_test')->set('getArticleIds.next cursor', $articleIds);
     $this->keyValue->get('pantheon_content_publisher_test')->set('getArticle', $this->getArticle());
+    // Create a collection, this also creates an index and puts all items
+    // in it.
     $bundle = $this->randomMachineName();
     $collection = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher_coll')->create([
       'id' => $bundle,
@@ -55,7 +59,17 @@ class PantheonContentPublisherTest extends KernelTestBase {
       'search_api_server' => 'default_server',
     ]);
     $collection->save();
-    $storages = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->loadMultiple();
+    $batch = &batch_get();
+    $batch['progressive'] = FALSE;
+    batch_process();
+    $indexes = Index::loadMultiple();
+    $this->assertCount(1, $indexes);
+    $index = reset($indexes);
+    $this->assertSame($bundle, $index->id());
+    $this->assertSame(['abooleanmeta', 'adatemeta', 'alistmeta', 'atextareameta', 'atextmeta'], array_keys($index->getFields()));
+    $this->assertSame(1, $index->getTrackerInstance()->getTotalItemsCount());
+    $this->assertSame(0, $index->getTrackerInstance()->getRemainingItemsCount());
+    $storages = FieldStorageConfig::loadMultiple();
     $this->assertSame($storages['pantheon_content_publisher.abooleanmeta']->getType(), 'boolean');
     $this->assertSame($storages['pantheon_content_publisher.adatemeta']->getType(), 'timestamp');
     $this->assertSame($storages['pantheon_content_publisher.alistmeta']->getType(), 'list_string');
@@ -66,18 +80,24 @@ class PantheonContentPublisherTest extends KernelTestBase {
     ]);
     $this->assertSame($storages['pantheon_content_publisher.atextmeta']->getType(), 'string');
     $this->assertSame($storages['pantheon_content_publisher.atextareameta']->getType(), 'string_long');
+    // Remove Option b from the metadata.
     $metadata['A list meta']['options'] = array_diff($metadata['A list meta']['options'], ['Option b']);
     $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $metadata);
+    // Update the collection.
     $collection->save();
-    $storages = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->loadMultiple();
+    // Verify the list field changed.
+    $storages = FieldStorageConfig::loadMultiple();
     $this->assertSame(options_allowed_values($storages['pantheon_content_publisher.alistmeta']), [
       'Option a' => 'Option a',
       'Option c' => 'Option c'
     ]);
+    // Remove the list field.
     unset($metadata['A list meta']);
     $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $metadata);
+    // Update the collection.
     $collection->save();
-    $storages = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->loadMultiple();
+    // Verify it's gone.
+    $storages = FieldStorageConfig::loadMultiple();
     $this->assertArrayNotHasKey('pantheon_content_publisher.alistmeta', $storages);
   }
 

@@ -159,7 +159,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       }
       // Save automatically tracks all items in a batch.
       $index->save();
-      // Index all items in the batch as well.
+      // Index all items in the same batch as well.
       IndexBatchHelper::create($index);
     }
     unset($txn);
