@@ -1,16 +1,17 @@
 import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pantheon-systems/pcc-sdk-core";
 
-const documentId = window.drupalSettings.pantheon_content_publisher.pantheon_id;
+const url = new URL(window.location.href);
+const params = new URLSearchParams(url.search);
 
 const pantheonClient = new PantheonClient({
     siteId: window.drupalSettings.pantheon_content_publisher.site_id,
-    token: window.drupalSettings.pantheon_content_publisher.token
+    token: 'pcc_grant ' + params.get('pccGrant')
 });
 
 const observable = pantheonClient.apolloClient.subscribe({
     query: ARTICLE_UPDATE_SUBSCRIPTION,
     variables: {
-        id: documentId,
+        id: url.pathname.split('/')[4],
         contentType: "TREE_PANTHEON_V2",
         publishingLevel: PublishingLevel.REALTIME,
     },

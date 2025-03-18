@@ -52,8 +52,6 @@ class PantheonContentPublisherController extends ControllerBase {
         'drupalSettings' => [
           'pantheon_content_publisher' => [
             'site_id' => $collection->id(),
-            'token' => 'pcc_grant ' . $this->requestStack->getCurrentRequest()->query->get('pccGrant'),
-            'pantheon_id' => $pantheon_id,
           ],
         ],
       ],
