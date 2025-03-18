@@ -10,9 +10,8 @@ use Drupal\KernelTests\KernelTestBase;
  * Test description.
  *
  * @group pantheon_content_publisher
- * @coversDefaultClass \Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl
  */
-class PantheonContentPublisherCollectionTest extends KernelTestBase {
+class PantheonContentPublisherTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -37,7 +36,7 @@ class PantheonContentPublisherCollectionTest extends KernelTestBase {
   }
 
   /**
-   * @covers ::create
+   * @coversClass  \Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl
    */
   public function testCollectionCreate(): void {
     $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $this->metadata());
