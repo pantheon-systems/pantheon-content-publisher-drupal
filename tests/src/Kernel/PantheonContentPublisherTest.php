@@ -189,6 +189,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
           'description' => 'A random description',
         ],
         'content' => 'test content',
+        'title' => 'test title',
       ],
     ];
   }

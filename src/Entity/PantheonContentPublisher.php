@@ -43,7 +43,7 @@ use Drupal\pantheon_content_publisher\PantheonContentPublisherInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "bundle" = "collection",
- *     "label" = "label",
+ *     "label" = "title",
  *     "uuid" = "uuid",
  *   },
  *   links = {
@@ -75,7 +75,7 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
       ->setReadOnly(TRUE)
       ->setSetting('is_ascii', TRUE);
 
-    $fields['label'] = BaseFieldDefinition::create('string')
+    $fields['title'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Label'))
       ->setRequired(TRUE)
       ->setSetting('max_length', 255)
