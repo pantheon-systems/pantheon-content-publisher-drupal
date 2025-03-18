@@ -21,7 +21,6 @@ class PantheonContentPublisherTest extends KernelTestBase {
     'field',
     'options',
     'text',
-    'filter',
     'pantheon_content_publisher',
     'pantheon_content_publisher_test',
     'search_api',
@@ -31,7 +30,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
 
   protected function setUp(): void {
     parent::setUp();
-    $this->installConfig(['field', 'search_api']);
+    $this->installConfig(['search_api']);
     $this->installEntitySchema('search_api_task');
   }
 

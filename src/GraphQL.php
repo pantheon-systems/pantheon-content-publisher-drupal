@@ -93,7 +93,7 @@ readonly class GraphQL {
    *
    * @return array
    *   The GraphQL response.
-   * 
+   *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function request(TypeInterface $query): array {
