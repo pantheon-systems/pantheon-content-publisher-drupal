@@ -20,6 +20,12 @@ readonly class GraphQL {
     return $this->request($query)['metadataFields'];
   }
 
+  /**
+   * Get an article.
+   *
+   * @return array
+   *   title, content and metadata of the article.
+   */
   public function getArticle(string $id): array {
     $query = (new RootType('article'))->addArgument(new Argument('id', $id))->addSubTypes([
       'title',
@@ -29,6 +35,14 @@ readonly class GraphQL {
     return $this->request($query);
   }
 
+  /**
+   * A list of articles.
+   *
+   * @TODO: cursor support? merge into getArticleIds() ? Only Query uses this.
+   *
+   * @return array
+   *   A list of article arrays, each array has id, title and metadata keys.
+   */
   public function getArticles():array {
     $query = (new RootType('articlesv3'))->addSubTypes([
       (new Type('articles'))->addSubTypes([
@@ -40,6 +54,18 @@ readonly class GraphQL {
     return $this->request($query)['articles'];
   }
 
+  /**
+   * Get a paged list of article ids.
+   *
+   * @param int|null $page_size
+   *   The page size.
+   * @param string|null $cursor
+   *   The cursor for this page.
+   *
+   * @return array
+   *   Has two keys, articles and pageInfo. Articles is a list of arrays
+   *   where each array only has an id key. pageInfo has a nextCursor key.
+   */
   public function getArticleIds(?int $page_size = NULL, ?string $cursor = NULL):array {
     $query = (new RootType('articlesv3'));
     if ($page_size) {
@@ -59,7 +85,17 @@ readonly class GraphQL {
     return $this->request($query);
   }
 
-
+  /**
+   * Run the GraphQL request.
+   *
+   * @param \GraphQL\RequestBuilder\Interfaces\TypeInterface $query
+   *   The built-up GraphQL query.
+   *
+   * @return array
+   *   The GraphQL response.
+   * 
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
   protected function request(TypeInterface $query): array {
     $uri = sprintf("%s/sites/%s/query", $this->collection->getUrl(), $this->collection->id());
     $response = \Drupal::httpClient()->post($uri, [
