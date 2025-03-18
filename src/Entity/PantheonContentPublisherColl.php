@@ -159,8 +159,16 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       }
       // Save automatically tracks all items in a batch.
       $index->save();
+      // @TODO Check what happens in the core config UI.
+      $is_drush_batch = !\Drupal::service('config.installer')->isSyncing() && function_exists('drush_backend_batch_process');
+      if ($is_drush_batch) {
+        \Drupal::service('search_api.index_task_manager')->addItemsBatch($index);
+      }
       // Index all items in the same batch as well.
       IndexBatchHelper::create($index);
+      if ($is_drush_batch) {
+        drush_backend_batch_process();
+      }
     }
     unset($txn);
     parent::postSave($entity_storage);
