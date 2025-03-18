@@ -118,7 +118,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
         // undefined, sort it for reliability.
         ksort($new_field_data);
         if ($new_field_data !== $field_storage->getThirdPartySetting('pantheon_content_publisher', 'pantheon_data')) {
-          $this->updateDrupalField($field, $new_field_data, $pantheon_field);
+          $this->updateDrupalField($field, $new_field_data);
         }
         unset($metadata[$pantheon_field]);
       }
@@ -132,7 +132,8 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       for ($counter = 0, $drupal_field_name = $candidate_base; isset($field_storage_ids["$prefix$drupal_field_name"]); $drupal_field_name = sprintf('%s_%d', $candidate_base, $counter++));
       if (isset(self::TYPE_MAP[$pantheon_data['type']])) {
         $field = $this->createNewDrupalField($drupal_field_name, self::TYPE_MAP[$pantheon_data['type']]);
-        $this->updateDrupalField($field, $pantheon_data, $pantheon_field);
+        $this->getConverter()->set($pantheon_field, $field->getName());
+        $this->updateDrupalField($field, $pantheon_data);
         $field_storage_ids["$prefix$drupal_field_name"] = TRUE;
         $fields[] = $field;
       }
@@ -212,7 +213,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
    * @param array $pantheon_data
    *   The data returned from Pantheon.
    */
-  protected function updateDrupalField(FieldConfigInterface $field, array $pantheon_data, string $pantheon_field): void {
+  protected function updateDrupalField(FieldConfigInterface $field, array $pantheon_data): void {
     $field
       ->setLabel($pantheon_data['title'])
       ->save();
@@ -222,7 +223,6 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
     $field->getFieldStorageDefinition()
       ->setThirdPartySetting('pantheon_content_publisher', 'pantheon_data', $pantheon_data)
       ->save();
-    $this->getConverter()->set($pantheon_field, $field->getName());
   }
 
   /**

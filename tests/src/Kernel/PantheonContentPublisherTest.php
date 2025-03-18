@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 
 /**
  * Test description.
@@ -38,22 +39,46 @@ class PantheonContentPublisherTest extends KernelTestBase {
    * @coversClass  \Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl
    */
   public function testCollectionCreate(): void {
-    $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $this->metadata());
+    $metadata = $this->metadata();
+    $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $metadata);
     $articleIds = $this->getArticleIds();
     $this->keyValue->get('pantheon_content_publisher_test')->set('getArticleIds', $articleIds);
     $articleIds['articles'] = [];
     $this->keyValue->get('pantheon_content_publisher_test')->set('getArticleIds.next cursor', $articleIds);
     $this->keyValue->get('pantheon_content_publisher_test')->set('getArticle', $this->getArticle());
     $bundle = $this->randomMachineName();
-    $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher_coll')->create([
+    $collection = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher_coll')->create([
       'id' => $bundle,
       'label' => $this->randomString(),
       'token' => $this->randomMachineName(),
       'url' => $this->randomMachineName(),
       'search_api_server' => 'default_server',
-    ])->save();
+    ]);
+    $collection->save();
     $storages = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->loadMultiple();
     $this->assertSame($storages['pantheon_content_publisher.abooleanmeta']->getType(), 'boolean');
+    $this->assertSame($storages['pantheon_content_publisher.adatemeta']->getType(), 'timestamp');
+    $this->assertSame($storages['pantheon_content_publisher.alistmeta']->getType(), 'list_string');
+    $this->assertSame(options_allowed_values($storages['pantheon_content_publisher.alistmeta']), [
+      'Option a' => 'Option a',
+      'Option b' => 'Option b',
+      'Option c' => 'Option c'
+    ]);
+    $this->assertSame($storages['pantheon_content_publisher.atextmeta']->getType(), 'string');
+    $this->assertSame($storages['pantheon_content_publisher.atextareameta']->getType(), 'string_long');
+    $metadata['A list meta']['options'] = array_diff($metadata['A list meta']['options'], ['Option b']);
+    $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $metadata);
+    $collection->save();
+    $storages = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->loadMultiple();
+    $this->assertSame(options_allowed_values($storages['pantheon_content_publisher.alistmeta']), [
+      'Option a' => 'Option a',
+      'Option c' => 'Option c'
+    ]);
+    unset($metadata['A list meta']);
+    $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $metadata);
+    $collection->save();
+    $storages = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->loadMultiple();
+    $this->assertArrayNotHasKey('pantheon_content_publisher.alistmeta', $storages);
   }
 
   protected function metadata(): array {
