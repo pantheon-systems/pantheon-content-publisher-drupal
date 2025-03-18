@@ -81,7 +81,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
       'event' => 'article.publish',
       'payload' => ['articleId' => self::ARTICLEID],
     ];
-    $request = Request::create('/webhook?pccGrant=testGrant', content: json_encode($content));
+    $request = Request::create('/webhook', content: json_encode($content));
     $webhook($request);
     $this->assertSame($newValue, $this->getSearchAPIvalue('atextareameta'));
   }
