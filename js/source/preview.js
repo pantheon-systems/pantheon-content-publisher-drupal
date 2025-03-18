@@ -2,6 +2,7 @@ import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pan
 
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
+const documentId = url.pathname.split('/')[4];
 
 const pantheonClient = new PantheonClient({
     siteId: window.drupalSettings.pantheon_content_publisher.site_id,
@@ -11,7 +12,7 @@ const pantheonClient = new PantheonClient({
 const observable = pantheonClient.apolloClient.subscribe({
     query: ARTICLE_UPDATE_SUBSCRIPTION,
     variables: {
-        id: url.pathname.split('/')[4],
+        id: documentId,
         contentType: "TREE_PANTHEON_V2",
         publishingLevel: PublishingLevel.REALTIME,
     },
