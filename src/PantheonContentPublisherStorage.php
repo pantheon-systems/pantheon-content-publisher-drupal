@@ -22,6 +22,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class PantheonContentPublisherStorage extends ContentEntityStorageBase implements PantheonContentPublisherStorageInterface {
 
+  const SEPARATOR = '.';
+
   public function __construct(
     EntityTypeInterface $entity_type,
     EntityFieldManagerInterface $entity_field_manager,
@@ -49,7 +51,7 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
   protected function doLoadMultiple(?array $ids = NULL) {
     $entities = [];
     foreach ($ids as $id) {
-      [$collection_name, $pantheon_id] = explode(':', $id);
+      [$collection_name, $pantheon_id] = explode(self::SEPARATOR, $id, 2);
       if (!$collection = $this->collectionStorage->load($collection_name)) {
         continue;
       }
@@ -100,6 +102,13 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
 
   protected function doDeleteRevisionFieldItems(ContentEntityInterface $revision) {
     // Nothing to do.
+  }
+
+  public static function getEntityId(string|PantheonContentPublisherCollInterface $collection, string $pantheon_id): string {
+    return
+      ($collection instanceof PantheonContentPublisherCollInterface ? $collection->id() : $collection) .
+      self::SEPARATOR .
+      $pantheon_id;
   }
 
 }

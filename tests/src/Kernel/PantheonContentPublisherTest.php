@@ -8,6 +8,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
+use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 use Drupal\search_api\Entity\Index;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -122,12 +123,14 @@ class PantheonContentPublisherTest extends KernelTestBase {
 
   public function testStorageDoLoadMultiple(): void {
     $storage = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher');
-    $pantheonContentPublisher = $storage->load("$this->bundle:" . self::ARTICLEID);
+    $entity_id = PantheonContentPublisherStorage::getEntityId($this->bundle, self::ARTICLEID);
+    $pantheonContentPublisher = $storage->load($entity_id);
     $this->assertSame('textarea test contents', $pantheonContentPublisher->atextareameta->value);
     $this->assertSame('test title', $pantheonContentPublisher->label());
+    $this->assertSame(sprintf('<a href="/pantheon-content-publisher/%s" hreflang="und">test title</a>', $entity_id), $pantheonContentPublisher->toLink()->toString()->getGeneratedLink());
     // Update article in Pantheon
     $newValue = $this->updateArticleInPantheon();
-    $pantheonContentPublisher = $storage->loadUnchanged("$this->bundle:" . self::ARTICLEID);
+    $pantheonContentPublisher = $storage->loadUnchanged($entity_id);
     $this->assertSame($newValue, $pantheonContentPublisher->atextareameta->value);
   }
 

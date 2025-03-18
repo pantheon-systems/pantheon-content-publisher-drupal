@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Query\QueryBase;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherConverter;
+use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 
 /**
  * Defines the entity query for entities stored in a key value backend.
@@ -33,7 +34,7 @@ class Query extends QueryBase {
     $records = [];
     foreach ($collections as $collection) {
       foreach ($collection->getGraphQL()->getArticles() as $pantheon_record) {
-        $key = $collection->id() . ':' . $pantheon_record['id'];
+        $key = PantheonContentPublisherStorage::getEntityId($collection, $pantheon_record['id']);
         $value = $this->converter->pantheonMetadataToDrupalRecord($pantheon_record);
         $records[$key] = $value;
       }

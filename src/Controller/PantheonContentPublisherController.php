@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
+use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorageInterface;
 use Drupal\search_api\Entity\Index;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,9 +72,9 @@ class PantheonContentPublisherController extends ControllerBase {
   protected function handleEvent(PantheonContentPublisherCollInterface $collection, array $decoded): void {
     switch ($decoded['event']) {
       case 'article.publish':
-        $id = $collection->id() . ':' . $decoded['payload']['articleId'];
-        $this->pantheonContentPublisherStorage->resetCache([$id]);
-        $pantheon_content_publisher = $this->pantheonContentPublisherStorage->load($id);
+        $entity_id = PantheonContentPublisherStorage::getEntityId($collection->id(), $decoded['payload']['articleId']);
+        $this->pantheonContentPublisherStorage->resetCache([$entity_id]);
+        $pantheon_content_publisher = $this->pantheonContentPublisherStorage->load($entity_id);
         search_api_entity_update($pantheon_content_publisher);
         Index::load($collection->id())->indexItems();
         break;

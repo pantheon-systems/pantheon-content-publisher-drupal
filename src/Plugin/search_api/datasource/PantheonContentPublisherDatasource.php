@@ -5,6 +5,7 @@ namespace Drupal\pantheon_content_publisher\Plugin\search_api\datasource;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
+use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 use Drupal\search_api\Plugin\search_api\datasource\ContentEntity;
 use Drupal\search_api\Utility\Utility;
 
@@ -68,7 +69,7 @@ class PantheonContentPublisherDatasource extends ContentEntity {
       }
       $result = $collection->getGraphQL()->getArticleIds(isset($page) ? $page_size : NULL, $cursor);
       foreach ($result['articles'] ?? [] as $info) {
-        $entity_ids[] = $collection->id() . ':' . $info['id'];
+        $entity_ids[] = PantheonContentPublisherStorage::getEntityId($collection,  $info['id']);
       }
       $found = $found || $entity_ids;
       if (isset($page)) {
