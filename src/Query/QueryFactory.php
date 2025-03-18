@@ -3,11 +3,9 @@
 namespace Drupal\pantheon_content_publisher\Query;
 
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryException;
 use Drupal\Core\Entity\Query\QueryFactoryInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherConverter;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherStorageInterface;
 
 /**
  * Provides a factory for creating the key value entity query.

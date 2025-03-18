@@ -176,7 +176,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
    * @param string $type
    *   The field type.
    * @param string $pantheon_field
-   *   Name of the field in the Pantheon metadata
+   *   Name of the field in the Pantheon metadata.
    *
    * @return \Drupal\field\FieldConfigInterface
    *   The field config object.

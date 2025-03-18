@@ -34,11 +34,13 @@ class PantheonContentPublisherController extends ControllerBase {
       '#markup' => '<div id="pantheon-content-publisher-preview"></div>',
       '#attached' => [
         'library' => ['pantheon_content_publisher/drupal.pantheon_content_publisher.preview'],
-        'drupalSettings' => ['pantheon_content_publisher' => [
-          'site_id' => $collection->id(),
-          'token' => 'pcc_grant ' . \Drupal::request()->query->get('pccGrant'),
-          'pantheon_id' => $pantheon_id,
-        ]],
+        'drupalSettings' => [
+          'pantheon_content_publisher' => [
+            'site_id' => $collection->id(),
+            'token' => 'pcc_grant ' . \Drupal::request()->query->get('pccGrant'),
+            'pantheon_id' => $pantheon_id,
+          ],
+        ],
       ],
     ];
     $response = \Drupal::service('bare_html_page_renderer')->renderBarePage([], 'Preview', 'markup', $build);

@@ -29,7 +29,8 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
     MemoryCacheInterface $memory_cache,
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
     protected EntityStorageInterface $collectionStorage,
-    protected PantheonContentPublisherConverter $pantheonContentPublisherConverter) {
+    protected PantheonContentPublisherConverter $pantheonContentPublisherConverter,
+  ) {
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
   }
 

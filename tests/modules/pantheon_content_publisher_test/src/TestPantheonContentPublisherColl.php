@@ -9,8 +9,8 @@ use Drupal\pantheon_content_publisher\GraphQL;
 
 class TestPantheonContentPublisherColl extends PantheonContentPublisherColl {
 
-    public function getGraphQL(): GraphQL {
-      return new TestGraphQL();
-    }
+  public function getGraphQL(): GraphQL {
+    return new TestGraphQL();
+  }
 
 }

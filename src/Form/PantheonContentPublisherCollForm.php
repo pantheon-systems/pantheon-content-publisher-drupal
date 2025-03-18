@@ -93,8 +93,8 @@ class PantheonContentPublisherCollForm extends EntityForm implements ContainerIn
     $result = parent::save($form, $form_state);
     $message_args = ['%label' => $this->entity->label()];
     $this->messenger()->addStatus([
-        \SAVED_NEW => $this->t('Created new Content Publisher collection %label.', $message_args),
-        \SAVED_UPDATED => $this->t('Updated Content Publisher collection %label.', $message_args),
+      \SAVED_NEW => $this->t('Created new Content Publisher collection %label.', $message_args),
+      \SAVED_UPDATED => $this->t('Updated Content Publisher collection %label.', $message_args),
     ][$result]);
     $form_state->setRedirectUrl($this->entity->toUrl('collection'));
     return $result;

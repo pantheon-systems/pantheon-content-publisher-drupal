@@ -15,7 +15,7 @@ readonly class GraphQL {
 
   public function getMetadata(): array {
     $query = (new RootType('site'))->addArgument(new Argument('id', $this->collection->id()))->addSubTypes([
-      'metadataFields'
+      'metadataFields',
     ]);
     return $this->request($query)['metadataFields'];
   }
@@ -24,7 +24,7 @@ readonly class GraphQL {
     $query = (new RootType('article'))->addArgument(new Argument('id', $id))->addSubTypes([
       'title',
       'content',
-      'metadata'
+      'metadata',
     ]);
     return $this->request($query);
   }
@@ -34,7 +34,7 @@ readonly class GraphQL {
       (new Type('articles'))->addSubTypes([
         'id',
         'title',
-        'metadata'
+        'metadata',
       ])
     ]);
     return $this->request($query)['articles'];
@@ -54,7 +54,7 @@ readonly class GraphQL {
       ]),
       (new Type('pageInfo'))->addSubTypes([
         'nextCursor',
-      ])
+      ]),
     ]);
     return $this->request($query);
   }
@@ -69,7 +69,8 @@ readonly class GraphQL {
         'Content-Type' => 'application/json',
         'PCC-SITE-ID' => $this->collection->id(),
         'PCC-TOKEN' => $this->collection->getToken(),
-      ]]);
+      ],
+    ]);
     if ($response->getStatusCode() === 200) {
       $name = $query->getName();
       $result = (string) $response->getBody();
