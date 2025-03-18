@@ -42,7 +42,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
 
   protected function setUp(): void {
     parent::setUp();
-    $this->installConfig(['search_api']);
+    $this->installConfig(['search_api', 'system']);
     $this->installSchema('search_api', ['search_api_item']);
     $this->installEntitySchema('search_api_task');
     $keyValue = $this->keyValue->get('pantheon_content_publisher_test');
@@ -52,6 +52,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $keyValue->set('getArticleIds.next cursor', $articleIds);
     $keyValue->set('metadata', $this->metadata());
     $keyValue->set('getArticle', $this->getArticle());
+    $keyValue->set('getArticles', $this->getArticles());
     // Create a collection, this also creates an index and puts all items
     // in it.
     $this->bundle = $this->randomMachineName();
@@ -134,6 +135,13 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $this->assertSame($newValue, $pantheonContentPublisher->atextareameta->value);
   }
 
+  public function testListBuilder() {
+    $build = $this->container->get('entity_type.manager')->getListBuilder('pantheon_content_publisher')->render();
+    $html = (string) $this->container->get('renderer')->renderInIsolation($build);
+    $entity_id = PantheonContentPublisherStorage::getEntityId($this->bundle, self::ARTICLEID);
+    $this->assertStringContainsString(sprintf('<td><a href="/pantheon-content-publisher/%s" hreflang="und">test title</a></td>', $entity_id), $html);
+  }
+
   protected function metadata(): array {
     return [
       'A boolean meta' => [
@@ -196,6 +204,12 @@ class PantheonContentPublisherTest extends KernelTestBase {
         'title' => 'test title',
       ],
     ];
+  }
+
+  public function getArticles() {
+    return [[
+      'id' => self::ARTICLEID
+    ] + $this->getArticle()[self::ARTICLEID]];
   }
 
   protected function updateArticleInPantheon(): string {
