@@ -5,16 +5,22 @@ declare(strict_types=1);
 namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\BareHtmlPageRendererInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use Drupal\search_api\Entity\Index;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Returns responses for Pantheon content publisher routes.
  */
 class PantheonContentPublisherController extends ControllerBase {
+
+  public function __construct(protected RequestStack $requestStack, protected BareHtmlPageRendererInterface $bareHtmlPageRenderer) {
+
+  }
 
   /**
    * Builds the response.
@@ -37,13 +43,13 @@ class PantheonContentPublisherController extends ControllerBase {
         'drupalSettings' => [
           'pantheon_content_publisher' => [
             'site_id' => $collection->id(),
-            'token' => 'pcc_grant ' . \Drupal::request()->query->get('pccGrant'),
+            'token' => 'pcc_grant ' . $this->requestStack->getCurrentRequest()->query->get('pccGrant'),
             'pantheon_id' => $pantheon_id,
           ],
         ],
       ],
     ];
-    $response = \Drupal::service('bare_html_page_renderer')->renderBarePage([], 'Preview', 'markup', $build);
+    $response = $this->bareHtmlPageRenderer->renderBarePage([], 'Preview', 'markup', $build);
     $response->headers->set('X-Pantheon-Content-Publisher', 'preview');
     return $response;
   }
