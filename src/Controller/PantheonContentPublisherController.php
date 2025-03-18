@@ -7,7 +7,6 @@ namespace Drupal\pantheon_content_publisher\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorageInterface;

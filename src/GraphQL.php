@@ -9,7 +9,7 @@ use GraphQL\RequestBuilder\Interfaces\TypeInterface;
 use GraphQL\RequestBuilder\RootType;
 use GraphQL\RequestBuilder\Type;
 
-readonly class GraphQL {
+class GraphQL {
 
   public function __construct(protected PantheonContentPublisherCollInterface $collection) {}
 

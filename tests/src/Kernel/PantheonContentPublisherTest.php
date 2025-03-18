@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PantheonContentPublisherTest extends KernelTestBase {
 
-  const string ARTICLEID = '1_dRWJT4gJ05ZwtD6HyE1GdRxExL4FIAMkDIcIH8nlgM';
+  const ARTICLEID = '1_dRWJT4gJ05ZwtD6HyE1GdRxExL4FIAMkDIcIH8nlgM';
 
   /**
    * {@inheritdoc}

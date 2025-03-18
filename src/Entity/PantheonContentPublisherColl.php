@@ -65,7 +65,7 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  */
 class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonContentPublisherCollInterface {
 
-  const array TYPE_MAP = [
+  const TYPE_MAP = [
     'boolean' => 'boolean',
     'date' => 'timestamp',
     'list' => 'list_string',
