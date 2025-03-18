@@ -100,4 +100,18 @@ class PantheonContentPublisherCollForm extends EntityForm implements ContainerIn
     return $result;
   }
 
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    try {
+      $collection = $this->getEntity();
+      assert($collection instanceof PantheonContentPublisherCollInterface);
+      if ($collection->isNew()) {
+        $collection->getGraphQL()->getMetadata();
+
+      }
+    }
+    catch (\Exception $e) {
+      $form_state->setErrorByName('id', t('Unable to retrieve metadata for this collection with this token'));
+    }
+  }
+
 }
