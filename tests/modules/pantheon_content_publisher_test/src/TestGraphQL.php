@@ -6,7 +6,7 @@ namespace Drupal\pantheon_content_publisher_test;
 
 use Drupal\pantheon_content_publisher\GraphQL;
 
-readonly class TestGraphQL extends GraphQL {
+class TestGraphQL extends GraphQL {
 
   public function __construct() {}
 
