@@ -124,6 +124,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $storage = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher');
     $pantheonContentPublisher = $storage->load("$this->bundle:" . self::ARTICLEID);
     $this->assertSame('textarea test contents', $pantheonContentPublisher->atextareameta->value);
+    $this->assertSame('test title', $pantheonContentPublisher->label());
     // Update article in Pantheon
     $newValue = $this->updateArticleInPantheon();
     $pantheonContentPublisher = $storage->loadUnchanged("$this->bundle:" . self::ARTICLEID);
