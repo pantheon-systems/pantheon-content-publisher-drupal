@@ -6,6 +6,7 @@ namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Random;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 
@@ -79,6 +80,10 @@ class PantheonTagsFormatter extends FormatterBase {
       static::processNode($domDocument, $child, $element, $uniqueClass);
     }
     $parent->appendChild($element);
+  }
+
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_content_publisher';
   }
 
 }

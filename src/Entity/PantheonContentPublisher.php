@@ -114,7 +114,8 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
         'label' => 'hidden',
         'type' => 'pantheon_content_publisher_tags_formatter',
         'weight' => 20,
-      ]);
+      ])
+      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
   }
