@@ -30,18 +30,12 @@ class PantheonContentPublisherViewController extends EntityViewController {
   public function pantheonView(Request $request, $pantheon_id): array {
     $collections = PantheonContentPublisherColl::loadMultiple();
     $collection = reset($collections);
-    $publishingLevel = $request->query->get('publishingLevel');
-    if ($publishingLevel === 'PRODUCTION') {
-      $document = PantheonContentPublisher::load(PantheonContentPublisherStorage::getEntityId($collection, $pantheon_id));
-    }
-    elseif ($publishingLevel === 'PREVIEW') {
-      $document = PantheonContentPublisher::create([
-        'collection' => $collection,
-        'content' => '<div id="pantheon-content-publisher-preview"></div>',
-      ]);
+    $document = PantheonContentPublisher::load(PantheonContentPublisherStorage::getEntityId($collection, $pantheon_id));
+    if ($is_preview = $request->query->get('publishingLevel') === 'REALTIME') {
+      $document->get('content')->value = '<div id="pantheon-content-publisher-preview"></div>';
     }
     $page = $this->view($document);
-    if ($publishingLevel === 'PREVIEW') {
+    if ($is_preview) {
       $page['#attached']['library'][] = 'pantheon_content_publisher/drupal.pantheon_content_publisher.preview';
       $page['#attached']['drupalSettings']['pantheon_content_publisher']['site_id'] = $collection->id();
       $page['#attached']['http_header'][] = [self::PREVIEW_HEADER_NAME, self::PREVIEW_HEADER_VALUE];
