@@ -44,6 +44,20 @@ class PantheonTagsFormatter extends FormatterBase {
     return $element;
   }
 
+  /**
+   * Process a node array into a DOM element.
+   *
+   * @param \DOMDocument $domDocument
+   *   The dom document being worked on.
+   * @param array $node
+   *   The current node data.
+   * @param \DOMElement $parent
+   *   The parent DOM element.
+   * @param string $uniqueClass
+   *   The unique class used for CSS scoping.
+   *
+   * @throws \DOMException
+   */
   protected static function processNode(\DOMDocument $domDocument, array $node, \DOMElement $parent, string $uniqueClass): void {
     $tag = $node['tag'] ?? 'div';
     $content = $node['data'] ?? '';
