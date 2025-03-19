@@ -44,39 +44,28 @@ class PantheonTagsFormatter extends FormatterBase {
     return $element;
   }
 
-  protected static function processNode(\DOMDocument $domDocument, array $node_data, \DOMElement $parent, string $uniqueClass): void {
-    $tag = $node_data['tag'] ?? 'div';
-    $content = $node_data['data'] ?? '';
-    $children = $node_data['children'] ?? [];
-
-    if (!$children && !$content) {
-      return;
-    }
-
+  protected static function processNode(\DOMDocument $domDocument, array $node, \DOMElement $parent, string $uniqueClass): void {
+    $tag = $node['tag'] ?? 'div';
+    $content = $node['data'] ?? '';
+    $children = $node['children'] ?? [];
     if ($tag === 'style' && $content) {
-      $element = static::createElement($domDocument, $tag, $node_data['attrs'], $node_data['style'], ".$uniqueClass $content");
-      $parent->appendChild($element);
-      return;
+      $children = [];
+      $content = ".$uniqueClass $content";
     }
-    $element = static::createElement($domDocument, $tag, $node_data['attrs'], $node_data['style'], $content);
-    foreach ($children as $child) {
-      static::processNode($domDocument, $child, $element, $uniqueClass);
-    }
-    $parent->appendChild($element);
-  }
-
-  protected static function createElement(\DOMDocument $domDocument, string $tag, ?array $attrs, ?array $styles, string $content): \DOMElement {
     $element = $domDocument->createElement($tag);
-    foreach ((array) $attrs as $key => $value) {
+    foreach ($node['attrs'] ?? [] as $key => $value) {
       $element->setAttribute($key, $value);
     }
-    if ($styles) {
+    if ($styles = ($node['styles'] ?? [])) {
       $element->setAttribute('style', implode(', ', $styles));
     }
     if ($content) {
       $element->nodeValue = $content;
     }
-    return $element;
+    foreach ($children as $child) {
+      static::processNode($domDocument, $child, $element, $uniqueClass);
+    }
+    $parent->appendChild($element);
   }
 
 }
