@@ -47,5 +47,4 @@ class PantheonContentPublisherViewController extends EntityViewController {
     return $page;
   }
 
-
 }

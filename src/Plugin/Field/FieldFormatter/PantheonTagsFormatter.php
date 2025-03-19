@@ -34,7 +34,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier((new Random)->string());
       $container->setAttribute('class', $uniqueClass);
 
-      $this->processNode($domDocument, json_decode($item->value, TRUE), $container, $uniqueClass);
+      static::processNode($domDocument, json_decode($item->value, TRUE), $container, $uniqueClass);
 
       $element[$delta] = [
         '#type' => 'inline_template',
@@ -67,9 +67,8 @@ class PantheonTagsFormatter extends FormatterBase {
       'style' => [],
       'children' => [],
     ];
-    // Remove empty values, keep only known variables and extract them.
-    $node = array_intersect_key(array_filter($node), $defaults) + $defaults;
-    extract($node);
+    // This creates $tag, $data, $attrs, $style, $children.
+    extract(array_intersect_key(array_filter($node), $defaults) + $defaults);
     if (!$attrs && !$data && !$children) {
       return;
     }
@@ -77,7 +76,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $children = [];
       $data = ".$uniqueClass $data";
     }
-    $element = $domDocument->createElement($node['tag']);
+    $element = $domDocument->createElement($tag);
     foreach ($attrs as $key => $value) {
       $element->setAttribute($key, $value);
     }
