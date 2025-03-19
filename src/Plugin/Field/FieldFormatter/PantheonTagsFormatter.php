@@ -60,23 +60,34 @@ class PantheonTagsFormatter extends FormatterBase {
    * @throws \DOMException
    */
   protected static function processNode(\DOMDocument $domDocument, array $node, \DOMElement $parent, string $uniqueClass): void {
-    $tag = $node['tag'] ?? 'div';
-    $content = $node['data'] ?? '';
-    if ($tag === 'style' && $content) {
-      $node['children'] = [];
-      $content = ".$uniqueClass $content";
+    $defaults = [
+      'tag' => 'div',
+      'data' => '',
+      'attrs' => [],
+      'style' => [],
+      'children' => [],
+    ];
+    // Remove empty values, keep only known variables and extract them.
+    $node = array_intersect_key(array_filter($node), $defaults) + $defaults;
+    extract($node);
+    if (!$attrs && !$data && !$children) {
+      return;
     }
-    $element = $domDocument->createElement($tag);
-    foreach ($node['attrs'] ?? [] as $key => $value) {
+    if ($tag === 'style' && $data) {
+      $children = [];
+      $data = ".$uniqueClass $data";
+    }
+    $element = $domDocument->createElement($node['tag']);
+    foreach ($attrs as $key => $value) {
       $element->setAttribute($key, $value);
     }
-    if ($styles = ($node['styles'] ?? [])) {
-      $element->setAttribute('style', implode(', ', $styles));
+    if ($style) {
+      $element->setAttribute('style', implode('; ', $style));
     }
-    if ($content) {
-      $element->nodeValue = $content;
+    if ($data) {
+      $element->nodeValue = $data;
     }
-    foreach ($node['children'] ?? [] as $child) {
+    foreach ($children as $child) {
       static::processNode($domDocument, $child, $element, $uniqueClass);
     }
     $parent->appendChild($element);
