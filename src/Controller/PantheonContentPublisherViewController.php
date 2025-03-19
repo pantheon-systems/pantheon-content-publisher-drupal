@@ -33,7 +33,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
     $document = PantheonContentPublisher::load(PantheonContentPublisherStorage::getEntityId($collection, $pantheon_id));
     if ($is_preview = $request->query->get('publishingLevel') === 'REALTIME') {
       $content['attrs']['id'] = 'pantheon-content-publisher-preview';
-      $document->get('content')->value = $content;
+      $document->get('content')->value = json_encode($content);
     }
     $page = $this->view($document);
     if ($is_preview) {

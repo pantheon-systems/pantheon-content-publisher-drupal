@@ -33,7 +33,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier((new Random)->string());
       $container->setAttribute('class', $uniqueClass);
 
-      $this->processNode($domDocument, $item->value, $container, $uniqueClass);
+      $this->processNode($domDocument, json_decode($item->value, TRUE), $container, $uniqueClass);
 
       $element[$delta] = [
         '#type' => 'inline_template',
