@@ -20,59 +20,54 @@ use Drupal\Core\Field\FormatterBase;
  */
 class PantheonTagsFormatter extends FormatterBase {
 
-  protected \DOMDocument $domDocument;
-
   /**
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $element = [];
     foreach ($items as $delta => $item) {
-      $this->domDocument = new \DOMDocument();
-      $container = $this->domDocument->createElement('div');
+      $domDocument = new \DOMDocument();
+      $container = $domDocument->createElement('div');
 
       // Generate a unique class name for scoping
       $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier((new Random)->string());
       $container->setAttribute('class', $uniqueClass);
 
-      $this->processNode($item->value, $container, $uniqueClass);
+      $this->processNode($domDocument, $item->value, $container, $uniqueClass);
 
       $element[$delta] = [
         '#type' => 'inline_template',
         '#template' => '{{ value | raw }}',
-        '#context' => ['value' => $this->domDocument->saveHTML($container)],
+        '#context' => ['value' => $domDocument->saveHTML($container)],
       ];
     }
     return $element;
   }
 
-  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass): void {
-    $tag = $node['tag'] ?? 'div';
-    $data = $node['data'] ?? '';
-    $style = $node['style'] ?? [];
-    $children = $node['children'] ?? [];
-    $attrs = $node['attrs'] ?? [];
+  protected static function processNode(\DOMDocument $domDocument, array $node_data, \DOMElement $parent, string $uniqueClass): void {
+    $tag = $node_data['tag'] ?? 'div';
+    $content = $node_data['data'] ?? '';
+    $children = $node_data['children'] ?? [];
 
-    if (!$children && !$data) {
+    if (!$children && !$content) {
       return;
     }
 
-    // Scope styles if the tag is 'style'
-    if ($tag === 'style' && $data) {
-      $element = $this->createElement($tag, $attrs, $style, ".$uniqueClass $data");
+    if ($tag === 'style' && $content) {
+      $element = static::createElement($domDocument, $tag, $node_data['attrs'], $node_data['style'], ".$uniqueClass $content");
       $parent->appendChild($element);
       return;
     }
-    $element = $this->createElement($tag, $attrs, $style, $data);
+    $element = static::createElement($domDocument, $tag, $node_data['attrs'], $node_data['style'], $content);
     foreach ($children as $child) {
-      $this->processNode($child, $element, $uniqueClass);
+      static::processNode($domDocument, $child, $element, $uniqueClass);
     }
     $parent->appendChild($element);
   }
 
-  protected function createElement(string $tag, array $attrs, array $styles, string $content): \DOMElement {
-    $element = $this->domDocument->createElement($tag);
-    foreach ($attrs as $key => $value) {
+  protected static function createElement(\DOMDocument $domDocument, string $tag, ?array $attrs, ?array $styles, string $content): \DOMElement {
+    $element = $domDocument->createElement($tag);
+    foreach ((array) $attrs as $key => $value) {
       $element->setAttribute($key, $value);
     }
     if ($styles) {
