@@ -15,6 +15,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
+use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -73,13 +74,7 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
   }
 
   protected function has($id, EntityInterface $entity) {
-    try {
-      $entity->bundle()->getGraphl()->metadata();
-      return TRUE;
-    }
-    catch (\Exception $e) {
-      return FALSE;
-    }
+    return !$entity->isNew();
   }
 
   public function countFieldData($storage_definition, $as_bool = FALSE) {

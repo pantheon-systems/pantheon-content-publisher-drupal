@@ -72,7 +72,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $this->assertCount(1, $indexes);
     $index = reset($indexes);
     $this->assertSame($this->bundle, $index->id());
-    $this->assertSame(['abooleanmeta', 'adatemeta', 'alistmeta', 'atextareameta', 'atextmeta'], array_keys($index->getFields()));
+    $this->assertSame(['abooleanmeta', 'adatemeta', 'alistmeta', 'atextareameta', 'atextmeta', 'content'], array_keys($index->getFields()));
     $this->assertSame(1, $index->getTrackerInstance()->getTotalItemsCount());
     $this->assertSame(0, $index->getTrackerInstance()->getRemainingItemsCount());
     $this->assertSame('textarea test contents', $this->getSearchAPIvalue('atextareameta'));
@@ -80,7 +80,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     // Notify the system the value has been updated.
     $webhook = $this->container->get('controller_resolver')->getControllerFromDefinition(PantheonContentPublisherController::class . '::webhook');
     $content = [
-      'event' => 'article.publish',
+      'event' => 'article.update',
       'payload' => ['articleId' => self::ARTICLEID],
     ];
     $request = Request::create('/webhook', content: json_encode($content));
