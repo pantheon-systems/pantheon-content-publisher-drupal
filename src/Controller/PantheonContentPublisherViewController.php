@@ -41,6 +41,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
       $page['#attached']['drupalSettings']['pantheon_content_publisher']['site_id'] = $collection->id();
       $page['#attached']['http_header'][] = [self::PREVIEW_HEADER_NAME, self::PREVIEW_HEADER_VALUE];
     }
+    $page['#cache']['contexts'][] = 'url.query_args:publishingLevel';
     return $page;
   }
 
