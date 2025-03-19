@@ -21,6 +21,17 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PantheonContentPublisherController extends ControllerBase {
 
+  /**
+   * HTTP response header name.
+   *
+   * PantheonContentPublisherXFrameSubscriber checks this header and if present
+   * with ::PREVIEW_HEADER_VALUE value then both this header and the
+   * X-Frame-Options header added by FinishResponseSubscriber is removed.
+   */
+  const PREVIEW_HEADER_NAME = 'X-Pantheon-Content-Publisher';
+
+  const PREVIEW_HEADER_VALUE = 'preview';
+
   protected PantheonContentPublisherStorageInterface $pantheonContentPublisherStorage;
 
   public function __construct(
@@ -57,7 +68,7 @@ class PantheonContentPublisherController extends ControllerBase {
       ],
     ];
     $response = $this->bareHtmlPageRenderer->renderBarePage([], 'Preview', 'markup', $build);
-    $response->headers->set('X-Pantheon-Content-Publisher', 'preview');
+    $response->headers->set(self::PREVIEW_HEADER_NAME, self::PREVIEW_HEADER_VALUE);
     return $response;
   }
 
