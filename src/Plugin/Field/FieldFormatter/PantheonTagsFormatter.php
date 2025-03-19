@@ -67,8 +67,7 @@ class PantheonTagsFormatter extends FormatterBase {
       'style' => [],
       'children' => [],
     ];
-    // This creates $tag, $data, $attrs, $style, $children.
-    extract(array_intersect_key(array_filter($node), $defaults) + $defaults);
+    ['tag' => $tag, 'data' => $data, 'attrs' => $attrs, 'style' => $style, 'children' => $children] = array_filter($node) + $defaults;
     if (!$attrs && !$data && !$children) {
       return;
     }
