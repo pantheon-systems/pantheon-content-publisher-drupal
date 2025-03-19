@@ -152,7 +152,9 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       $index->getDatasource($datasource)->getEntityTypeBundleInfo()->clearCachedBundles();
       $fields_helper = \Drupal::service('search_api.fields_helper');
       assert($fields_helper instanceof FieldsHelperInterface);
-      foreach ($fields ?? [] as $field) {
+      $base_fields = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('pantheon_content_publisher');
+      $fields[] = $base_fields['content'];
+      foreach ($fields as $field) {
         $storage = $field->getFieldStorageDefinition();
         $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
         $index->addField($fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName()));
