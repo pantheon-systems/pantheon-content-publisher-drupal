@@ -40,6 +40,7 @@ use Drupal\pantheon_content_publisher\PantheonContentPublisherInterface;
  *     "storage" = "Drupal\pantheon_content_publisher\PantheonContentPublisherStorage",
  *   },
  *   admin_permission = "administer pantheon_content_publisher types",
+ *   field_ui_base_route = "entity.pantheon_content_publisher_coll.edit_form",
  *   entity_keys = {
  *     "id" = "id",
  *     "bundle" = "collection",
@@ -79,11 +80,6 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
       ->setLabel(t('Label'))
       ->setRequired(TRUE)
       ->setSetting('max_length', 255)
-      ->setDisplayOptions('form', [
-        'type' => 'string_textfield',
-        'weight' => -5,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'string',
@@ -95,21 +91,8 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
       ->setLabel(t('Status'))
       ->setDefaultValue(TRUE)
       ->setSetting('on_label', 'Enabled')
-      ->setDisplayOptions('form', [
-        'type' => 'boolean_checkbox',
-        'settings' => [
-          'display_label' => FALSE,
-        ],
-        'weight' => 0,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [
-        'type' => 'boolean',
-        'label' => 'above',
-        'weight' => 0,
-        'settings' => [
-          'format' => 'enabled-disabled',
-        ],
+        'region' => 'hidden',
       ])
       ->setDisplayConfigurable('view', TRUE);
 
@@ -121,19 +104,19 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
         'type' => 'timestamp',
         'weight' => 20,
       ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('form', [
-        'type' => 'datetime_timestamp',
-        'weight' => 20,
-      ])
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the pantheon content publisher was last edited.'));
 
-    $fields['content'] = BaseFieldDefinition::create('text_long')
-      ->setLabel(t('Content'));
+    $fields['content'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Content'))
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'type' => 'pantheon_content_publisher_raw_formatter',
+        'weight' => 20,
+      ]);
 
     return $fields;
   }
