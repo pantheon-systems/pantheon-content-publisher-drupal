@@ -112,7 +112,7 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
       ->setLabel(t('Content'))
       ->setDisplayOptions('view', [
         'label' => 'hidden',
-        'type' => 'pantheon_content_publisher_raw_formatter',
+        'type' => 'pantheon_content_publisher_tags_formatter',
         'weight' => 20,
       ]);
 
