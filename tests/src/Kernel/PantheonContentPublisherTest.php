@@ -136,8 +136,14 @@ class PantheonContentPublisherTest extends KernelTestBase {
   }
 
   public function testListBuilder() {
-    $build = $this->container->get('entity_type.manager')->getListBuilder('pantheon_content_publisher')->render();
-    $html = (string) $this->container->get('renderer')->renderInIsolation($build);
+    // The core list builder uses entity query. If it gets overridden for
+    // pagination purposes then a separate entity query test needs to be
+    // added but until then, for basic functionality this test is enough.
+    $build = $this->container->get('entity_type.manager')
+      ->getListBuilder('pantheon_content_publisher')
+      ->render();
+    $html = (string) $this->container->get('renderer')
+      ->renderInIsolation($build);
     $entity_id = PantheonContentPublisherStorage::getEntityId($this->bundle, self::ARTICLEID);
     $this->assertStringContainsString(sprintf('<td><a href="/pantheon-content-publisher/%s" hreflang="und">test title</a></td>', $entity_id), $html);
   }

@@ -37,9 +37,17 @@ pantheon_content_publisher.webhook:
   requirements:
     _access: 'TRUE'
 
-pantheon_content_publisher.preview:
+pantheon_content_publisher.status:
+  path: '/api/pantheoncloud/status'
+  defaults:
+    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController::status'
+  requirements:
+    _access: 'TRUE'
+
+
+pantheon_content_publisher.view:
   path: '/api/pantheoncloud/document/{pantheon_id}'
   defaults:
-    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController::preview'
+    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherViewController::pantheonView'
   requirements:
     _access: 'TRUE'

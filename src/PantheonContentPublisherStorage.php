@@ -104,6 +104,21 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
     // Nothing to do.
   }
 
+  /**
+   * Return an entity id.
+   *
+   * Drupal wants a single id for entities however Pantheon needs a collection
+   * and an article id so this method concatenates the two to create a single
+   * Drupal entity id.
+   *
+   * @param string|\Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface $collection
+   *   Either the collection name or the collection config entity.
+   * @param string $pantheon_id
+   *   The article id in Pantheon.
+   *
+   * @return string
+   *   The Drupal entity id.
+   */
   public static function getEntityId(string|PantheonContentPublisherCollInterface $collection, string $pantheon_id): string {
     return
       ($collection instanceof PantheonContentPublisherCollInterface ? $collection->id() : $collection) .

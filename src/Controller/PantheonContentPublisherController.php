@@ -6,14 +6,13 @@ namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Render\BareHtmlPageRendererInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorageInterface;
 use Drupal\search_api\Entity\Index;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -21,22 +20,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PantheonContentPublisherController extends ControllerBase {
 
-  /**
-   * HTTP response header name.
-   *
-   * PantheonContentPublisherXFrameSubscriber checks this header and if present
-   * with ::PREVIEW_HEADER_VALUE value then both this header and the
-   * X-Frame-Options header added by FinishResponseSubscriber is removed.
-   */
-  const PREVIEW_HEADER_NAME = 'X-Pantheon-Content-Publisher';
-
-  const PREVIEW_HEADER_VALUE = 'preview';
-
   protected PantheonContentPublisherStorageInterface $pantheonContentPublisherStorage;
 
   public function __construct(
-    protected RequestStack $requestStack,
-    protected BareHtmlPageRendererInterface $bareHtmlPageRenderer,
     EntityTypeManagerInterface $entityTypeManager
   ) {
     $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_content_publisher');
@@ -53,23 +39,8 @@ class PantheonContentPublisherController extends ControllerBase {
     return new Response();
   }
 
-  public function preview($pantheon_id): Response {
-    $collections = PantheonContentPublisherColl::loadMultiple();
-    $collection = reset($collections);
-    $build = [
-      '#markup' => '<div id="pantheon-content-publisher-preview"></div>',
-      '#attached' => [
-        'library' => ['pantheon_content_publisher/drupal.pantheon_content_publisher.preview'],
-        'drupalSettings' => [
-          'pantheon_content_publisher' => [
-            'site_id' => $collection->id(),
-          ],
-        ],
-      ],
-    ];
-    $response = $this->bareHtmlPageRenderer->renderBarePage([], 'Preview', 'markup', $build);
-    $response->headers->set(self::PREVIEW_HEADER_NAME, self::PREVIEW_HEADER_VALUE);
-    return $response;
+  public function status(): JsonResponse {
+    return new JsonResponse();
   }
 
   /**

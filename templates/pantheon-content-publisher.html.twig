@@ -20,5 +20,6 @@
   {% endif %}
   {% if content %}
     {{- content -}}
+    {{- content.content|raw -}}
   {% endif %}
 </article>

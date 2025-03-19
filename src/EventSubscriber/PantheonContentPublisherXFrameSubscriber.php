@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher\EventSubscriber;
 
-use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController;
+use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherViewController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -24,11 +24,11 @@ final class PantheonContentPublisherXFrameSubscriber implements EventSubscriberI
    */
   public function onKernelResponse(ResponseEvent $event): void {
     $headers = $event->getResponse()->headers;
-    if ($headers->get(PantheonContentPublisherController::PREVIEW_HEADER_NAME) === PantheonContentPublisherController::PREVIEW_HEADER_VALUE) {
+    if ($headers->get(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME) === PantheonContentPublisherViewController::PREVIEW_HEADER_VALUE) {
       // This page is meant to be presented in an iframe.
       $headers->remove('X-Frame-Options');
       // This header was only used to signal this subscriber.
-      $headers->remove(PantheonContentPublisherController::PREVIEW_HEADER_NAME);
+      $headers->remove(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME);
     }
   }
 
