@@ -63,7 +63,7 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
         'content' => $pantheon_data['content'],
         'title' => $pantheon_data['title'],
       ];
-      $entities[$id] = PantheonContentPublisher::create($drupal_data)->enforceIsNew();
+      $entities[$id] = PantheonContentPublisher::create($drupal_data);
     }
     return $entities;
   }

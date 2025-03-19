@@ -6,6 +6,7 @@ namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
@@ -33,8 +34,14 @@ class PantheonContentPublisherController extends ControllerBase {
    */
   public function webhook(Request $request): Response {
     if ($decoded = @json_decode($request->getContent(), TRUE)) {
-      $collections = PantheonContentPublisherColl::loadMultiple();
-      $this->handleEvent(reset($collections), $decoded);
+      if (isset($decoded['siteId'])) {
+        $collection = PantheonContentPublisherColl::load($decoded['siteId']);
+      }
+      else {
+        $collections = PantheonContentPublisherColl::loadMultiple();
+        $collection = reset($collections);
+      }
+      $this->handleEvent($collection, $decoded);
     }
     return new Response();
   }
@@ -50,14 +57,18 @@ class PantheonContentPublisherController extends ControllerBase {
    *   The decoded webhook payload.
    */
   protected function handleEvent(PantheonContentPublisherCollInterface $collection, array $decoded): void {
-    switch ($decoded['event']) {
-      case 'article.publish':
-        $entity_id = PantheonContentPublisherStorage::getEntityId($collection->id(), $decoded['payload']['articleId']);
-        // The storage will blackhole the save but this will clear all caches
-        // and fire all relevant hooks.
-        $this->pantheonContentPublisherStorage->load($entity_id)->save();
-        Index::load($collection->id())->indexItems();
-        break;
+    $entity_id = PantheonContentPublisherStorage::getEntityId($collection->id(), $decoded['payload']['articleId']);
+    if ($decoded['event'] === 'article.unpublish') {
+      PantheonContentPublisher::create([
+        'collection' => $collection->id(),
+        'id' => $entity_id,
+      ])->delete();
+    }
+    else {
+      $document = $this->pantheonContentPublisherStorage->load($entity_id);
+      $document->enforceIsNew($decoded['event'] === 'article.publish');
+      $document->save();
+      Index::load($collection->id())->indexItems();
     }
   }
 
