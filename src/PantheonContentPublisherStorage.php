@@ -68,12 +68,18 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
     return $entities;
   }
 
-  protected function has($id, EntityInterface $entity) {
-    // TODO: Implement has() method.
-  }
-
   protected function getQueryServiceName() {
     return 'pantheon_content_publisher.query';
+  }
+
+  protected function has($id, EntityInterface $entity) {
+    try {
+      $entity->bundle()->getGraphl()->metadata();
+      return TRUE;
+    }
+    catch (\Exception $e) {
+      return FALSE;
+    }
   }
 
   public function countFieldData($storage_definition, $as_bool = FALSE) {

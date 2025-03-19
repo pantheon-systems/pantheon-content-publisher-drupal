@@ -53,9 +53,9 @@ class PantheonContentPublisherController extends ControllerBase {
     switch ($decoded['event']) {
       case 'article.publish':
         $entity_id = PantheonContentPublisherStorage::getEntityId($collection->id(), $decoded['payload']['articleId']);
-        $this->pantheonContentPublisherStorage->resetCache([$entity_id]);
-        $pantheon_content_publisher = $this->pantheonContentPublisherStorage->load($entity_id);
-        search_api_entity_update($pantheon_content_publisher);
+        // The storage will blackhole the save but this will clear all caches
+        // and fire all relevant hooks.
+        $this->pantheonContentPublisherStorage->load($entity_id)->save();
         Index::load($collection->id())->indexItems();
         break;
     }
