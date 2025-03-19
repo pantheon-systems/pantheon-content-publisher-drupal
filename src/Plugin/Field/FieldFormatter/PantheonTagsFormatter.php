@@ -47,9 +47,8 @@ class PantheonTagsFormatter extends FormatterBase {
   protected static function processNode(\DOMDocument $domDocument, array $node, \DOMElement $parent, string $uniqueClass): void {
     $tag = $node['tag'] ?? 'div';
     $content = $node['data'] ?? '';
-    $children = $node['children'] ?? [];
     if ($tag === 'style' && $content) {
-      $children = [];
+      $node['children'] = [];
       $content = ".$uniqueClass $content";
     }
     $element = $domDocument->createElement($tag);
@@ -62,7 +61,7 @@ class PantheonTagsFormatter extends FormatterBase {
     if ($content) {
       $element->nodeValue = $content;
     }
-    foreach ($children as $child) {
+    foreach ($node['children'] ?? [] as $child) {
       static::processNode($domDocument, $child, $element, $uniqueClass);
     }
     $parent->appendChild($element);
