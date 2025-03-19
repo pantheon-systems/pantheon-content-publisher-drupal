@@ -32,7 +32,10 @@ class PantheonContentPublisherViewController extends EntityViewController {
     $collection = reset($collections);
     $document = PantheonContentPublisher::load(PantheonContentPublisherStorage::getEntityId($collection, $pantheon_id));
     if ($is_preview = $request->query->get('publishingLevel') === 'REALTIME') {
-      $document->get('content')->value = '<div id="pantheon-content-publisher-preview"></div>';
+      $content['attrs']['id'] = 'pantheon-content-publisher-preview';
+      // This needs to be something otherwise the converter skips our tag.
+      $content['data'] = ' ';
+      $document->get('content')->value = $content;
     }
     $page = $this->view($document);
     if ($is_preview) {
