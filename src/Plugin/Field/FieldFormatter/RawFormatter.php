@@ -13,7 +13,7 @@ use Drupal\Core\Field\FormatterBase;
  * @FieldFormatter(
  *   id = "pantheon_content_publisher_raw_formatter",
  *   label = @Translation("Raw formatter"),
- *   field_types = {"string"},
+ *   field_types = {"string_long"},
  * )
  */
 class RawFormatter extends FormatterBase {

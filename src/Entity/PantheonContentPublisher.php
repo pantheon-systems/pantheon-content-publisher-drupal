@@ -100,9 +100,7 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
       ->setLabel(t('Authored on'))
       ->setDescription(t('The time that the pantheon content publisher was created.'))
       ->setDisplayOptions('view', [
-        'label' => 'above',
-        'type' => 'timestamp',
-        'weight' => 20,
+        'region' => 'hidden',
       ])
       ->setDisplayConfigurable('view', TRUE);
 
