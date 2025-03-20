@@ -34,8 +34,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
     if ($is_preview = $request->query->get('publishingLevel') === 'REALTIME') {
       // PantheonTagsFormatter turns this into
       // <div id="pantheon-content-publisher-preview"></div>
-      $content['attrs']['id'] = 'pantheon-content-publisher-preview';
-      $document->get('content')->value = json_encode($content);
+      $document->get('content')->value = '{"attrs":{"id":"pantheon-content-publisher-preview"}}';
     }
     $page = $this->view($document);
     if ($is_preview) {
