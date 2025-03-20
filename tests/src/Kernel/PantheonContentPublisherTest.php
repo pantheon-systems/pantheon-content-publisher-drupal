@@ -10,6 +10,8 @@ use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherControl
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 use Drupal\search_api\Entity\Index;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -19,7 +21,33 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PantheonContentPublisherTest extends KernelTestBase {
 
-  const ARTICLEID = '1_dRWJT4gJ05ZwtD6HyE1GdRxExL4FIAMkDIcIH8nlgM';
+  const ARTICLE_ID = '1_dRWJT4gJ05ZwtD6HyE1GdRxExL4FIAMkDIcIH8nlgM';
+
+  /**
+   * The key is a method name, the value is a GraphQL query string template.
+   *
+   * %s in the template stands for site id or article id, depending on the
+   * query type.
+   */
+  const QUERIES = [
+    'metadata' => '{site(id:"%s"){metadataFields}}',
+    'getArticle' => '{article(id:"%s"){title,content,metadata}}',
+    'getArticles' => '{articlesv3{articles{id,title,metadata}}}',
+    'getArticleIds' => '{articlesv3(pageSize:100){articles{id},pageInfo{nextCursor}}}',
+    'getPage1ArticleIds' => '{articlesv3(pageSize:100,cursor:"next cursor"){articles{id},pageInfo{nextCursor}}}',
+  ];
+
+  const QUERY_TYPES = [
+    'metadata' => 'site',
+    'getArticle' => 'article',
+  ];
+
+  /**
+   * Guzzle responses keyed by GraphQL queries.
+   *
+   * @var array
+   */
+  protected array $storage = [];
 
   /**
    * {@inheritdoc}
@@ -40,22 +68,25 @@ class PantheonContentPublisherTest extends KernelTestBase {
 
   protected PantheonContentPublisherCollInterface $collection;
 
+  protected array $keys;
+
   protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['search_api', 'system']);
     $this->installSchema('search_api', ['search_api_item']);
     $this->installEntitySchema('search_api_task');
-    $keyValue = $this->keyValue->get('pantheon_content_publisher_test');
-    $articleIds = $this->getArticleIds();
-    $keyValue->set('getArticleIds', $articleIds);
-    $articleIds['articles'] = [];
-    $keyValue->set('getArticleIds.next cursor', $articleIds);
-    $keyValue->set('metadata', $this->metadata());
-    $keyValue->set('getArticle', $this->getArticle());
-    $keyValue->set('getArticles', $this->getArticles());
+    $this->bundle = $this->randomMachineName();
+    foreach (array_keys(static::QUERIES) as $method) {
+      $this->setGuzzleResponse($method);
+    }
+    $mock = $this->getMockBuilder(Client::class)
+      ->disableOriginalConstructor()
+      ->onlyMethods(['post'])
+      ->getMock();
+    $mock->method('post')->willReturnCallback(fn ($uri, array $options) => new Response(200, [], json_encode($this->storage[json_decode($options['body'])->query])));
+    $this->container->set('http_client', $mock);
     // Create a collection, this also creates an index and puts all items
     // in it.
-    $this->bundle = $this->randomMachineName();
     $this->collection = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher_coll')->create([
       'id' => $this->bundle,
       'label' => $this->randomString(),
@@ -81,7 +112,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $webhook = $this->container->get('controller_resolver')->getControllerFromDefinition(PantheonContentPublisherController::class . '::webhook');
     $content = [
       'event' => 'article.update',
-      'payload' => ['articleId' => self::ARTICLEID],
+      'payload' => ['articleId' => self::ARTICLE_ID],
     ];
     $request = Request::create('/webhook', content: json_encode($content));
     $webhook($request);
@@ -101,9 +132,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $this->assertSame($storages['pantheon_content_publisher.atextmeta']->getType(), 'string');
     $this->assertSame($storages['pantheon_content_publisher.atextareameta']->getType(), 'string_long');
     // Remove Option b from the metadata.
-    $metadata = $this->metadata();
-    $metadata['A list meta']['options'] = array_diff($metadata['A list meta']['options'], ['Option b']);
-    $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $metadata);
+    $this->setGuzzleResponse('metadata', fn (&$metadata) => $metadata['metadataFields']['A list meta']['options'] = array_diff($metadata['metadataFields']['A list meta']['options'], ['Option b']));
     // Update the collection.
     $this->collection->save();
     // Verify the list field changed.
@@ -113,8 +142,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
       'Option c' => 'Option c'
     ]);
     // Remove the list field.
-    unset($metadata['A list meta']);
-    $this->keyValue->get('pantheon_content_publisher_test')->set('metadata', $metadata);
+    $this->setGuzzleResponse('metadata', fn (&$metadata) => $metadata['metadataFields'] = array_diff_key($metadata['metadataFields'], ['A list meta' => 'remove']));
     // Update the collection.
     $this->collection->save();
     // Verify it's gone.
@@ -124,7 +152,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
 
   public function testStorageDoLoadMultiple(): void {
     $storage = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher');
-    $entity_id = PantheonContentPublisherStorage::getEntityId($this->bundle, self::ARTICLEID);
+    $entity_id = PantheonContentPublisherStorage::getEntityId($this->bundle, self::ARTICLE_ID);
     $pantheonContentPublisher = $storage->load($entity_id);
     $this->assertSame('textarea test contents', $pantheonContentPublisher->atextareameta->value);
     $this->assertSame('test title', $pantheonContentPublisher->label());
@@ -144,12 +172,12 @@ class PantheonContentPublisherTest extends KernelTestBase {
       ->render();
     $html = (string) $this->container->get('renderer')
       ->renderInIsolation($build);
-    $entity_id = PantheonContentPublisherStorage::getEntityId($this->bundle, self::ARTICLEID);
+    $entity_id = PantheonContentPublisherStorage::getEntityId($this->bundle, self::ARTICLE_ID);
     $this->assertStringContainsString(sprintf('<td><a href="/pantheon-content-publisher/%s" hreflang="und">test title</a></td>', $entity_id), $html);
   }
 
   protected function metadata(): array {
-    return [
+    return ['metadataFields' => [
       'A boolean meta' => [
         'title' => 'A boolean meta',
         'type' => 'boolean',
@@ -179,13 +207,13 @@ class PantheonContentPublisherTest extends KernelTestBase {
         'title' => 'A textarea meta',
         'type' => 'textarea',
       ],
-    ];
+    ]];
   }
 
   public function getArticleIds(): array {
     return [
       'articles' => [
-        ['id' => self::ARTICLEID],
+        ['id' => self::ARTICLE_ID],
       ],
       "pageInfo" => [
         "totalCount" => 1,
@@ -194,37 +222,51 @@ class PantheonContentPublisherTest extends KernelTestBase {
     ];
   }
 
+  public function getPage1ArticleIds(): array {
+    $articleIds = $this->getArticleIds();
+    $articleIds['articles'] = [];
+    return $articleIds;
+  }
+
   public function getArticle() {
     return [
-      self::ARTICLEID => [
-        'metadata' => [
-          'A boolean meta' => TRUE,
-          'A date meta' => ['msSinceEpoch' => 1741385249172],
-          'A file meta' => 'https://cdn.prod.pcc.pantheon.io/pcc-prod-user-uploads/dfa6f309-537c-4ffe-bbdf-4a40a6e70a61',
-          'A list meta' => 'Option c',
-          'A text meta' => 'Plain text field test contents',
-          'A textarea meta' => 'textarea test contents',
-          'description' => 'A random description',
-        ],
-        'content' => 'test content',
-        'title' => 'test title',
+      'metadata' => [
+        'A boolean meta' => TRUE,
+        'A date meta' => ['msSinceEpoch' => 1741385249172],
+        'A file meta' => 'https://cdn.prod.pcc.pantheon.io/pcc-prod-user-uploads/dfa6f309-537c-4ffe-bbdf-4a40a6e70a61',
+        'A list meta' => 'Option c',
+        'A text meta' => 'Plain text field test contents',
+        'A textarea meta' => 'textarea test contents',
+        'description' => 'A random description',
       ],
+      'content' => 'test content',
+      'title' => 'test title',
     ];
   }
 
   public function getArticles() {
-    return [[
-      'id' => self::ARTICLEID
-    ] + $this->getArticle()[self::ARTICLEID]];
+    return ['articles' => [[
+      'id' => self::ARTICLE_ID
+    ] + $this->getArticle()]];
   }
 
   protected function updateArticleInPantheon(): string {
     $newValue = $this->randomString();
-    $article = $this->getArticle();
-    $article[self::ARTICLEID]['metadata']['A textarea meta'] = $newValue;
-    $this->keyValue->get('pantheon_content_publisher_test')
-      ->set('getArticle', $article);
+    $this->setGuzzleResponse('getArticle', fn (&$article) => $article['metadata']['A textarea meta'] = $newValue);
     return $newValue;
+  }
+
+  protected function setGuzzleResponse(string $method, ?callable $mutate = NULL): void {
+    $query = static::QUERIES[$method];
+    $type = static::QUERY_TYPES[$method] ?? 'articlesv3';
+    if (str_contains($query, '%')) {
+      $query = sprintf($query, $type === 'site' ? $this->bundle : static::ARTICLE_ID);
+    }
+    $data = $this->$method();
+    if ($mutate) {
+      $mutate($data);
+    }
+    $this->storage[$query] = ['data' => [$type => $data]];
   }
 
   protected function runBatch(): void {
