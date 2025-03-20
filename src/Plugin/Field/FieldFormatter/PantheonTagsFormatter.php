@@ -75,15 +75,12 @@ class PantheonTagsFormatter extends FormatterBase {
       $children = [];
       $data = ".$uniqueClass $data";
     }
-    $element = $domDocument->createElement($tag);
+    $element = $domDocument->createElement($tag, $data);
     foreach ($attrs as $key => $value) {
       $element->setAttribute($key, $value);
     }
     if ($style) {
       $element->setAttribute('style', implode('; ', $style));
-    }
-    if ($data) {
-      $element->nodeValue = $data;
     }
     foreach ($children as $child) {
       static::processNode($domDocument, $child, $element, $uniqueClass);
