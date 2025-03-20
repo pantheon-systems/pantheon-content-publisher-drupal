@@ -27,7 +27,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
    * The key is a method name, the value is a GraphQL query string template.
    *
    * %s in the template stands for site id or article id, depending on the
-   * query type.
+   * query type stored in ::QUERY_TYPES.
    */
   const QUERIES = [
     'metadata' => '{site(id:"%s"){metadataFields}}',
@@ -37,6 +37,9 @@ class PantheonContentPublisherTest extends KernelTestBase {
     'getPage1ArticleIds' => '{articlesv3(pageSize:100,cursor:"next cursor"){articles{id},pageInfo{nextCursor}}}',
   ];
 
+  /**
+   * The query type, defaults to articlesv3.
+   */
   const QUERY_TYPES = [
     'metadata' => 'site',
     'getArticle' => 'article',
@@ -83,7 +86,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
       ->disableOriginalConstructor()
       ->onlyMethods(['post'])
       ->getMock();
-    $mock->method('post')->willReturnCallback(fn ($uri, array $options) => new Response(200, [], json_encode($this->storage[json_decode($options['body'])->query])));
+    $mock->method('post')->willReturnCallback(fn ($uri, array $options) => new Response(200, [], $this->storage[json_decode($options['body'])->query]));
     $this->container->set('http_client', $mock);
     // Create a collection, this also creates an index and puts all items
     // in it.
@@ -98,7 +101,10 @@ class PantheonContentPublisherTest extends KernelTestBase {
   }
 
   public function testSearchAPIIndex() {
-    $this->runBatch();
+    // Creating the collection created a batch, let's run it.
+    $batch = &batch_get();
+    $batch['progressive'] = FALSE;
+    batch_process();
     $indexes = Index::loadMultiple();
     $this->assertCount(1, $indexes);
     $index = reset($indexes);
@@ -210,7 +216,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     ]];
   }
 
-  public function getArticleIds(): array {
+  protected function getArticleIds(): array {
     return [
       'articles' => [
         ['id' => self::ARTICLE_ID],
@@ -222,13 +228,13 @@ class PantheonContentPublisherTest extends KernelTestBase {
     ];
   }
 
-  public function getPage1ArticleIds(): array {
+  protected function getPage1ArticleIds(): array {
     $articleIds = $this->getArticleIds();
     $articleIds['articles'] = [];
     return $articleIds;
   }
 
-  public function getArticle() {
+  protected function getArticle() {
     return [
       'metadata' => [
         'A boolean meta' => TRUE,
@@ -244,7 +250,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     ];
   }
 
-  public function getArticles() {
+  protected function getArticles() {
     return ['articles' => [[
       'id' => self::ARTICLE_ID
     ] + $this->getArticle()]];
@@ -256,6 +262,16 @@ class PantheonContentPublisherTest extends KernelTestBase {
     return $newValue;
   }
 
+  /**
+   * Sets a Guzzle response.
+   *
+   * @param string $method
+   *   The method on this class. The return value of this method will be
+   *   stored as the Guzzle response.
+   * @param callable|null $mutate
+   *   An optional callback to mutate the data retrieved from the method
+   *   before storage.
+   */
   protected function setGuzzleResponse(string $method, ?callable $mutate = NULL): void {
     $query = static::QUERIES[$method];
     $type = static::QUERY_TYPES[$method] ?? 'articlesv3';
@@ -266,15 +282,21 @@ class PantheonContentPublisherTest extends KernelTestBase {
     if ($mutate) {
       $mutate($data);
     }
-    $this->storage[$query] = ['data' => [$type => $data]];
+    $this->storage[$query] = json_encode(['data' => [$type => $data]]);
   }
 
-  protected function runBatch(): void {
-    $batch = &batch_get();
-    $batch['progressive'] = FALSE;
-    batch_process();
-  }
-
+  /**
+   * Retrieve the value Search API stores for a given field.
+   *
+   * This is a very stupid helper, only usable if there is only one document
+   * in search API.
+   *
+   * @param string $field
+   *   Name of the field.
+   *
+   * @return string
+   *   The search API stored value.
+   */
   public function getSearchAPIvalue(string $field): string {
     return $this->container->get('database')
       ->select(sprintf("search_api_db_%s_%s", $this->bundle, $field), 's')
