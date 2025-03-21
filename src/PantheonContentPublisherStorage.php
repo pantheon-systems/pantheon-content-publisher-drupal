@@ -64,7 +64,13 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
         'content' => $pantheon_data['content'],
         'title' => $pantheon_data['title'],
       ];
-      $entities[$id] = PantheonContentPublisher::create($drupal_data);
+      // Our main concerns are
+      // 1) search API and search_api_entity_update() contains the entirety
+      // of search_api_entity_insert()
+      // 2) cache clearing, update surely clears at least as much as insert
+      // does.
+      // So it's better to pretend this is an existing entity.
+      $entities[$id] = PantheonContentPublisher::create($drupal_data)->enforceIsNew(FALSE);
     }
     return $entities;
   }
@@ -74,7 +80,9 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
   }
 
   protected function has($id, EntityInterface $entity) {
-    return !$entity->isNew();
+    // As per the comments in ::doLoadMultiple() it's better to pretend it's
+    // always an update.
+    return TRUE;
   }
 
   public function countFieldData($storage_definition, $as_bool = FALSE) {

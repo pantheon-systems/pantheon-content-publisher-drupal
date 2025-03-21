@@ -65,9 +65,7 @@ class PantheonContentPublisherController extends ControllerBase {
       ])->delete();
     }
     else {
-      $document = $this->pantheonContentPublisherStorage->load($entity_id);
-      $document->enforceIsNew($decoded['event'] === 'article.publish');
-      $document->save();
+      $this->pantheonContentPublisherStorage->load($entity_id)->save();
       Index::load($collection->id())->indexItems();
     }
   }
