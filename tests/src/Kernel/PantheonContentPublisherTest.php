@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController;
@@ -126,6 +127,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
   }
 
   public function testCollectionUpdate(): void {
+    // Setup created a collection, let's check it's correct.
     $storages = FieldStorageConfig::loadMultiple();
     $this->assertSame($storages['pantheon_content_publisher.abooleanmeta']->getType(), 'boolean');
     $this->assertSame($storages['pantheon_content_publisher.adatemeta']->getType(), 'timestamp');
@@ -138,7 +140,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
     $this->assertSame($storages['pantheon_content_publisher.atextmeta']->getType(), 'string');
     $this->assertSame($storages['pantheon_content_publisher.atextareameta']->getType(), 'string_long');
     // Remove Option b from the metadata.
-    $this->setGuzzleResponse('metadata', fn (&$metadata) => $metadata['metadataFields']['A list meta']['options'] = array_diff($metadata['metadataFields']['A list meta']['options'], ['Option b']));
+    $this->setGuzzleResponse('metadata', ['metadataFields', 'A list meta', 'options', 1]);
     // Update the collection.
     $this->collection->save();
     // Verify the list field changed.
@@ -148,7 +150,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
       'Option c' => 'Option c'
     ]);
     // Remove the list field.
-    $this->setGuzzleResponse('metadata', fn (&$metadata) => $metadata['metadataFields'] = array_diff_key($metadata['metadataFields'], ['A list meta' => 'remove']));
+    $this->setGuzzleResponse('metadata', ['metadataFields', 'A list meta']);
     // Update the collection.
     $this->collection->save();
     // Verify it's gone.
@@ -258,7 +260,7 @@ class PantheonContentPublisherTest extends KernelTestBase {
 
   protected function updateArticleInPantheon(): string {
     $newValue = $this->randomString();
-    $this->setGuzzleResponse('getArticle', fn (&$article) => $article['metadata']['A textarea meta'] = $newValue);
+    $this->setGuzzleResponse('getArticle', ['metadata', 'A textarea meta'], $newValue);
     return $newValue;
   }
 
@@ -266,21 +268,30 @@ class PantheonContentPublisherTest extends KernelTestBase {
    * Sets a Guzzle response.
    *
    * @param string $method
-   *   The method on this class. The return value of this method will be
-   *   stored as the Guzzle response.
-   * @param callable|null $mutate
-   *   An optional callback to mutate the data retrieved from the method
-   *   before storage.
+   *   The method on this class, the only valid values are the keys of
+   *   the ::QUERIES constant. The return value of this method will be
+   *   stored as the Guzzle response. This value might be changed depending
+   *   on $parents and $newValue before storing.
+   * @param array $parents
+   *   The parents to be passed to a NestedArray method.
+   * @param string $newValue
+   *   When empty then unset the element specified by parents, when not empty
+   *   then set the the element specified by parents to this value.
    */
-  protected function setGuzzleResponse(string $method, ?callable $mutate = NULL): void {
+  protected function setGuzzleResponse(string $method, array $parents = [], string $newValue = ''): void {
     $query = static::QUERIES[$method];
     $type = static::QUERY_TYPES[$method] ?? 'articlesv3';
     if (str_contains($query, '%')) {
       $query = sprintf($query, $type === 'site' ? $this->bundle : static::ARTICLE_ID);
     }
     $data = $this->$method();
-    if ($mutate) {
-      $mutate($data);
+    if ($parents) {
+      if ($newValue) {
+        NestedArray::setValue($data, $parents, $newValue);
+      }
+      else {
+        NestedArray::unsetValue($data, $parents);
+      }
     }
     $this->storage[$query] = json_encode(['data' => [$type => $data]]);
   }
