@@ -268,10 +268,11 @@ class PantheonContentPublisherTest extends KernelTestBase {
    * Sets a Guzzle response.
    *
    * @param string $method
-   *   The method on this class, the only valid values are the keys of
-   *   the ::QUERIES constant. The return value of this method will be
-   *   stored as the Guzzle response. This value might be changed depending
-   *   on $parents and $newValue before storing.
+   *   The method on this class, the only valid methods are the keys of
+   *   the ::QUERIES constant. The return value of this method -- optionally
+   *   changed as dictated by $parents and $newValue -- is stored as the Guzzle
+   *   response to the query specified in the ::QUERIES constant
+   *   for this method.
    * @param array $parents
    *   The parents to be passed to a NestedArray method.
    * @param string $newValue
