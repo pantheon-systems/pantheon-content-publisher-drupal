@@ -28,6 +28,9 @@ class PantheonTagsFormatter extends FormatterBase {
     $element = [];
     $items->getEntity()->_image_data = [];
     foreach ($items as $delta => $item) {
+      if (!$item->value || (!$node = @json_decode($item->value, TRUE))) {
+        continue;
+      }
       $domDocument = new \DOMDocument();
       $container = $domDocument->createElement('div');
 
@@ -35,7 +38,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier((new Random)->string(16));
       $container->setAttribute('class', $uniqueClass);
 
-      static::processNode($domDocument, json_decode($item->value, TRUE), $container, $uniqueClass, $items->getEntity()->_image_data);
+      static::processNode($domDocument, $node, $container, $uniqueClass, $items->getEntity()->_image_data);
 
       $element[$delta] = [
         '#type' => 'inline_template',
