@@ -78,7 +78,7 @@ class PantheonContentPublisherController extends ControllerBase {
     }
   }
 
-  protected function handleImage(PantheonContentPublisherInterface $document) {
+  protected function handleImages(PantheonContentPublisherInterface $document) {
     $document->get('content')->view(['type' => 'pantheon_content_publisher_tags_formatter']);
     // The formatter collects the attributes of image tags in _image_data
     // keyed by the source of the image.

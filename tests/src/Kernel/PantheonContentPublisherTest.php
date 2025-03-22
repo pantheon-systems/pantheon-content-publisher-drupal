@@ -64,6 +64,9 @@ class PantheonContentPublisherTest extends KernelTestBase {
    */
   protected static $modules = [
     'system',
+    'media',
+    'file',
+    'image',
     'field',
     'options',
     'text',
@@ -72,12 +75,16 @@ class PantheonContentPublisherTest extends KernelTestBase {
     'search_api',
     'search_api_db',
     'search_api_db_defaults',
+    'user',
   ];
 
   protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['search_api', 'system']);
     $this->installSchema('search_api', ['search_api_item']);
+    $this->installEntitySchema('file');
+    $this->installEntitySchema('media');
+    $this->installEntitySchema('user');
     $this->installEntitySchema('search_api_task');
     // Create a collection, this also creates a search API index and puts all
     // items in it. Do not save it yet, though because saving triggers GraphQL
