@@ -6,6 +6,7 @@ namespace Drupal\pantheon_content_publisher\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\FieldConfigInterface;
@@ -99,6 +100,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
     $field_ids = \Drupal::entityQuery('field_config')
       ->condition('entity_type', 'pantheon_content_publisher')
       ->condition('bundle', $this->id())
+      ->condition('id', 'media', '<>')
       ->execute();
     // Do this in a single transaction for speed and consistency.
     $txn = \Drupal::database()->startTransaction();
@@ -139,6 +141,16 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       }
     }
     if (!$update) {
+      $settings['handler_settings']['target_bundles'] = 'image';
+      $media_field = $this->createNewDrupalField('media', 'entity_reference', $settings);
+      $media_field_storage = $media_field->getFieldStorageDefinition();
+      $media_field_storage->setSetting('target_type', 'media');
+      $media_field_storage->save();
+      $media_field->save();
+      $fs = \Drupal::service('file_system');
+      assert($fs instanceof FileSystemInterface);
+      $directory = 'public://pantheon_content_publisher/' . $this->id();
+      $fs->prepareDirectory($directory, FileSystemInterface:: CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
       $datasource = 'entity:pantheon_content_publisher';
       $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
       $index = Index::create([
@@ -187,13 +199,13 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
    *   The field name.
    * @param string $type
    *   The field type.
-   * @param string $pantheon_field
-   *   Name of the field in the Pantheon metadata.
+   * @param array $field_settings
+   *   Additional field settings.
    *
    * @return \Drupal\field\FieldConfigInterface
    *   The field config object.
    */
-  protected function createNewDrupalField(string $drupal_field_name, string $type): FieldConfigInterface {
+  protected function createNewDrupalField(string $drupal_field_name, string $type, $field_settings = []): FieldConfigInterface {
     if (!$field_storage = FieldStorageConfig::loadByName('pantheon_content_publisher', $drupal_field_name)) {
       $field_storage = FieldStorageConfig::create([
         'type' => $type,
@@ -207,13 +219,16 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
         $field_storage->setSetting('allowed_values_function', static::class . '::getPantheonListOptions');
       }
     }
-    $field = FieldConfig::create([
+    $data = [
       'field_name' => $drupal_field_name,
       'entity_type' => 'pantheon_content_publisher',
       'bundle' => $this->id(),
       'field_storage' => $field_storage,
-    ]);
-    return $field;
+    ];
+    if ($field_settings) {
+      $data['settings'] = $field_settings;
+    }
+    return FieldConfig::create($data);
   }
 
   /**

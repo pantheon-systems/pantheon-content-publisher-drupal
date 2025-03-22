@@ -15,7 +15,6 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

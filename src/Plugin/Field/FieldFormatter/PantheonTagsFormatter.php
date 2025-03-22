@@ -26,6 +26,7 @@ class PantheonTagsFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $element = [];
+    $items->getEntity()->_image_data = [];
     foreach ($items as $delta => $item) {
       $domDocument = new \DOMDocument();
       $container = $domDocument->createElement('div');
@@ -34,7 +35,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier((new Random)->string(16));
       $container->setAttribute('class', $uniqueClass);
 
-      static::processNode($domDocument, json_decode($item->value, TRUE), $container, $uniqueClass);
+      static::processNode($domDocument, json_decode($item->value, TRUE), $container, $uniqueClass, $items->getEntity()->_image_data);
 
       $element[$delta] = [
         '#type' => 'inline_template',
@@ -42,6 +43,7 @@ class PantheonTagsFormatter extends FormatterBase {
         '#context' => ['value' => $domDocument->saveHTML($container)],
       ];
     }
+
     return $element;
   }
 
@@ -56,10 +58,12 @@ class PantheonTagsFormatter extends FormatterBase {
    *   The parent DOM element.
    * @param string $uniqueClass
    *   The unique class used for CSS scoping.
+   * @param array $image_data
+   *   Image tag information is collected in this array.
    *
    * @throws \DOMException
    */
-  protected static function processNode(\DOMDocument $domDocument, array $node, \DOMElement $parent, string $uniqueClass): void {
+  protected static function processNode(\DOMDocument $domDocument, array $node, \DOMElement $parent, string $uniqueClass, array &$image_data): void {
     $defaults = [
       'tag' => 'div',
       'data' => '',
@@ -75,6 +79,9 @@ class PantheonTagsFormatter extends FormatterBase {
       $children = [];
       $data = ".$uniqueClass $data";
     }
+    if ($tag === 'img') {
+      $image_data[$attrs['src']] = $attrs;
+    }
     $element = $domDocument->createElement($tag, $data);
     foreach ($attrs as $key => $value) {
       $element->setAttribute($key, $value);
@@ -83,7 +90,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $element->setAttribute('style', implode('; ', $style));
     }
     foreach ($children as $child) {
-      static::processNode($domDocument, $child, $element, $uniqueClass);
+      static::processNode($domDocument, $child, $element, $uniqueClass, $image_data);
     }
     $parent->appendChild($element);
   }
