@@ -11,6 +11,7 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
+use Drupal\media\Entity\Media;
 use Drupal\pantheon_content_publisher\GraphQL;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherConverter;
@@ -141,11 +142,13 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       }
     }
     if (!$update) {
-      $storage_settings['target_type'] = 'media';
-      $field_settings['handler_settings']['target_bundles']['image'] = 'image';
-      $media_field = $this->createNewDrupalField('media', 'entity_reference', $storage_settings, $field_settings);
-      $media_field->getFieldStorageDefinition()->save();
-      $media_field->save();
+      if (\Drupal::moduleHandler()->moduleExists('media'))  {
+        $storage_settings['target_type'] = 'media';
+        $field_settings['handler_settings']['target_bundles']['image'] = 'image';
+        $media_field = $this->createNewDrupalField('media', 'entity_reference', $storage_settings, $field_settings);
+        $media_field->getFieldStorageDefinition()->save();
+        $media_field->save();
+      }
       $fs = \Drupal::service('file_system');
       assert($fs instanceof FileSystemInterface);
       $directory = 'public://pantheon_content_publisher/' . $this->id();

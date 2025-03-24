@@ -74,42 +74,12 @@ class PantheonContentPublisherController extends ControllerBase {
       $document = $this->pantheonContentPublisherStorage->load($entity_id);
       $document->save();
       Index::load($collection->id())->indexItems();
-      $this->handleImages($document, $decoded);
+      $document->get('content')->view(['type' => 'pantheon_content_publisher_tags_formatter']);
+      if ($document->_image_data) {
+        \Drupal::queue('pantheon_content_publisher_images')->createItem([$collection->id(), $document->_image_data]);
+      }
     }
   }
 
-  protected function handleImages(PantheonContentPublisherInterface $document) {
-    $document->get('content')->view(['type' => 'pantheon_content_publisher_tags_formatter']);
-    // The formatter collects the attributes of image tags in _image_data
-    // keyed by the source of the image.
-    if (!$pantheon_files = $document->_image_data) {
-      return;
-    }
-    $fids = \Drupal::entityQuery('file')
-      ->condition('uri', array_keys($pantheon_files), 'IN')
-      ->execute();
-    $uris = array_flip(array_map(fn (FileInterface $file) => $file->getUri(), File::loadMultiple($fids)));
-    $pantheon_files = array_diff_key($pantheon_files, $uris);
-    $fs = \Drupal::service('file_system');
-    assert($fs instanceof FileSystemInterface);
-    $directory = 'public://pantheon_content_publisher/' . $document->bundle();
-    foreach ($pantheon_files as $uri => $image) {
-      $filename = basename($uri);
-      $destination = $fs->getDestinationFilename("$directory/$filename", FileExists::Rename);
-      $destination_stream = @fopen($destination, 'w');
-      \Drupal::httpClient()->get($uri, ['sink' => $destination_stream]);
-      $file = File::create(['uri' => $destination]);
-      $file->setPermanent();
-      $file->save();
-      $media = Media::create([
-        'bundle' => 'image',
-        'name' => $file->getFilename(),
-        'field_media_image' => [
-            'target_id' => $file->id(),
-          ] + $image,
-      ]);
-      $media->save();
-    }
-  }
 
 }
