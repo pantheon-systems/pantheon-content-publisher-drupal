@@ -108,12 +108,14 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
    * @return string
    *   The new value of the field.
    */
-  protected function updateArticleInPantheon(array $parents = ['metadata', 'A textarea meta'], string $newValue = ''): string {
+  protected function updateArticleInPantheon(array $parents = ['metadata', 'A textarea meta'], string $newValue = '', bool $triggerWebhook = TRUE): string {
     if (!$newValue) {
       $newValue = $this->randomString();
     }
     $this->setGuzzleResponse('getArticle', fn (&$article) => NestedArray::setValue($article, $parents, $newValue));
-    $this->executeWebhook();;
+    if ($triggerWebhook) {
+      $this->executeWebhook();;
+    }
     return $newValue;
   }
 

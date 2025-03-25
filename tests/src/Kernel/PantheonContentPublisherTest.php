@@ -8,6 +8,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 use Drupal\search_api\Entity\Index;
+use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -75,7 +76,6 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
     $this->assertSame('textarea test contents', $pantheonContentPublisher->atextareameta->value);
     $this->assertSame('test title', $pantheonContentPublisher->label());
     $this->assertSame(sprintf('<a href="/pantheon-content-publisher/%s" hreflang="und">test title</a>', $entity_id), $pantheonContentPublisher->toLink()->toString()->getGeneratedLink());
-    // Update article in Pantheon
     $newValue = $this->updateArticleInPantheon();
     $pantheonContentPublisher = $storage->load($entity_id);
     $this->assertSame($newValue, $pantheonContentPublisher->atextareameta->value);
@@ -96,16 +96,24 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
 
   public function testContentFormatter() {
     $content_base = '{"tag":"img","attrs":{"alt": "alt text","src":"https:\/\/foo\/bar.jpg"}}';
-    foreach (['bar' => $content_base, 'bar1' => str_replace('bar.jpg', 'bar1.jpg', $content_base)] as $name => $content) {
-      $this->updateArticleInPantheon(['content'], $content);
-      $entity_id = PantheonContentPublisherStorage::getEntityId($this->collection->id(), self::ARTICLE_ID);
-      $document = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher')->load($entity_id);
-      $this->assertSame($content, $document->get('content')->value);
-      $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
-      $response = $this->container->get('kernel')->handle($request);
-      $url = "https://foo/$name.jpg";
-      $this->assertSame($document->_image_data, [$url => ['alt' => 'alt text', 'src' => $url]]);
-      $this->assertStringContainsString('<img alt="alt text" src="' . $url . '">', $response->getContent());
+    foreach ([TRUE, FALSE] as $trigger_webhook) {
+      foreach (['bar' => $content_base, 'bar1' => str_replace('bar.jpg', 'bar1.jpg', $content_base)] as $name => $content) {
+        $this->updateArticleInPantheon(['content'], $content, $trigger_webhook);
+        $entity_id = PantheonContentPublisherStorage::getEntityId($this->collection->id(), self::ARTICLE_ID);
+        $document = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher')->load($entity_id);
+        if (!$trigger_webhook) {
+          $this->expectException(ExpectationFailedException::class);
+        }
+        $this->assertSame($content, $document->get('content')->value);
+        $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
+        $response = $this->container->get('kernel')->handle($request);
+        $url = "https://foo/$name.jpg";
+        $this->assertSame($document->_image_data, [$url => ['alt' => 'alt text', 'src' => $url]]);
+        if (!$trigger_webhook) {
+          $this->expectException(ExpectationFailedException::class);
+        }
+        $this->assertStringContainsString('<img alt="alt text" src="' . $url . '">', $response->getContent());
+      }
     }
   }
 
