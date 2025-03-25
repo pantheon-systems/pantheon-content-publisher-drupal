@@ -8,6 +8,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
 use Drupal\search_api\Entity\Index;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test description.
@@ -100,10 +101,11 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
       $entity_id = PantheonContentPublisherStorage::getEntityId($this->collection->id(), self::ARTICLE_ID);
       $document = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher')->load($entity_id);
       $this->assertSame($content, $document->get('content')->value);
-      $view = $document->get('content')->view(['type' => 'pantheon_content_publisher_tags_formatter']);
+      $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
+      $response = $this->container->get('kernel')->handle($request);
       $url = "https://foo/$name.jpg";
       $this->assertSame($document->_image_data, [$url => ['alt' => 'alt text', 'src' => $url]]);
-      $this->assertStringContainsString('<img alt="alt text" src="' . $url . '">', $view[0]['#context']['value']);
+      $this->assertStringContainsString('<img alt="alt text" src="' . $url . '">', $response->getContent());
     }
   }
 

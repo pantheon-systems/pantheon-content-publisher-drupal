@@ -142,13 +142,6 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       }
     }
     if (!$update) {
-      if (\Drupal::moduleHandler()->moduleExists('media'))  {
-        $storage_settings['target_type'] = 'media';
-        $field_settings['handler_settings']['target_bundles']['image'] = 'image';
-        $media_field = $this->createNewDrupalField('media', 'entity_reference', $storage_settings, $field_settings);
-        $media_field->getFieldStorageDefinition()->save();
-        $media_field->save();
-      }
       $fs = \Drupal::service('file_system');
       assert($fs instanceof FileSystemInterface);
       $directory = 'public://pantheon_content_publisher/' . $this->id();
@@ -201,22 +194,17 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
    *   The field name.
    * @param string $type
    *   The field type.
-   * @param array $field_settings
-   *   Additional field settings.
    *
    * @return \Drupal\field\FieldConfigInterface
    *   The field config object.
    */
-  protected function createNewDrupalField(string $drupal_field_name, string $type, $field_storage_settings = [], $field_settings = []): FieldConfigInterface {
+  protected function createNewDrupalField(string $drupal_field_name, string $type): FieldConfigInterface {
     if (!$field_storage = FieldStorageConfig::loadByName('pantheon_content_publisher', $drupal_field_name)) {
       $data = [
         'type' => $type,
         'field_name' => $drupal_field_name,
         'entity_type' => 'pantheon_content_publisher',
       ];
-      if ($field_storage_settings) {
-        $data['settings'] = $field_storage_settings;
-      }
       $field_storage = FieldStorageConfig::create($data);
       if ($type === 'list_string') {
         // The pantheon data needs to be stored anyways to find out if there
@@ -231,9 +219,6 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       'bundle' => $this->id(),
       'field_storage' => $field_storage,
     ];
-    if ($field_settings) {
-      $data['settings'] = $field_settings;
-    }
     return FieldConfig::create($data);
   }
 

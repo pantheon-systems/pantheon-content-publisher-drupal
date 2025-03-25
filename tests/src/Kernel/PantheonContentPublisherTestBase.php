@@ -6,7 +6,6 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -163,16 +162,12 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
   }
 
   protected function executeWebhook(): void {
-    $webhook = $this->container->get('controller_resolver')
-      ->getControllerFromDefinition(PantheonContentPublisherController::class . '::webhook');
     $content = [
       'event' => 'article.update',
       'payload' => ['articleId' => self::ARTICLE_ID],
     ];
-    // The path doesn't matter, normally the routing subsystem would process
-    // it and the controller shouldn't care.
-    $request = Request::create('/', content: json_encode($content));
-    $webhook($request);
+    $request = Request::create('/pantheon_content_publisher/webhook', 'POST', content: json_encode($content));
+    $this->container->get('kernel')->handle($request);
   }
 
   protected function metadata(): array {
