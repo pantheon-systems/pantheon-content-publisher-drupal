@@ -44,7 +44,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
       $container->get('entity_type.manager')->getStorage('pantheon_document_collection'),
-      $container->get('pantheon_document.converter')
+      $container->get('pantheon_content_publisher.converter')
     );
   }
 
@@ -75,7 +75,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
   }
 
   protected function getQueryServiceName() {
-    return 'pantheon_document.query';
+    return 'pantheon_content_publisher.query';
   }
 
   protected function has($id, EntityInterface $entity) {

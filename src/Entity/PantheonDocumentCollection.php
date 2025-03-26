@@ -275,7 +275,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
    * @return mixed
    */
   public function getConverter(): PantheonContentPublisherConverter {
-    return \Drupal::service('pantheon_document.converter');
+    return \Drupal::service('pantheon_content_publisher.converter');
   }
 
 }
