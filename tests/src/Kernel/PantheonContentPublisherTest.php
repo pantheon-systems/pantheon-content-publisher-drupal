@@ -6,6 +6,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherViewController;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Entity\Index;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -114,6 +115,13 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
         $this->assertStringContainsString('<img alt="alt text" src="' . $url . '">', $response->getContent());
       }
     }
+  }
+
+  public function testPreview() {
+    $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
+    $response = $this->container->get('kernel')->handle($request);
+    $this->assertFalse($response->headers->has('X-Frame-Options'));
+    $this->assertFalse($response->headers->has(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME));
   }
 
 }
