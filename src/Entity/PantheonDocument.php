@@ -16,15 +16,15 @@ use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
  *
  * @ContentEntityType(
  *   id = "pantheon_document",
- *   label = @Translation("Pantheon content publisher"),
- *   label_collection = @Translation("Pantheon content publishers"),
- *   label_singular = @Translation("pantheon content publisher"),
- *   label_plural = @Translation("pantheon content publishers"),
+ *   label = @Translation("Pantheon document"),
+ *   label_collection = @Translation("Pantheon documents"),
+ *   label_singular = @Translation("pantheon document"),
+ *   label_plural = @Translation("pantheon documents"),
  *   label_count = @PluralTranslation(
- *     singular = "@count pantheon content publishers",
- *     plural = "@count pantheon content publishers",
+ *     singular = "@count pantheon content documents",
+ *     plural = "@count pantheon content documents",
  *   ),
- *   bundle_label = @Translation("Pantheon content publisher collection"),
+ *   bundle_label = @Translation("Pantheon document collection"),
  *   handlers = {
  *     "list_builder" = "Drupal\pantheon_content_publisher\PantheonDocumentListBuilder",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",

@@ -19,17 +19,17 @@ use Drupal\search_api\IndexBatchHelper;
 use Drupal\search_api\Utility\FieldsHelperInterface;
 
 /**
- * Defines the pantheon content publisher collection entity type.
+ * Defines the pantheon document collection entity type.
  *
  * @ConfigEntityType(
  *   id = "pantheon_document_collection",
- *   label = @Translation("Pantheon content publisher collection"),
- *   label_collection = @Translation("Pantheon content publisher collections"),
- *   label_singular = @Translation("pantheon content publisher collection"),
- *   label_plural = @Translation("pantheon content publisher collections"),
+ *   label = @Translation("Pantheon document collection"),
+ *   label_collection = @Translation("Pantheon document collections"),
+ *   label_singular = @Translation("pantheon document collection"),
+ *   label_plural = @Translation("pantheon document collections"),
  *   label_count = @PluralTranslation(
- *     singular = "@count pantheon content publisher collection",
- *     plural = "@count pantheon content publisher collections",
+ *     singular = "@count pantheon document collection",
+ *     plural = "@count pantheon document collections",
  *   ),
  *   handlers = {
  *     "list_builder" = "Drupal\pantheon_content_publisher\PantheonDocumentCollectionListBuilder",
