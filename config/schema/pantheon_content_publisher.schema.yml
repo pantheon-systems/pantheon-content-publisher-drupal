@@ -1,4 +1,4 @@
-pantheon_content_publisher.pantheon_content_publisher_coll.*:
+pantheon_content_publisher.pantheon_document_collection.*:
   type: config_entity
   label: Pantheon content publisher collection
   mapping:
@@ -23,9 +23,9 @@ pantheon_content_publisher.pantheon_content_publisher_coll.*:
     search_api_server:
       type: string
       label: 'Search API server'
-field.storage.pantheon_content_publisher.*:
+field.storage.pantheon_document.*:
   type: field.storage.*.*
-field.storage.pantheon_content_publisher.*.third_party.pantheon_content_publisher:
+field.storage.pantheon_document.*.third_party.pantheon_content_publisher:
   type: mapping
   mapping:
     pantheon_data:

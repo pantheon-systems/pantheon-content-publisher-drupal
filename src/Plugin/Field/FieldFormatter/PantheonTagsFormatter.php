@@ -14,7 +14,7 @@ use Drupal\Core\Field\FormatterBase;
  * Plugin implementation of the Pantheon Tags formatter.
  *
  * @FieldFormatter(
- *   id = "pantheon_content_publisher_tags_formatter",
+ *   id = "pantheon_document_tags_formatter",
  *   label = @Translation("Pantheon tags formatter"),
  *   field_types = {"string_long"},
  * )
@@ -99,7 +99,7 @@ class PantheonTagsFormatter extends FormatterBase {
   }
 
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_content_publisher';
+    return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
   }
 
 }

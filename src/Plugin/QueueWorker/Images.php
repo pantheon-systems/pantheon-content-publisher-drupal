@@ -17,10 +17,10 @@ use Psr\Http\Client\ClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines 'pantheon_content_publisher_images' queue worker.
+ * Defines 'pantheon_document_images' queue worker.
  *
  * @QueueWorker(
- *   id = "pantheon_content_publisher_images",
+ *   id = "pantheon_document_images",
  *   title = @Translation("Pantheon image handler"),
  *   cron = {"time" = 60},
  * )
@@ -69,7 +69,7 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
       ->execute();
     $uris = array_flip(array_map(fn (FileInterface $file) => $file->getUri(), File::loadMultiple($fids)));
     $pantheon_files = array_diff_key($pantheon_files, $uris);
-    $directory = 'public://pantheon_content_publisher/' . $collection);
+    $directory = 'public://pantheon_document/' . $collection);
     foreach ($pantheon_files as $uri => $image) {
       $filename = basename($uri);
       $destination = $this->fileSystem->getDestinationFilename("$directory/$filename", FileExists::Rename);

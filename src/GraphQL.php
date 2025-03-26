@@ -11,7 +11,7 @@ use GraphQL\RequestBuilder\Type;
 
 class GraphQL {
 
-  public function __construct(protected PantheonContentPublisherCollInterface $collection) {}
+  public function __construct(protected PantheonDocumentCollectionInterface $collection) {}
 
   public function getMetadata(): array {
     $query = (new RootType('site'))->addArgument(new Argument('id', $this->collection->id()))->addSubTypes([

@@ -10,7 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Form controller for the pantheon content publisher entity edit forms.
  */
-class PantheonContentPublisherForm extends ContentEntityForm {
+class PantheonDocumentForm extends ContentEntityForm {
 
   /**
    * {@inheritdoc}
@@ -27,12 +27,12 @@ class PantheonContentPublisherForm extends ContentEntityForm {
     switch ($result) {
       case SAVED_NEW:
         $this->messenger()->addStatus($this->t('New pantheon content publisher %label has been created.', $message_args));
-        $this->logger('pantheon_content_publisher')->notice('New pantheon content publisher %label has been created.', $logger_args);
+        $this->logger('pantheon_document')->notice('New pantheon content publisher %label has been created.', $logger_args);
         break;
 
       case SAVED_UPDATED:
         $this->messenger()->addStatus($this->t('The pantheon content publisher %label has been updated.', $message_args));
-        $this->logger('pantheon_content_publisher')->notice('The pantheon content publisher %label has been updated.', $logger_args);
+        $this->logger('pantheon_document')->notice('The pantheon content publisher %label has been updated.', $logger_args);
         break;
 
       default:

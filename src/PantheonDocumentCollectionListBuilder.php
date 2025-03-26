@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityInterface;
 /**
  * Provides a listing of pantheon content publisher collections.
  */
-class PantheonContentPublisherCollListBuilder extends ConfigEntityListBuilder {
+class PantheonDocumentCollectionListBuilder extends ConfigEntityListBuilder {
 
   /**
    * {@inheritdoc}
@@ -26,7 +26,7 @@ class PantheonContentPublisherCollListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity): array {
-    /** @var \Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface $entity */
+    /** @var \Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface $entity */
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
     $row['status'] = $entity->status() ? $this->t('Enabled') : $this->t('Disabled');

@@ -11,14 +11,14 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\LocalRedirectResponse;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Routing\UrlGeneratorInterface;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
+use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\search_api\Entity\Server;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Pantheon content publisher collection form.
  */
-class PantheonContentPublisherCollForm extends EntityForm implements ContainerInjectionInterface {
+class PantheonDocumentCollectionForm extends EntityForm implements ContainerInjectionInterface {
 
   use RedirectDestinationTrait;
 
@@ -33,7 +33,7 @@ class PantheonContentPublisherCollForm extends EntityForm implements ContainerIn
    */
   public function form(array $form, FormStateInterface $form_state): array {
     $form = parent::form($form, $form_state);
-    assert($this->entity instanceof PantheonContentPublisherCollInterface);
+    assert($this->entity instanceof PantheonDocumentCollectionInterface);
 
     $form['label'] = [
       '#type' => 'textfield',
@@ -103,7 +103,7 @@ class PantheonContentPublisherCollForm extends EntityForm implements ContainerIn
   public function validateForm(array &$form, FormStateInterface $form_state) {
     try {
       $collection = $this->getEntity();
-      assert($collection instanceof PantheonContentPublisherCollInterface);
+      assert($collection instanceof PantheonDocumentCollectionInterface);
       if ($collection->isNew()) {
         $collection->getGraphQL()->getMetadata();
 

@@ -1,18 +1,18 @@
-entity.pantheon_content_publisher.view:
+entity.pantheon_document.view:
   title: 'View'
-  route_name: entity.pantheon_content_publisher.canonical
-  base_route: entity.pantheon_content_publisher.canonical
-entity.pantheon_content_publisher.edit_form:
+  route_name: entity.pantheon_document.canonical
+  base_route: entity.pantheon_document.canonical
+entity.pantheon_document.edit_form:
   title: 'Edit'
-  route_name: entity.pantheon_content_publisher.edit_form
-  base_route: entity.pantheon_content_publisher.canonical
-entity.pantheon_content_publisher.delete_form:
+  route_name: entity.pantheon_document.edit_form
+  base_route: entity.pantheon_document.canonical
+entity.pantheon_document.delete_form:
   title: 'Delete'
-  route_name: entity.pantheon_content_publisher.delete_form
-  base_route: entity.pantheon_content_publisher.canonical
+  route_name: entity.pantheon_document.delete_form
+  base_route: entity.pantheon_document.canonical
   weight: 10
-entity.pantheon_content_publisher.collection:
+entity.pantheon_document.collection:
   title: 'Pantheon content publisher entities'
-  route_name: entity.pantheon_content_publisher.collection
+  route_name: entity.pantheon_document.collection
   base_route: system.admin_content
   weight: 10

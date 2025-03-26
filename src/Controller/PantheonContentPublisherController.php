@@ -11,12 +11,12 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\media\Entity\Media;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherInterface;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherStorageInterface;
+use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
+use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
+use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
+use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
+use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
+use Drupal\pantheon_content_publisher\PantheonDocumentStorageInterface;
 use Drupal\search_api\Entity\Index;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,12 +27,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PantheonContentPublisherController extends ControllerBase {
 
-  protected PantheonContentPublisherStorageInterface $pantheonContentPublisherStorage;
+  protected PantheonDocumentStorageInterface $pantheonContentPublisherStorage;
 
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager
   ) {
-    $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_content_publisher');
+    $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_document');
   }
 
   /**
@@ -41,10 +41,10 @@ class PantheonContentPublisherController extends ControllerBase {
   public function webhook(Request $request): Response {
     if ($decoded = @json_decode($request->getContent(), TRUE)) {
       if (isset($decoded['siteId'])) {
-        $collection = PantheonContentPublisherColl::load($decoded['siteId']);
+        $collection = PantheonDocumentCollection::load($decoded['siteId']);
       }
       else {
-        $collections = PantheonContentPublisherColl::loadMultiple();
+        $collections = PantheonDocumentCollection::loadMultiple();
         $collection = reset($collections);
       }
       $this->handleEvent($collection, $decoded);
@@ -57,15 +57,15 @@ class PantheonContentPublisherController extends ControllerBase {
   }
 
   /**
-   * @param \Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl $collection
+   * @param \Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection $collection
    *   The Pantheon content publisher collection.
    * @param array $decoded
    *   The decoded webhook payload.
    */
-  protected function handleEvent(PantheonContentPublisherCollInterface $collection, array $decoded): void {
-    $entity_id = PantheonContentPublisherStorage::getEntityId($collection->id(), $decoded['payload']['articleId']);
+  protected function handleEvent(PantheonDocumentCollectionInterface $collection, array $decoded): void {
+    $entity_id = PantheonDocumentStorage::getEntityId($collection->id(), $decoded['payload']['articleId']);
     if ($decoded['event'] === 'article.unpublish') {
-      PantheonContentPublisher::create([
+      PantheonDocument::create([
         'collection' => $collection->id(),
         'id' => $entity_id,
       ])->delete();
@@ -74,9 +74,9 @@ class PantheonContentPublisherController extends ControllerBase {
       $document = $this->pantheonContentPublisherStorage->load($entity_id);
       $document->save();
       Index::load($collection->id())->indexItems();
-      $document->get('content')->view(['type' => 'pantheon_content_publisher_tags_formatter']);
+      $document->get('content')->view(['type' => 'pantheon_document_tags_formatter']);
       if ($document->_image_data) {
-        \Drupal::queue('pantheon_content_publisher_images')->createItem([$collection->id(), $document->_image_data]);
+        \Drupal::queue('pantheon_document_images')->createItem([$collection->id(), $document->_image_data]);
       }
     }
   }

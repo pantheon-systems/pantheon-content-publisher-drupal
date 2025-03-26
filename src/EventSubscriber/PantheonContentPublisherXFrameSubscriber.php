@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 final class PantheonContentPublisherXFrameSubscriber implements EventSubscriberInterface {
 
   /**
-   * Constructs a PantheonContentPublisherXFrameSubscriber object.
+   * Constructs a PantheonDocumentXFrameSubscriber object.
    */
   public function __construct() {}
 

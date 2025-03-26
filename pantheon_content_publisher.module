@@ -12,9 +12,9 @@ use Drupal\Core\Render\Element;
 /**
  * Implements hook_theme().
  */
-function pantheon_content_publisher_theme(): array {
+function pantheon_document_theme(): array {
   return [
-    'pantheon_content_publisher' => ['render element' => 'elements'],
+    'pantheon_document' => ['render element' => 'elements'],
   ];
 }
 
@@ -29,7 +29,7 @@ function pantheon_content_publisher_theme(): array {
  *     fields attached to the entity.
  *   - attributes: HTML attributes for the containing element.
  */
-function template_preprocess_pantheon_content_publisher(array &$variables): void {
+function template_preprocess_pantheon_document(array &$variables): void {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];

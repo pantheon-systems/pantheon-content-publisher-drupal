@@ -9,7 +9,7 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 /**
  * Provides an interface defining a pantheon content publisher collection entity type.
  */
-interface PantheonContentPublisherCollInterface extends ConfigEntityInterface {
+interface PantheonDocumentCollectionInterface extends ConfigEntityInterface {
 
   public function getToken(): string;
 

@@ -5,7 +5,7 @@ const params = new URLSearchParams(url.search);
 const documentId = url.pathname.split('/')[4];
 
 const pantheonClient = new PantheonClient({
-    siteId: window.drupalSettings.pantheon_content_publisher.site_id,
+    siteId: window.drupalSettings.pantheon_document.site_id,
     token: 'pcc_grant ' + params.get('pccGrant')
 });
 

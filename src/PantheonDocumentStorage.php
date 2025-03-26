@@ -14,13 +14,13 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
+use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a list controller for the pantheon content publisher entity type.
  */
-class PantheonContentPublisherStorage extends ContentEntityStorageBase implements PantheonContentPublisherStorageInterface {
+class PantheonDocumentStorage extends ContentEntityStorageBase implements PantheonDocumentStorageInterface {
 
   const SEPARATOR = '.';
 
@@ -43,8 +43,8 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
       $container->get('cache.entity'),
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
-      $container->get('entity_type.manager')->getStorage('pantheon_content_publisher_coll'),
-      $container->get('pantheon_content_publisher.converter')
+      $container->get('entity_type.manager')->getStorage('pantheon_document_collection'),
+      $container->get('pantheon_document.converter')
     );
   }
 
@@ -69,13 +69,13 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
       // 2) cache clearing, update surely clears at least as much as insert
       // does.
       // So it's better to pretend this is an existing entity.
-      $entities[$id] = PantheonContentPublisher::create($drupal_data)->enforceIsNew(FALSE);
+      $entities[$id] = PantheonDocument::create($drupal_data)->enforceIsNew(FALSE);
     }
     return $entities;
   }
 
   protected function getQueryServiceName() {
-    return 'pantheon_content_publisher.query';
+    return 'pantheon_document.query';
   }
 
   protected function has($id, EntityInterface $entity) {
@@ -119,7 +119,7 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
    * and an article id so this method concatenates the two to create a single
    * Drupal entity id.
    *
-   * @param string|\Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface $collection
+   * @param string|\Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface $collection
    *   Either the collection name or the collection config entity.
    * @param string $pantheon_id
    *   The article id in Pantheon.
@@ -127,9 +127,9 @@ class PantheonContentPublisherStorage extends ContentEntityStorageBase implement
    * @return string
    *   The Drupal entity id.
    */
-  public static function getEntityId(string|PantheonContentPublisherCollInterface $collection, string $pantheon_id): string {
+  public static function getEntityId(string|PantheonDocumentCollectionInterface $collection, string $pantheon_id): string {
     return
-      ($collection instanceof PantheonContentPublisherCollInterface ? $collection->id() : $collection) .
+      ($collection instanceof PantheonDocumentCollectionInterface ? $collection->id() : $collection) .
       self::SEPARATOR .
       $pantheon_id;
   }

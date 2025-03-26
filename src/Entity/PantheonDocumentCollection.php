@@ -11,9 +11,8 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
-use Drupal\media\Entity\Media;
 use Drupal\pantheon_content_publisher\GraphQL;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
+use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherConverter;
 use Drupal\search_api\Entity\Index;
 use Drupal\search_api\IndexBatchHelper;
@@ -23,7 +22,7 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  * Defines the pantheon content publisher collection entity type.
  *
  * @ConfigEntityType(
- *   id = "pantheon_content_publisher_coll",
+ *   id = "pantheon_document_collection",
  *   label = @Translation("Pantheon content publisher collection"),
  *   label_collection = @Translation("Pantheon content publisher collections"),
  *   label_singular = @Translation("pantheon content publisher collection"),
@@ -33,21 +32,21 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  *     plural = "@count pantheon content publisher collections",
  *   ),
  *   handlers = {
- *     "list_builder" = "Drupal\pantheon_content_publisher\PantheonContentPublisherCollListBuilder",
+ *     "list_builder" = "Drupal\pantheon_content_publisher\PantheonDocumentCollectionListBuilder",
  *     "form" = {
- *       "add" = "Drupal\pantheon_content_publisher\Form\PantheonContentPublisherCollForm",
- *       "edit" = "Drupal\pantheon_content_publisher\Form\PantheonContentPublisherCollForm",
+ *       "add" = "Drupal\pantheon_content_publisher\Form\PantheonDocumentCollectionForm",
+ *       "edit" = "Drupal\pantheon_content_publisher\Form\PantheonDocumentCollectionForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *   },
- *   config_prefix = "pantheon_content_publisher_coll",
- *   admin_permission = "administer pantheon_content_publisher_coll",
- *   bundle_of = "pantheon_content_publisher",
+ *   config_prefix = "pantheon_document_collection",
+ *   admin_permission = "administer pantheon_document_collection",
+ *   bundle_of = "pantheon_document",
  *   links = {
  *     "collection" = "/admin/structure/pantheon-content-publisher-collection",
  *     "add-form" = "/admin/structure/pantheon-content-publisher-collection/add",
- *     "edit-form" = "/admin/structure/pantheon-content-publisher-collection/{pantheon_content_publisher_coll}",
- *     "delete-form" = "/admin/structure/pantheon-content-publisher-collection/{pantheon_content_publisher_coll}/delete",
+ *     "edit-form" = "/admin/structure/pantheon-content-publisher-collection/{pantheon_document_collection}",
+ *     "delete-form" = "/admin/structure/pantheon-content-publisher-collection/{pantheon_document_collection}/delete",
  *   },
  *   entity_keys = {
  *     "id" = "id",
@@ -65,7 +64,7 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  *   },
  * )
  */
-class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonContentPublisherCollInterface {
+class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDocumentCollectionInterface {
 
   const TYPE_MAP = [
     'boolean' => 'boolean',
@@ -99,7 +98,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
     $metadata = $this->getGraphQL()->getMetadata();
     // First change and delete existing Drupal fields.
     $field_ids = \Drupal::entityQuery('field_config')
-      ->condition('entity_type', 'pantheon_content_publisher')
+      ->condition('entity_type', 'pantheon_document')
       ->condition('bundle', $this->id())
       ->condition('field_name', 'media', '<>')
       ->execute();
@@ -127,7 +126,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       }
     }
     // By now only the new fields remain.
-    $prefix = 'field.storage.pantheon_content_publisher.';
+    $prefix = 'field.storage.pantheon_document.';
     $field_storage_ids = array_flip(\Drupal::service('config.storage')->listAll($prefix));
     foreach ($metadata as $pantheon_field => $pantheon_data) {
       $candidate_base = strtolower(preg_replace('/[^a-z0-9_]+/i', '', $pantheon_field));
@@ -144,9 +143,9 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
     if (!$update) {
       $fs = \Drupal::service('file_system');
       assert($fs instanceof FileSystemInterface);
-      $directory = 'public://pantheon_content_publisher/' . $this->id();
+      $directory = 'public://pantheon_document/' . $this->id();
       $fs->prepareDirectory($directory, FileSystemInterface:: CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
-      $datasource = 'entity:pantheon_content_publisher';
+      $datasource = 'entity:pantheon_document';
       $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
       $index = Index::create([
         'name' => $this->label(),
@@ -159,7 +158,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
       $index->getDatasource($datasource)->getEntityTypeBundleInfo()->clearCachedBundles();
       $fields_helper = \Drupal::service('search_api.fields_helper');
       assert($fields_helper instanceof FieldsHelperInterface);
-      $base_fields = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('pantheon_content_publisher');
+      $base_fields = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('pantheon_document');
       $fields[] = $base_fields['content'];
       foreach ($fields as $field) {
         $storage = $field->getFieldStorageDefinition();
@@ -199,11 +198,11 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
    *   The field config object.
    */
   protected function createNewDrupalField(string $drupal_field_name, string $type): FieldConfigInterface {
-    if (!$field_storage = FieldStorageConfig::loadByName('pantheon_content_publisher', $drupal_field_name)) {
+    if (!$field_storage = FieldStorageConfig::loadByName('pantheon_document', $drupal_field_name)) {
       $data = [
         'type' => $type,
         'field_name' => $drupal_field_name,
-        'entity_type' => 'pantheon_content_publisher',
+        'entity_type' => 'pantheon_document',
       ];
       $field_storage = FieldStorageConfig::create($data);
       if ($type === 'list_string') {
@@ -215,7 +214,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
     }
     $data = [
       'field_name' => $drupal_field_name,
-      'entity_type' => 'pantheon_content_publisher',
+      'entity_type' => 'pantheon_document',
       'bundle' => $this->id(),
       'field_storage' => $field_storage,
     ];
@@ -276,7 +275,7 @@ class PantheonContentPublisherColl extends ConfigEntityBase implements PantheonC
    * @return mixed
    */
   public function getConverter(): PantheonContentPublisherConverter {
-    return \Drupal::service('pantheon_content_publisher.converter');
+    return \Drupal::service('pantheon_document.converter');
   }
 
 }

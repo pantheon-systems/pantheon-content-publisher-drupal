@@ -4,8 +4,8 @@ namespace Drupal\pantheon_content_publisher\Plugin\search_api\datasource;
 
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
+use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
+use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Plugin\search_api\datasource\ContentEntity;
 use Drupal\search_api\Utility\Utility;
 
@@ -13,10 +13,10 @@ use Drupal\search_api\Utility\Utility;
  * Represents a datasource which exposes the content entities.
  *
  * @SearchApiDatasource(
- *   id = "entity:pantheon_content_publisher"
+ *   id = "entity:pantheon_document"
  * )
  */
-class PantheonContentPublisherDatasource extends ContentEntity {
+class PantheonDocumentDatasource extends ContentEntity {
 
   public function getPartialItemIds($page = NULL, ?array $bundles = NULL, ?array $languages = NULL) {
     if (($bundles === [] && !$languages) || ($languages === [] && !$bundles)) {
@@ -55,7 +55,7 @@ class PantheonContentPublisherDatasource extends ContentEntity {
       $bundles_for_query = count($enabled_bundles) < count($all_bundles) ? $enabled_bundles : $all_bundles;
     }
 
-    $collections = PantheonContentPublisherColl::loadMultiple(array_keys($bundles_for_query));
+    $collections = PantheonDocumentCollection::loadMultiple(array_keys($bundles_for_query));
     $entity_ids = [];
     $found = FALSE;
     foreach ($collections as $collection) {
@@ -69,7 +69,7 @@ class PantheonContentPublisherDatasource extends ContentEntity {
       }
       $result = $collection->getGraphQL()->getArticleIds(isset($page) ? $page_size : NULL, $cursor);
       foreach ($result['articles'] ?? [] as $info) {
-        $entity_ids[] = PantheonContentPublisherStorage::getEntityId($collection,  $info['id']);
+        $entity_ids[] = PantheonDocumentStorage::getEntityId($collection,  $info['id']);
       }
       $found = $found || $entity_ids;
       if (isset($page)) {

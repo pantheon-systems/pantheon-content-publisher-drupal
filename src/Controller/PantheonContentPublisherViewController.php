@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Entity\Controller\EntityViewController;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisher;
-use Drupal\pantheon_content_publisher\Entity\PantheonContentPublisherColl;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherStorage;
+use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
+use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
+use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -18,7 +18,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
   /**
    * HTTP response header name.
    *
-   * PantheonContentPublisherXFrameSubscriber checks this header and if present
+   * PantheonDocumentXFrameSubscriber checks this header and if present
    * with ::PREVIEW_HEADER_VALUE value then both this header and the
    * X-Frame-Options header added by FinishResponseSubscriber is removed and
    * so this header is never sent to the client.
@@ -28,9 +28,9 @@ class PantheonContentPublisherViewController extends EntityViewController {
   const PREVIEW_HEADER_VALUE = 'preview';
 
   public function pantheonView(Request $request, $pantheon_id): array {
-    $collections = PantheonContentPublisherColl::loadMultiple();
+    $collections = PantheonDocumentCollection::loadMultiple();
     $collection = reset($collections);
-    $document = PantheonContentPublisher::load(PantheonContentPublisherStorage::getEntityId($collection, $pantheon_id));
+    $document = PantheonDocument::load(PantheonDocumentStorage::getEntityId($collection, $pantheon_id));
     if ($is_preview = $request->query->get('publishingLevel') === 'REALTIME') {
       // PantheonTagsFormatter turns this into
       // <div id="pantheon-content-publisher-preview"></div>
@@ -38,8 +38,8 @@ class PantheonContentPublisherViewController extends EntityViewController {
     }
     $page = $this->view($document);
     if ($is_preview) {
-      $page['#attached']['library'][] = 'pantheon_content_publisher/drupal.pantheon_content_publisher.preview';
-      $page['#attached']['drupalSettings']['pantheon_content_publisher']['site_id'] = $collection->id();
+      $page['#attached']['library'][] = 'pantheon_document/drupal.pantheon_document.preview';
+      $page['#attached']['drupalSettings']['pantheon_document']['site_id'] = $collection->id();
       $page['#attached']['http_header'][] = [self::PREVIEW_HEADER_NAME, self::PREVIEW_HEADER_VALUE];
     }
     $page['#cache']['contexts'][] = 'url.query_args:publishingLevel';

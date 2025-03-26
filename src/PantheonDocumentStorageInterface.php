@@ -9,6 +9,6 @@ use Drupal\Core\Entity\EntityStorageInterface;
 /**
  * Provides a list controller for the pantheon content publisher entity type.
  */
-interface PantheonContentPublisherStorageInterface extends EntityStorageInterface {
+interface PantheonDocumentStorageInterface extends EntityStorageInterface {
 
 }

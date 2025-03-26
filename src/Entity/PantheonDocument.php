@@ -9,13 +9,13 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherInterface;
+use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
 
 /**
  * Defines the pantheon content publisher entity class.
  *
  * @ContentEntityType(
- *   id = "pantheon_content_publisher",
+ *   id = "pantheon_document",
  *   label = @Translation("Pantheon content publisher"),
  *   label_collection = @Translation("Pantheon content publishers"),
  *   label_singular = @Translation("pantheon content publisher"),
@@ -26,21 +26,21 @@ use Drupal\pantheon_content_publisher\PantheonContentPublisherInterface;
  *   ),
  *   bundle_label = @Translation("Pantheon content publisher collection"),
  *   handlers = {
- *     "list_builder" = "Drupal\pantheon_content_publisher\PantheonContentPublisherListBuilder",
+ *     "list_builder" = "Drupal\pantheon_content_publisher\PantheonDocumentListBuilder",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "form" = {
- *       "add" = "Drupal\pantheon_content_publisher\Form\PantheonContentPublisherForm",
- *       "edit" = "Drupal\pantheon_content_publisher\Form\PantheonContentPublisherForm",
+ *       "add" = "Drupal\pantheon_content_publisher\Form\PantheonDocumentForm",
+ *       "edit" = "Drupal\pantheon_content_publisher\Form\PantheonDocumentForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *       "delete-multiple-confirm" = "Drupal\Core\Entity\Form\DeleteMultipleForm",
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
- *     "storage" = "Drupal\pantheon_content_publisher\PantheonContentPublisherStorage",
+ *     "storage" = "Drupal\pantheon_content_publisher\PantheonDocumentStorage",
  *   },
- *   admin_permission = "administer pantheon_content_publisher types",
- *   field_ui_base_route = "entity.pantheon_content_publisher_coll.edit_form",
+ *   admin_permission = "administer pantheon_document types",
+ *   field_ui_base_route = "entity.pantheon_document_collection.edit_form",
  *   entity_keys = {
  *     "id" = "id",
  *     "bundle" = "collection",
@@ -49,17 +49,17 @@ use Drupal\pantheon_content_publisher\PantheonContentPublisherInterface;
  *   },
  *   links = {
  *     "collection" = "/admin/content/pantheon-content-publisher",
- *     "add-form" = "/pantheon-content-publisher/add/{pantheon_content_publisher_coll}",
+ *     "add-form" = "/pantheon-content-publisher/add/{pantheon_document_collection}",
  *     "add-page" = "/pantheon-content-publisher/add",
- *     "canonical" = "/pantheon-content-publisher/{pantheon_content_publisher}",
- *     "edit-form" = "/pantheon-content-publisher/{pantheon_content_publisher}/edit",
- *     "delete-form" = "/pantheon-content-publisher/{pantheon_content_publisher}/delete",
+ *     "canonical" = "/pantheon-content-publisher/{pantheon_document}",
+ *     "edit-form" = "/pantheon-content-publisher/{pantheon_document}/edit",
+ *     "delete-form" = "/pantheon-content-publisher/{pantheon_document}/delete",
  *     "delete-multiple-form" = "/admin/content/pantheon-content-publisher/delete-multiple",
  *   },
- *   bundle_entity_type = "pantheon_content_publisher_coll",
+ *   bundle_entity_type = "pantheon_document_collection",
  * )
  */
-class PantheonContentPublisher extends ContentEntityBase implements PantheonContentPublisherInterface {
+class PantheonDocument extends ContentEntityBase implements PantheonDocumentInterface {
 
   use EntityChangedTrait;
 
@@ -112,7 +112,7 @@ class PantheonContentPublisher extends ContentEntityBase implements PantheonCont
       ->setLabel(t('Content'))
       ->setDisplayOptions('view', [
         'label' => 'hidden',
-        'type' => 'pantheon_content_publisher_tags_formatter',
+        'type' => 'pantheon_document_tags_formatter',
         'weight' => 20,
       ])
       ->setDisplayConfigurable('view', TRUE);

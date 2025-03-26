@@ -1,11 +1,11 @@
-entity.pantheon_content_publisher_coll.overview:
+entity.pantheon_document_collection.overview:
   title: Pantheon content publisher collections
   parent: system.admin_structure
   description: 'List of pantheon content publisher collections to extend site functionality.'
-  route_name: entity.pantheon_content_publisher_coll.collection
+  route_name: entity.pantheon_document_collection.collection
 
-entity.pantheon_content_publisher.collection:
+entity.pantheon_document.collection:
   title: 'Pantheon content publisher entities'
   description: 'List of pantheon content publisher entities.'
-  route_name: entity.pantheon_content_publisher.collection
+  route_name: entity.pantheon_document.collection
   parent: system.admin_content

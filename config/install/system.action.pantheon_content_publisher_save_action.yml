@@ -2,9 +2,9 @@ langcode: en
 status: true
 dependencies:
   module:
-    - pantheon_content_publisher
-id: pantheon_content_publisher_save_action
+    - pantheon_document
+id: pantheon_document_save_action
 label: 'Save pantheon content publishers'
-type: pantheon_content_publisher
-plugin: entity:save_action:pantheon_content_publisher
+type: pantheon_document
+plugin: entity:save_action:pantheon_document
 configuration: {  }

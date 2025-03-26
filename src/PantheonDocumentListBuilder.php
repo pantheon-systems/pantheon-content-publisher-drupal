@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityListBuilder;
 /**
  * Provides a list controller for the pantheon content publisher entity type.
  */
-class PantheonContentPublisherListBuilder extends EntityListBuilder {
+class PantheonDocumentListBuilder extends EntityListBuilder {
 
   /**
    * {@inheritdoc}
@@ -28,7 +28,7 @@ class PantheonContentPublisherListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity): array {
-    /** @var \Drupal\pantheon_content_publisher\PantheonContentPublisherInterface $entity */
+    /** @var \Drupal\pantheon_content_publisher\PantheonDocumentInterface $entity */
     $row['id'] = $entity->id();
     $row['label'] = $entity->toLink();
     $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');

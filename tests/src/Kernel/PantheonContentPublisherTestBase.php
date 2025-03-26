@@ -6,7 +6,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\pantheon_content_publisher\PantheonContentPublisherCollInterface;
+use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Test description.
  *
- * @group pantheon_content_publisher
+ * @group pantheon_document
  */
 class PantheonContentPublisherTestBase extends KernelTestBase {
 
@@ -53,7 +53,7 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
    */
   protected array $storage = [];
 
-  protected PantheonContentPublisherCollInterface $collection;
+  protected PantheonDocumentCollectionInterface $collection;
 
   /**
    * {@inheritdoc}
@@ -64,7 +64,6 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
     'options',
     'text',
     'pantheon_content_publisher',
-    'pantheon_content_publisher_test',
     'search_api',
     'search_api_db',
     'search_api_db_defaults',
@@ -79,7 +78,7 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
     // items in it. Do not save it yet, though because saving triggers GraphQL
     // queries and the GraphQL responses need the collection id, so collection
     // create comes first, then Guzzle response setup then collection save.
-    $this->collection = $this->container->get('entity_type.manager')->getStorage('pantheon_content_publisher_coll')->create([
+    $this->collection = $this->container->get('entity_type.manager')->getStorage('pantheon_document_collection')->create([
       'id' => $this->randomMachineName(),
       'label' => $this->randomString(),
       'token' => $this->randomMachineName(),
@@ -168,7 +167,7 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
       'event' => 'article.update',
       'payload' => ['articleId' => self::ARTICLE_ID],
     ];
-    $request = Request::create('/pantheon_content_publisher/webhook', 'POST', content: json_encode($content));
+    $request = Request::create('/pantheon_document/webhook', 'POST', content: json_encode($content));
     $this->container->get('kernel')->handle($request);
   }
 

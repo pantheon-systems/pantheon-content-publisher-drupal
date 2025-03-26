@@ -14,7 +14,7 @@ class PantheonContentPublisherConverter {
   protected KeyValueStoreInterface $keyValueStore;
 
   public function __construct(KeyValueFactoryInterface $keyValueFactory, protected MemoryCacheInterface $memoryCache) {
-    $this->keyValueStore = $keyValueFactory->get('pantheon_content_publisher.fields');
+    $this->keyValueStore = $keyValueFactory->get('pantheon_document.fields');
   }
 
   /**
@@ -26,7 +26,7 @@ class PantheonContentPublisherConverter {
    *   Pantheon field to Drupal field map.
    */
   public function &getFields(): array {
-    $cid = 'pantheon_content_publisher:fields';
+    $cid = 'pantheon_document:fields';
     if (!$cache = $this->memoryCache->get($cid)) {
       $fields = $this->keyValueStore->getAll();
       $this->memoryCache->set($cid, $fields, Cache::PERMANENT, ['field_config_list']);

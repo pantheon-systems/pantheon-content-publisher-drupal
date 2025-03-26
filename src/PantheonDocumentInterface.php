@@ -10,6 +10,6 @@ use Drupal\Core\Entity\EntityChangedInterface;
 /**
  * Provides an interface defining a pantheon content publisher entity type.
  */
-interface PantheonContentPublisherInterface extends ContentEntityInterface, EntityChangedInterface {
+interface PantheonDocumentInterface extends ContentEntityInterface, EntityChangedInterface {
 
 }
