@@ -122,6 +122,7 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
     $response = $this->container->get('kernel')->handle($request);
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME));
+    $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
   }
 
 }
