@@ -247,9 +247,8 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
   }
 
   protected function handle(Request $request): SymfonyResponse {
-    $handler = Error::currentErrorHandler();
     $result = $this->container->get('kernel')->handle($request);
-    set_error_handler($handler);
+    restore_error_handler();
     return $result;
   }
 
