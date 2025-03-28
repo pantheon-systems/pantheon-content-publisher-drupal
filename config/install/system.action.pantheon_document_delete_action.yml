@@ -2,9 +2,9 @@ langcode: en
 status: true
 dependencies:
   module:
-    - pantheon_document
+    - pantheon_content_publisher
 id: pantheon_document_delete_action
-label: 'Delete pantheon content publishers'
+label: 'Delete pantheon documents'
 type: pantheon_document
 plugin: entity:delete_action:pantheon_document
 configuration: {  }
