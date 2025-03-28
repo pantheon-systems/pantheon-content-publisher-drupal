@@ -6,15 +6,9 @@ namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\File\FileExists;
-use Drupal\Core\File\FileSystemInterface;
-use Drupal\file\Entity\File;
-use Drupal\file\FileInterface;
-use Drupal\media\Entity\Media;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
-use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorageInterface;
 use Drupal\search_api\Entity\Index;

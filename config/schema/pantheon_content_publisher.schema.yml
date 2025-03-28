@@ -33,3 +33,18 @@ field.storage.pantheon_document.*.third_party.pantheon_content_publisher:
       label: The data as received from Pantheon
       sequence:
         type: ignore
+
+pantheon_content_publisher.pantheon_smart_component.*:
+  type: config_entity
+  label: Pantheon smart component
+  mapping:
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    uuid:
+      type: string
+    description:
+      type: string

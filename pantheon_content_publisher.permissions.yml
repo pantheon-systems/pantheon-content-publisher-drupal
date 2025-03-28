@@ -5,3 +5,6 @@ administer pantheon_document types:
   title: 'Administer pantheon content publisher types'
   description: 'Maintain the types of pantheon content publisher entity.'
   restrict access: true
+
+administer pantheon_smart_component:
+  title: 'Administer pantheon smart component'

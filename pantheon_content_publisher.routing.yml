@@ -51,3 +51,35 @@ pantheon_document.view:
     _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherViewController::pantheonView'
   requirements:
     _access: 'TRUE'
+
+entity.pantheon_smart_component.collection:
+  path: '/admin/structure/pantheon-smart-component'
+  defaults:
+    _entity_list: 'pantheon_smart_component'
+    _title: 'Pantheon smart component configuration'
+  requirements:
+    _permission: 'administer pantheon_smart_component'
+
+entity.pantheon_smart_component.add_form:
+  path: '/admin/structure/pantheon_smart_component/add'
+  defaults:
+    _entity_form: 'pantheon_smart_component.add'
+    _title: 'Add a pantheon smart component'
+  requirements:
+    _permission: 'administer pantheon_smart_component'
+
+entity.pantheon_smart_component.edit_form:
+  path: '/admin/structure/pantheon-smart-component/{pantheon_smart_component}'
+  defaults:
+    _entity_form: 'pantheon_smart_component.edit'
+    _title: 'Edit a pantheon smart component'
+  requirements:
+    _permission: 'administer pantheon_smart_component'
+
+entity.pantheon_smart_component.delete_form:
+  path: '/admin/structure/pantheon-smart-component/{pantheon_smart_component}/delete'
+  defaults:
+    _entity_form: 'pantheon_smart_component.delete'
+    _title: 'Delete a pantheon smart component'
+  requirements:
+    _permission: 'administer pantheon_smart_component'
