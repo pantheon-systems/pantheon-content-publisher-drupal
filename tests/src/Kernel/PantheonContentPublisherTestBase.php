@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Utility\Error;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\Request;
-
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 /**
  * Test description.
  *
@@ -168,7 +169,7 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
       'payload' => ['articleId' => self::ARTICLE_ID],
     ];
     $request = Request::create('/pantheon_document/webhook', 'POST', content: json_encode($content));
-    $this->container->get('kernel')->handle($request);
+    $this->handle($request);
   }
 
   protected function metadata(): array {
@@ -243,6 +244,13 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
     return ['articles' => [[
       'id' => self::ARTICLE_ID
     ] + $this->getArticle()]];
+  }
+
+  protected function handle(Request $request): SymfonyResponse {
+    $handler = Error::currentErrorHandler();
+    $result = $this->container->get('kernel')->handle($request);
+    set_error_handler($handler);
+    return $result;
   }
 
 }

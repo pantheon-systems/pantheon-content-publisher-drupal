@@ -106,7 +106,7 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
         }
         $this->assertSame($content, $document->get('content')->value);
         $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
-        $response = $this->container->get('kernel')->handle($request);
+        $response = $this->handle($request);
         $url = "https://foo/$name.jpg";
         $this->assertSame($document->_image_data, [$url => ['alt' => 'alt text', 'src' => $url]]);
         if (!$trigger_webhook) {
@@ -119,7 +119,7 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
 
   public function testPreview() {
     $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
-    $response = $this->container->get('kernel')->handle($request);
+    $response = $this->handle($request);
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME));
     $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
