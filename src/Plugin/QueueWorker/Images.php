@@ -62,7 +62,7 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
    * {@inheritdoc}
    */
   public function processItem($data): void {
-    list[$collection, $pantheon_files] = $data;
+    [$collection, $pantheon_files] = $data;
     $fids = $this->fileStorage->getQuery()
       ->condition('uri', array_keys($pantheon_files), 'IN')
       ->accessCheck(FALSE)
