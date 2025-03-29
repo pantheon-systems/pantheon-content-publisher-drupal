@@ -59,4 +59,6 @@ class PantheonSmartComponent extends ConfigEntityBase implements PantheonSmartCo
    */
   protected string $label;
 
+  // @TODO handle iconUrl.
+
 }

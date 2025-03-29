@@ -75,5 +75,4 @@ class PantheonContentPublisherController extends ControllerBase {
     }
   }
 
-
 }

@@ -68,6 +68,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
 
   const TYPE_MAP = [
     'boolean' => 'boolean',
+    // @TODO actually make date functional
     'date' => 'timestamp',
     'list' => 'list_string',
     'text' => 'string',
@@ -163,7 +164,9 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       foreach ($fields as $field) {
         $storage = $field->getFieldStorageDefinition();
         $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
-        $index->addField($fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName()));
+        $search_api_field = $fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName());
+        $search_api_field->setLabel($field->label());
+        $index->addField($search_api_field);
       }
       // Save automatically tracks all items in a batch. This tracking does
       // not happen during config sync so handle that separately.
