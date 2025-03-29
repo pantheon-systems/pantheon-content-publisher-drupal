@@ -165,7 +165,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         $storage = $field->getFieldStorageDefinition();
         $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
         $search_api_field = $fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName());
-        $search_api_field->setLabel($field->label());
+        $search_api_field->setLabel($field->getLabel());
         $index->addField($search_api_field);
       }
       // Save automatically tracks all items in a batch. This tracking does
