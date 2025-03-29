@@ -83,3 +83,17 @@ entity.pantheon_smart_component.delete_form:
     _title: 'Delete a pantheon smart component'
   requirements:
     _permission: 'administer pantheon_smart_component'
+
+pantheon_smart_component.schema:
+  path: '/api/pantheoncloud/component_schema'
+  defaults:
+    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonSmartComponentController::listComponents'
+  requirements:
+    _access: 'TRUE'
+
+pantheon_smart_component.schema.component:
+  path: '/api/pantheoncloud/component_schema/{pantheon_smart_component}'
+  defaults:
+    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonSmartComponentController::listComponents'
+  requirements:
+    _access: 'TRUE'

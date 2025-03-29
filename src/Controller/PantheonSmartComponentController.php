@@ -7,13 +7,14 @@ namespace Drupal\pantheon_content_publisher\Controller;
 use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
+use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Returns responses for Pantheon content publisher routes.
  */
-class PantheonContentPublisherController extends EntityViewController {
+class PantheonSmartComponentController extends EntityViewController {
 
   const TYPES = [
     'text' => 'textarea',
@@ -24,9 +25,9 @@ class PantheonContentPublisherController extends EntityViewController {
     'blob' => 'file',
   ];
 
-  public function listComponents() {
-    $components = $this->entityTypeManager()->getStorage('pantheon_smart_component')->loadMultiple();
-    $storage = $this->entityTypeManager()->getStorage('field_config');
+  public function listComponents(?PantheonSmartComponentInterface $pantheon_smart_component = NULL) {
+    $components = $this->entityTypeManager->getStorage('pantheon_smart_component')->loadMultiple();
+    $storage = $this->entityTypeManager->getStorage('field_config');
     $ids = $storage
       ->getQuery()
       ->condition('entity_type', 'pantheon_smart_instance')
@@ -40,7 +41,7 @@ class PantheonContentPublisherController extends EntityViewController {
         $json[$component->id()]['fields'][$field->getName()] = $this->convertFieldToPantheon($field);
       }
     }
-    return new JsonResponse($json);
+    return new JsonResponse($pantheon_smart_component ? ($json[$pantheon_smart_component->id()] ?? []) : $json);
   }
 
   protected function convertFieldToPantheon(FieldConfigInterface $field): array {
