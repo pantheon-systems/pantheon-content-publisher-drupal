@@ -7,6 +7,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherViewController;
+use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Entity\Index;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -121,7 +122,7 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
     $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
     $response = $this->handle($request);
     $this->assertFalse($response->headers->has('X-Frame-Options'));
-    $this->assertFalse($response->headers->has(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME));
+    $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
     $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
   }
 

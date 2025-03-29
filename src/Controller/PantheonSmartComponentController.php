@@ -9,6 +9,7 @@ use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
+use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
 use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -99,7 +100,9 @@ class PantheonSmartComponentController extends EntityViewController {
     $build['#cache']['contexts'][] = 'url.query_args:args';
     $renderer = \Drupal::service('bare_html_page_renderer');
     assert($renderer instanceof BareHtmlPageRendererInterface);
-    return $renderer->renderBarePage($build, $component->label(), 'markup');
+    $response = $renderer->renderBarePage($build, $component->label(), 'markup');
+    $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, PantheonContentPublisherXFrameSubscriber::HEADER_VALUE);
+    return $response;
   }
 
 }

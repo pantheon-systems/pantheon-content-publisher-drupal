@@ -7,6 +7,7 @@ namespace Drupal\pantheon_content_publisher\Controller;
 use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
+use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,9 +24,6 @@ class PantheonContentPublisherViewController extends EntityViewController {
    * X-Frame-Options header added by FinishResponseSubscriber is removed and
    * so this header is never sent to the client.
    */
-  const PREVIEW_HEADER_NAME = 'X-Pantheon-Content-Publisher';
-
-  const PREVIEW_HEADER_VALUE = 'preview';
 
   public function pantheonView(Request $request, $pantheon_id): array {
     $collections = PantheonDocumentCollection::loadMultiple();
@@ -40,7 +38,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
     if ($is_preview) {
       $page['#attached']['library'][] = 'pantheon_document/drupal.pantheon_document.preview';
       $page['#attached']['drupalSettings']['pantheon_document']['site_id'] = $collection->id();
-      $page['#attached']['http_header'][] = [self::PREVIEW_HEADER_NAME, self::PREVIEW_HEADER_VALUE];
+      $page['#attached']['http_header'][] = [PantheonContentPublisherXFrameSubscriber::HEADER_NAME, PantheonContentPublisherXFrameSubscriber::HEADER_VALUE];
     }
     $page['#cache']['contexts'][] = 'url.query_args:publishingLevel';
     return $page;

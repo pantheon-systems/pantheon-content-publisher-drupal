@@ -14,6 +14,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 final class PantheonContentPublisherXFrameSubscriber implements EventSubscriberInterface {
 
+  const HEADER_NAME = 'X-Pantheon-Content-Publisher';
+
+  const HEADER_VALUE = 'remove';
+
+
   /**
    * Constructs a PantheonDocumentXFrameSubscriber object.
    */
@@ -24,11 +29,11 @@ final class PantheonContentPublisherXFrameSubscriber implements EventSubscriberI
    */
   public function onKernelResponse(ResponseEvent $event): void {
     $headers = $event->getResponse()->headers;
-    if ($headers->get(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME) === PantheonContentPublisherViewController::PREVIEW_HEADER_VALUE) {
+    if ($headers->get(static::HEADER_NAME) === static::HEADER_VALUE) {
       // This page is meant to be presented in an iframe.
       $headers->remove('X-Frame-Options');
       // This header was only used to signal this subscriber.
-      $headers->remove(PantheonContentPublisherViewController::PREVIEW_HEADER_NAME);
+      $headers->remove(static::HEADER_NAME);
     }
   }
 
