@@ -20,9 +20,9 @@ final class PantheonSmartComponentForm extends EntityForm {
 
     $form = parent::form($form, $form_state);
 
-    $form['label'] = [
+    $form['title'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Label'),
+      '#title' => $this->t('Title'),
       '#maxlength' => 255,
       '#default_value' => $this->entity->label(),
       '#required' => TRUE,
@@ -33,6 +33,7 @@ final class PantheonSmartComponentForm extends EntityForm {
       '#default_value' => $this->entity->id(),
       '#machine_name' => [
         'exists' => [PantheonSmartComponent::class, 'load'],
+        'source' => ['title'],
       ],
       '#disabled' => !$this->entity->isNew(),
     ];
