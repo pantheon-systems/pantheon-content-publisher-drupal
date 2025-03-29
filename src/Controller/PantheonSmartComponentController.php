@@ -12,6 +12,7 @@ use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Returns responses for Pantheon content publisher routes.
@@ -71,8 +72,25 @@ class PantheonSmartComponentController extends EntityViewController {
     return $return;
   }
 
+  /**
+   * Preview a component.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   * @param string $component
+   *   The name of the pantheon smart component, this is passed in uppercase
+   *   which Drupal can't handle properly and it's not really possible to
+   *   change the request path in midddleware or elsewhere so just take the
+   *   name as string and convert it in method.
+   *
+   * @return \Drupal\Core\Render\AttachmentsInterface|\Drupal\Core\Render\HtmlResponse|void
+   */
   public function viewSmartComponent(Request $request, string $component) {
+    $component = strtolower($component);
     $values = ['component' => $component];
+    if (!$component = PantheonSmartComponent::load($component)) {
+      throw new NotFoundHttpException();
+    }
     if ($request->query->has('attrs') && ($attrs = base64_decode($request->query->get('attrs'), TRUE)) && ($data = json_decode($attrs, TRUE))) {
       $values += $data;
     }
@@ -81,7 +99,7 @@ class PantheonSmartComponentController extends EntityViewController {
     $build['#cache']['contexts'][] = 'url.query_args:args';
     $renderer = \Drupal::service('bare_html_page_renderer');
     assert($renderer instanceof BareHtmlPageRendererInterface);
-    return $renderer->renderBarePage($build, PantheonSmartComponent::load($component)->label(), 'markup');
+    return $renderer->renderBarePage($build, $component->label(), 'markup');
   }
 
 }
