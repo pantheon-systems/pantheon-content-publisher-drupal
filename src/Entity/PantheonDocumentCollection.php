@@ -141,11 +141,11 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         $fields[] = $field;
       }
     }
+    $datasource = 'entity:pantheon_document';
     if ($update) {
       $index = Index::load($this->id());
     }
     else {
-      $datasource = 'entity:pantheon_document';
       $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
       $index = Index::create([
         'name' => $this->label(),
@@ -155,11 +155,6 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         'datasource_settings' => [$datasource => []],
         'dependencies' => $dependencies,
       ]);
-      $index->getDatasource($datasource)
-        ->getEntityTypeBundleInfo()
-        ->clearCachedBundles();
-      $fields_helper = \Drupal::service('search_api.fields_helper');
-      assert($fields_helper instanceof FieldsHelperInterface);
       $base_fields = \Drupal::service('entity_field.manager')
         ->getBaseFieldDefinitions('pantheon_document');
       $fields[] = $base_fields['content'];
@@ -167,6 +162,11 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
     // Save automatically tracks all items in a batch. This tracking does
     // not happen during config sync so handle that separately.
     if (!empty($fields)) {
+      $fields_helper = \Drupal::service('search_api.fields_helper');
+      assert($fields_helper instanceof FieldsHelperInterface);
+      $index->getDatasource($datasource)
+        ->getEntityTypeBundleInfo()
+        ->clearCachedBundles();
       foreach ($fields as $field) {
         $storage = $field->getFieldStorageDefinition();
         $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
