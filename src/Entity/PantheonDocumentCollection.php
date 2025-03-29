@@ -141,26 +141,32 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         $fields[] = $field;
       }
     }
-    if (!$update) {
-      $fs = \Drupal::service('file_system');
-      assert($fs instanceof FileSystemInterface);
-      $directory = 'public://pantheon_document/' . $this->id();
-      $fs->prepareDirectory($directory, FileSystemInterface:: CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+    if ($update) {
+      $index = Index::load($this->id());
+    }
+    else {
       $datasource = 'entity:pantheon_document';
       $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
       $index = Index::create([
         'name' => $this->label(),
-        'id' => $this->id,
+        'id' => $this->id(),
         'status' => 1,
         'server' => $this->search_api_server,
         'datasource_settings' => [$datasource => []],
         'dependencies' => $dependencies,
       ]);
-      $index->getDatasource($datasource)->getEntityTypeBundleInfo()->clearCachedBundles();
+      $index->getDatasource($datasource)
+        ->getEntityTypeBundleInfo()
+        ->clearCachedBundles();
       $fields_helper = \Drupal::service('search_api.fields_helper');
       assert($fields_helper instanceof FieldsHelperInterface);
-      $base_fields = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('pantheon_document');
+      $base_fields = \Drupal::service('entity_field.manager')
+        ->getBaseFieldDefinitions('pantheon_document');
       $fields[] = $base_fields['content'];
+    }
+    // Save automatically tracks all items in a batch. This tracking does
+    // not happen during config sync so handle that separately.
+    if (!empty($fields)) {
       foreach ($fields as $field) {
         $storage = $field->getFieldStorageDefinition();
         $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
@@ -168,8 +174,6 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         $search_api_field->setLabel($field->getLabel());
         $index->addField($search_api_field);
       }
-      // Save automatically tracks all items in a batch. This tracking does
-      // not happen during config sync so handle that separately.
       $index->save();
       // @TODO Check what happens in the core config UI.
       $is_drush_batch = !\Drupal::service('config.installer')->isSyncing() && function_exists('drush_backend_batch_process');
