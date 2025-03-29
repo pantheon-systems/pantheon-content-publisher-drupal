@@ -97,3 +97,10 @@ pantheon_smart_component.schema.component:
     _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonSmartComponentController::listComponents'
   requirements:
     _access: 'TRUE'
+
+pantheon_smart_component.view:
+  path: '/api/pantheoncloud/component/{pantheon_smart_component}'
+  defaults:
+    _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonSmartComponentController::viewSmartComponent'
+  requirements:
+    _access: 'TRUE'

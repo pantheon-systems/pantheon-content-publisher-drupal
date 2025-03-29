@@ -6,6 +6,8 @@ namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\Core\Field\FieldConfigInterface;
+use Drupal\Core\Render\BareHtmlPageRendererInterface;
+use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -77,7 +79,9 @@ class PantheonSmartComponentController extends EntityViewController {
     $build = parent::view(PantheonSmartInstance::create($values));
     $build['#cache']['contexts'][] = 'url.path';
     $build['#cache']['contexts'][] = 'url.query_args:args';
-    return $build;
+    $renderer = \Drupal::service('bare_html_page_renderer');
+    assert($renderer instanceof BareHtmlPageRendererInterface);
+    return $renderer->renderBarePage($build, PantheonSmartComponent::load($component)->label(), 'markup');
   }
 
 }
