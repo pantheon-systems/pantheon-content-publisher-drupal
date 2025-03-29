@@ -41,7 +41,8 @@ final class PantheonContentPublisherXFrameSubscriber implements EventSubscriberI
    * {@inheritdoc}
    */
   public static function getSubscribedEvents(): array {
-    return [KernelEvents::RESPONSE => ['onKernelResponse']];
+    // Make sure to fire after FinishResponseSubscriber.
+    return [KernelEvents::RESPONSE => ['onKernelResponse', 1]];
   }
 
 }
