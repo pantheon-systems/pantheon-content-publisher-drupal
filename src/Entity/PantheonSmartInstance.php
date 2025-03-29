@@ -18,7 +18,7 @@ use Drupal\Core\Entity\ContentEntityBase;
  *     "storage" = "Drupal\Core\Entity\ContentEntityNullStorage",
  *   },
  *   admin_permission = "administer pantheon_smart_instance types",
- *   field_ui_base_route = "entity.pantheon_document_collection.edit_form",
+ *   field_ui_base_route = "entity.pantheon_smart_component.edit_form",
  *   entity_keys = {
  *     "id" = "id",
  *     "bundle" = "component",

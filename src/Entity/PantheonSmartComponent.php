@@ -30,6 +30,7 @@ use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
  *   },
  *   config_prefix = "pantheon_smart_component",
  *   admin_permission = "administer pantheon_smart_component",
+ *   bundle_of = "pantheon_smart_instance",
  *   links = {
  *     "collection" = "/admin/structure/pantheon-smart-component",
  *     "add-form" = "/admin/structure/pantheon-smart-component/add",
