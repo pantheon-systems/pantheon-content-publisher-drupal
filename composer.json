@@ -14,6 +14,7 @@
     ],
     "require": {
         "drupal/search_api": "^1.0",
+        "drupal/media_library_form_element": "^2.1",
         "dpauli/graphql-request-builder": "^1.0"
     },
     "support": {

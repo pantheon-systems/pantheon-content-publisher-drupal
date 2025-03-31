@@ -38,15 +38,13 @@ class PantheonSmartComponentForm extends EntityForm {
       '#disabled' => !$this->entity->isNew(),
     ];
 
-    if (\Drupal::moduleHandler()->moduleExists('media_library_form_element')) {
-      $form['icon_media'] = [
-        '#type' => 'media_library',
-        '#title' => $this->t('Icon'),
-        '#allowed_bundles' => ['image'],
-        '#default_value' => $this->entity->get('icon'),
-        '#description' => t('Upload or select the icon for this component.'),
-      ];
-    }
+    $form['icon_media'] = [
+      '#type' => 'media_library',
+      '#title' => $this->t('Icon'),
+      '#allowed_bundles' => ['image'],
+      '#default_value' => $this->entity->get('icon'),
+      '#description' => t('Upload or select the icon for this component.'),
+    ];
 
     return $form;
   }

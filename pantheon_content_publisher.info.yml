@@ -5,3 +5,4 @@ package: 'pantheon'
 core_version_requirement: ^10 || ^11
 dependencies:
   - search_api:search_api (>= 8.x-1.20)
+  - media_library_form_element:media_library_form_element
