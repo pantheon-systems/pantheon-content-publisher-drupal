@@ -177,14 +177,10 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         $index->addField($search_api_field);
       }
       $index->save();
-      // @TODO Check what happens in the core config UI.
-      $is_drush_batch = !\Drupal::service('config.installer')->isSyncing() && function_exists('drush_backend_batch_process');
-      if ($is_drush_batch) {
-        \Drupal::service('search_api.index_task_manager')->addItemsBatch($index);
-      }
+      \Drupal::service('search_api.index_task_manager')->addItemsBatch($index);
       // Index all items in the same batch as well.
       IndexBatchHelper::create($index);
-      if ($is_drush_batch) {
+      if (function_exists('drush_backend_batch_process')) {
         drush_backend_batch_process();
       }
     }
