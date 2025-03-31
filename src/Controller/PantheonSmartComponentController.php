@@ -9,6 +9,7 @@ use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
 use Drupal\file\Entity\File;
 use Drupal\media\Entity\Media;
+use Drupal\options\Plugin\Field\FieldType\ListItemBase;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
@@ -69,7 +70,6 @@ class PantheonSmartComponentController extends EntityViewController {
       'type' => 'object',
       'required' => $field->isRequired(),
     ];
-    // @TODO handle list options as enums.
     foreach ($schema['columns'] as $columnName => $column) {
       $return['fields'][$columnName] = [
         'displayName' => $properties[$columnName]->getLabel(),
@@ -80,6 +80,11 @@ class PantheonSmartComponentController extends EntityViewController {
     if (count($return['fields']) === 1) {
       $return['type'] = $return['fields'][array_key_first($return['fields'])]['type'];
       unset($return['fields']);
+      if (is_a($field->getItemDefinition()->getClass(), ListItemBase::class, TRUE))  {
+        foreach (options_allowed_values($field->getFieldStorageDefinition()) as $value => $label) {
+          $return['options'][] = ['label' => $label, 'value' => $value];
+        }
+      }
     }
     return $return;
   }
