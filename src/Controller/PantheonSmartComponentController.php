@@ -7,6 +7,8 @@ namespace Drupal\pantheon_content_publisher\Controller;
 use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
+use Drupal\file\Entity\File;
+use Drupal\media\Entity\Media;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
@@ -41,8 +43,16 @@ class PantheonSmartComponentController extends EntityViewController {
       $fields = $storage->loadMultiple($ids);
       foreach ($fields as $field) {
         $component = $components[$field->getTargetBundle()];
-        $json[$component->id()]['title'] = $component->label();
-        $json[$component->id()]['fields'][$field->getName()] = $this->convertFieldToPantheon($field);
+        $id = $component->id();
+        if (!isset($json[$id])) {
+          $json[$id]['title'] = $component->label();
+          $mid = $component->get('icon');
+          if ($mid && ($media = Media::load($mid))) {
+            $fid = $media->getSource()->getSourceFieldValue($media);
+            $json[$id]['iconUrl'] = File::load($fid)->createFileUrl(FALSE);
+          }
+        }
+        $json[$id]['fields'][$field->getName()] = $this->convertFieldToPantheon($field);
       }
     }
     return new JsonResponse($pantheon_smart_component ? ($json[$pantheon_smart_component->id()] ?? []) : $json);

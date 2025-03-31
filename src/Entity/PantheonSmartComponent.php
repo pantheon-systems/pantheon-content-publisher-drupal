@@ -45,21 +45,21 @@ use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
  *   config_export = {
  *     "id",
  *     "title",
+ *     "icon"
  *   },
  * )
  */
 class PantheonSmartComponent extends ConfigEntityBase implements PantheonSmartComponentInterface {
 
-  /**
-   * The example ID.
-   */
   protected string $id;
 
-  /**
-   * The example label.
-   */
   protected string $title;
 
-  // @TODO handle iconUrl.
+  /**
+   * The media ID of the icon.
+   *
+   * @var int
+   */
+  protected ?int $icon;
 
 }

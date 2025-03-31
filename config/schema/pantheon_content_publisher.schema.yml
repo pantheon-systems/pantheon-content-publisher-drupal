@@ -41,10 +41,11 @@ pantheon_content_publisher.pantheon_smart_component.*:
     id:
       type: string
       label: ID
-    label:
+    title:
       type: label
-      label: Label
+      label: title
     uuid:
       type: string
-    description:
-      type: string
+    icon:
+      type: integer
+      label: 'Icon'

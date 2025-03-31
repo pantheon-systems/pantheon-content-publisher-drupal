@@ -11,7 +11,7 @@ use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 /**
  * Pantheon smart component form.
  */
-final class PantheonSmartComponentForm extends EntityForm {
+class PantheonSmartComponentForm extends EntityForm {
 
   /**
    * {@inheritdoc}
@@ -38,17 +38,15 @@ final class PantheonSmartComponentForm extends EntityForm {
       '#disabled' => !$this->entity->isNew(),
     ];
 
-    $form['status'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Enabled'),
-      '#default_value' => $this->entity->status(),
-    ];
-
-    $form['description'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Description'),
-      '#default_value' => $this->entity->get('description'),
-    ];
+    if (\Drupal::moduleHandler()->moduleExists('media_library_form_element')) {
+      $form['icon_media'] = [
+        '#type' => 'media_library',
+        '#title' => $this->t('Icon'),
+        '#allowed_bundles' => ['image'],
+        '#default_value' => $this->entity->get('icon'),
+        '#description' => t('Upload or select the icon for this component.'),
+      ];
+    }
 
     return $form;
   }
@@ -57,6 +55,12 @@ final class PantheonSmartComponentForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state): int {
+    if ($mid = $form_state->getValue('icon_media')) {
+      $this->entity->set('icon', (int) $mid);
+    }
+    else {
+      $this->entity->set('icon', NULL);
+    }
     $result = parent::save($form, $form_state);
     $message_args = ['%label' => $this->entity->label()];
     $this->messenger()->addStatus(
