@@ -67,7 +67,6 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
 
   const TYPE_MAP = [
     'boolean' => 'boolean',
-    // @TODO actually make date functional
     'date' => 'timestamp',
     'list' => 'list_string',
     'text' => 'string',
@@ -132,9 +131,13 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       $candidate_base = strtolower(preg_replace('/[^a-z0-9_]+/i', '', $pantheon_field));
       /** @noinspection PhpStatementHasEmptyBodyInspection */
       for ($counter = 0, $drupal_field_name = $candidate_base; isset($field_storage_ids["$prefix$drupal_field_name"]); $drupal_field_name = sprintf('%s_%d', $candidate_base, $counter++));
-      if (isset(self::TYPE_MAP[$pantheon_data['type']])) {
-        $field = $this->createNewDrupalField($drupal_field_name, self::TYPE_MAP[$pantheon_data['type']]);
-        $this->getConverter()->set($pantheon_field, $field->getName());
+      if ($type = (self::TYPE_MAP[$pantheon_data['type']] ?? FALSE)) {
+        $field = $this->createNewDrupalField($drupal_field_name, $type);
+        $drupal_field = $field->getName();
+        if ($type === 'timestamp') {
+          $drupal_field .= '.date';
+        }
+        $this->getConverter()->set($pantheon_field, $drupal_field);
         $this->updateDrupalField($field, $pantheon_data);
         $field_storage_ids["$prefix$drupal_field_name"] = TRUE;
         $fields[] = $field;

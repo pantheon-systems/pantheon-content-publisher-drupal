@@ -59,6 +59,7 @@ class PantheonSmartComponentController extends EntityViewController {
       'type' => 'object',
       'required' => $field->isRequired(),
     ];
+    // @TODO handle list options as enums.
     foreach ($schema['columns'] as $columnName => $column) {
       $return['fields'][$columnName] = [
         'displayName' => $properties[$columnName]->getLabel(),

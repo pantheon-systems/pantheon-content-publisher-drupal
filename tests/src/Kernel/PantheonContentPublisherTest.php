@@ -6,7 +6,6 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherViewController;
 use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Entity\Index;
@@ -77,6 +76,7 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
     $pantheonContentPublisher = $storage->load($entity_id);
     $this->assertSame('textarea test contents', $pantheonContentPublisher->atextareameta->value);
     $this->assertSame('test title', $pantheonContentPublisher->label());
+    $this->assertSame(1741385249, $pantheonContentPublisher->adatemeta->value);
     $this->assertSame(sprintf('<a href="/pantheon-content-publisher/%s" hreflang="und">test title</a>', $entity_id), $pantheonContentPublisher->toLink()->toString()->getGeneratedLink());
     $newValue = $this->updateArticleInPantheon();
     $pantheonContentPublisher = $storage->load($entity_id);
