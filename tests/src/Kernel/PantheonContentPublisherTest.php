@@ -33,8 +33,6 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
     $this->assertSame(0, $index->getTrackerInstance()->getRemainingItemsCount());
     $this->assertSame('textarea test contents', $this->getSearchAPIvalue('atextareameta'));
     $newValue = $this->updateArticleInPantheon();
-    // Notify the system the value has been updated.
-    $this->executeWebhook();
     $this->assertSame($newValue, $this->getSearchAPIvalue('atextareameta'));
   }
 

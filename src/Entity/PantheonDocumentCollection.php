@@ -99,7 +99,6 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
     $field_ids = \Drupal::entityQuery('field_config')
       ->condition('entity_type', 'pantheon_document')
       ->condition('bundle', $this->id())
-      ->condition('field_name', 'media', '<>')
       ->execute();
     // Do this in a single transaction for speed and consistency.
     $txn = \Drupal::database()->startTransaction();
