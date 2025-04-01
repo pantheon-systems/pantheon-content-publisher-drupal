@@ -81,6 +81,7 @@ class PantheonSmartComponentController extends EntityViewController {
       $return['type'] = $return['fields'][array_key_first($return['fields'])]['type'];
       unset($return['fields']);
       if (is_a($field->getItemDefinition()->getClass(), ListItemBase::class, TRUE))  {
+        $return['type'] = 'enum';
         foreach (options_allowed_values($field->getFieldStorageDefinition()) as $value => $label) {
           $return['options'][] = ['label' => $label, 'value' => $value];
         }

@@ -1,0 +1,21 @@
+uuid: 399f94f0-1f12-4f5d-8fa2-8a0b698e2d03
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.pantheon_smart_instance.list_field
+    - pantheon_content_publisher.pantheon_smart_component.smart_component_test
+  module:
+    - options
+id: pantheon_smart_instance.smart_component_test.list_field
+field_name: list_field
+entity_type: pantheon_smart_instance
+bundle: smart_component_test
+label: 'A list field'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

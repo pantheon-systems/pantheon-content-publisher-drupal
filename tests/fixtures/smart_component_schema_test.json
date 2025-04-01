@@ -1,0 +1,23 @@
+{
+  "smart_component_test": {
+    "title": "Smart component test",
+    "iconUrl": "https://localhost/icons/icon.png",
+    "fields": {
+      "plain_text_field": {
+        "displayName": "A plain text field",
+        "type": "string",
+        "required": false
+      },
+      "list_field": {
+        "displayName": "A list field",
+        "required": true,
+        "type": "enum",
+        "options": [
+          { "label": "Option 1", "value": "option_1" },
+          { "label": "Option 2", "value": "option_2" },
+          { "label": "Option 3", "value": "option_3" }
+        ]
+      }
+    }
+  }
+}

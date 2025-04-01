@@ -1,0 +1,5 @@
+name: 'Pantheon smart component test'
+type: module
+description: 'Pantheon smart component test module'
+package: 'pantheon'
+core_version_requirement: ^10 || ^11

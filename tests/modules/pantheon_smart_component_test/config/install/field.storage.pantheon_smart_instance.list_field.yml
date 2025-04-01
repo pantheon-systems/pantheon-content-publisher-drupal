@@ -1,0 +1,30 @@
+uuid: 90766f88-ef94-44ca-93cb-39a2288ac922
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - pantheon_content_publisher
+id: pantheon_smart_instance.list_field
+field_name: list_field
+entity_type: pantheon_smart_instance
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: option_1
+      label: 'Option 1'
+    -
+      value: option_2
+      label: 'Option 2'
+    -
+      value: option_3
+      label: 'Option 3'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

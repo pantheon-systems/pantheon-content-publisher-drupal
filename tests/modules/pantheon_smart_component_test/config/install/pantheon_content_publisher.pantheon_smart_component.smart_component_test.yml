@@ -1,0 +1,7 @@
+uuid: 6d1876f1-6c3f-4ebb-946e-68c98cbf6ddc
+langcode: en
+status: true
+dependencies: {  }
+id: smart_component_test
+title: 'Smart component test'
+icon: 1
