@@ -34,45 +34,29 @@ class PantheonContentPublisherController extends ControllerBase {
    */
   public function webhook(Request $request): Response {
     if ($decoded = @json_decode($request->getContent(), TRUE)) {
-      if (isset($decoded['siteId'])) {
-        $collection = PantheonDocumentCollection::load($decoded['siteId']);
+      $collection_id = $decoded['payload']['siteId'];
+      $entity_id = PantheonDocumentStorage::getEntityId($collection_id, $decoded['payload']['articleId']);
+      if ($decoded['event'] === 'article.unpublish') {
+        PantheonDocument::create([
+          'collection' => $collection_id,
+          'id' => $entity_id,
+        ])->delete();
       }
       else {
-        $collections = PantheonDocumentCollection::loadMultiple();
-        $collection = reset($collections);
+        $document = $this->pantheonContentPublisherStorage->load($entity_id);
+        $document->save();
+        Index::load($collection_id)->indexItems();
+        $document->get('content')->view(['type' => 'pantheon_document_tags_formatter']);
+        if ($document->_image_data) {
+          \Drupal::queue('pantheon_document_images')->createItem([$collection_id, $document->_image_data]);
+        }
       }
-      $this->handleEvent($collection, $decoded);
     }
     return new Response();
   }
 
   public function status(): JsonResponse {
     return new JsonResponse();
-  }
-
-  /**
-   * @param \Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection $collection
-   *   The Pantheon content publisher collection.
-   * @param array $decoded
-   *   The decoded webhook payload.
-   */
-  protected function handleEvent(PantheonDocumentCollectionInterface $collection, array $decoded): void {
-    $entity_id = PantheonDocumentStorage::getEntityId($collection->id(), $decoded['payload']['articleId']);
-    if ($decoded['event'] === 'article.unpublish') {
-      PantheonDocument::create([
-        'collection' => $collection->id(),
-        'id' => $entity_id,
-      ])->delete();
-    }
-    else {
-      $document = $this->pantheonContentPublisherStorage->load($entity_id);
-      $document->save();
-      Index::load($collection->id())->indexItems();
-      $document->get('content')->view(['type' => 'pantheon_document_tags_formatter']);
-      if ($document->_image_data) {
-        \Drupal::queue('pantheon_document_images')->createItem([$collection->id(), $document->_image_data]);
-      }
-    }
   }
 
 }

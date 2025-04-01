@@ -166,7 +166,10 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
   protected function executeWebhook(): void {
     $content = [
       'event' => 'article.update',
-      'payload' => ['articleId' => self::ARTICLE_ID],
+      'payload' => [
+        'articleId' => self::ARTICLE_ID,
+        'siteId' => $this->collection->id(),
+      ],
     ];
     $request = Request::create('/pantheon_document/webhook', 'POST', content: json_encode($content));
     $this->handle($request);
