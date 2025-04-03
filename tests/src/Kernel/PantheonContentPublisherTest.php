@@ -27,7 +27,7 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
     $indexes = Index::loadMultiple();
     $this->assertCount(1, $indexes);
     $index = reset($indexes);
-    $this->assertSame($this->collection->id(), $index->id());
+    $this->assertSame(strtolower($this->collection->id()), $index->id());
     $this->assertSame(['abooleanmeta', 'adatemeta', 'alistmeta', 'atextareameta', 'atextmeta', 'content'], array_keys($index->getFields()));
     $this->assertSame(1, $index->getTrackerInstance()->getTotalItemsCount());
     $this->assertSame(0, $index->getTrackerInstance()->getRemainingItemsCount());

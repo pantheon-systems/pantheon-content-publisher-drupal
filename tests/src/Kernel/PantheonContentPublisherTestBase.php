@@ -157,7 +157,7 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
    */
   protected function getSearchAPIvalue(string $field): string {
     return $this->container->get('database')
-      ->select(sprintf("search_api_db_%s_%s", $this->collection->id(), $field), 's')
+      ->select(sprintf("search_api_db_%s_%s", strtolower($this->collection->id()), $field), 's')
       ->fields('s', ['value'])
       ->execute()
       ->fetchField();

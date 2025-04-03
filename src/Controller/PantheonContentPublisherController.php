@@ -45,7 +45,7 @@ class PantheonContentPublisherController extends ControllerBase {
       else {
         $document = $this->pantheonContentPublisherStorage->load($entity_id);
         $document->save();
-        Index::load($collection_id)->indexItems();
+        Index::load(strtolower($collection_id))->indexItems();
         $document->get('content')->view(['type' => 'pantheon_document_tags_formatter']);
         if ($document->_image_data) {
           \Drupal::queue('pantheon_document_images')->createItem([$collection_id, $document->_image_data]);

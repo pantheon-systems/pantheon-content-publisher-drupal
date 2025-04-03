@@ -143,14 +143,15 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       }
     }
     $datasource = 'entity:pantheon_document';
+    $index_id = strtolower($this->id());
     if ($update) {
-      $index = Index::load($this->id());
+      $index = Index::load($index_id);
     }
     else {
       $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
       $index = Index::create([
         'name' => $this->label(),
-        'id' => $this->id(),
+        'id' => $index_id,
         'status' => 1,
         'server' => $this->search_api_server,
         'datasource_settings' => [$datasource => []],
