@@ -171,7 +171,7 @@ class PantheonContentPublisherTestBase extends KernelTestBase {
         'siteId' => $this->collection->id(),
       ],
     ];
-    $request = Request::create('/pantheon_document/webhook', 'POST', content: json_encode($content));
+    $request = Request::create('/pantheon_content_publisher/webhook', 'POST', content: json_encode($content));
     $this->handle($request);
   }
 
