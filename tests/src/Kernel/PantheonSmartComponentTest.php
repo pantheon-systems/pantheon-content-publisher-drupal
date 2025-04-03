@@ -43,7 +43,7 @@ class PantheonSmartComponentTest extends MediaKernelTestBase {
     $icon = Media::create([
       'mid' => 1,
       'bundle' => $this->createMediaType('file')->id(),
-      'name' => 'Mr. Jones',
+      'name' => 'Test media',
       'field_media_file' => [
         'target_id' => $file->id(),
       ],

@@ -9,3 +9,8 @@ services:
     class: Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber
     tags:
       - { name: event_subscriber }
+
+  pantheon_content_publisher.route_subscriber:
+    class: Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherRouteSubscriber
+    tags:
+      - { name: event_subscriber }

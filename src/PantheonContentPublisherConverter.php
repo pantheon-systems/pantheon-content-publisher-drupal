@@ -23,9 +23,13 @@ class PantheonContentPublisherConverter {
    * This is using the entity cache memory backend for solid cache clearing.
    *
    * @return array
-   *   Pantheon field to Drupal field map.
+   *   Keys are Pantheon field, values are Drupal field name or Drupal field
+   *   name, a dot and a method in this class. The latter is used when
+   *   Pantheon data needs conversion for Drupal, currently only ::date is
+   *   used. The map is returned by reference for faster manipulation of the
+   *   memory cache.
    */
-  public function &getFields(): array {
+  protected function &getFields(): array {
     $cid = 'pantheon_document:fields';
     if (!$cache = $this->memoryCache->get($cid)) {
       $fields = $this->keyValueStore->getAll();

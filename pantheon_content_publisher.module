@@ -7,14 +7,17 @@ declare(strict_types=1);
  * Provides a pantheon content publisher entity type.
  */
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Render\Element;
 
 /**
  * Implements hook_theme().
  */
-function pantheon_document_theme(): array {
+function pantheon_content_publisher_theme(): array {
   return [
     'pantheon_document' => ['render element' => 'elements'],
+    'pantheon_smart_instance' => ['render element' => 'elements'],
   ];
 }
 
@@ -36,3 +39,33 @@ function template_preprocess_pantheon_document(array &$variables): void {
   }
 }
 
+/**
+ * Prepares variables for pantheon content publisher templates.
+ *
+ * Default template: pantheon-content-publisher.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the pantheon content publisher information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_pantheon_smart_instance(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_entity_operation_alter().
+ */
+function pantheon_content_publisher_entity_operation_alter(array &$operations, \Drupal\Core\Entity\EntityInterface $entity) {
+  $entityTypeId = $entity->getEntityTypeId();
+  if ($entityTypeId === 'pantheon_smart_component') {
+    unset($operations['manage-form-display']);
+  }
+  if ($entityTypeId === 'pantheon_document_collection') {
+    unset($operations['manage-fields'], $operations['manage-form-display']);
+  }
+}
