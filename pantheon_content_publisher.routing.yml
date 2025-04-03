@@ -30,14 +30,14 @@ entity.pantheon_document_collection.delete_form:
   requirements:
     _permission: 'administer pantheon_document_collection'
 
-pantheon_document.webhook:
-  path: '/pantheon_document/webhook'
+pantheon_content_publisher.webhook:
+  path: '/pantheon_content_publisher/webhook'
   defaults:
     _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController::webhook'
   requirements:
     _access: 'TRUE'
 
-pantheon_document.status:
+pantheon_content_publisher.status:
   path: '/api/pantheoncloud/status'
   defaults:
     _controller: '\Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherController::status'
