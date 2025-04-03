@@ -87,7 +87,9 @@ class PantheonTagsFormatter extends FormatterBase {
     }
     $element = $domDocument->createElement($tag, $data);
     foreach ($attrs as $key => $value) {
-      $element->setAttribute($key, $value);
+      if (isset($value)) {
+        $element->setAttribute($key, $value);
+      }
     }
     if ($style) {
       $element->setAttribute('style', implode('; ', $style));
