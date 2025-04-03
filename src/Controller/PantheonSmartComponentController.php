@@ -89,7 +89,7 @@ class PantheonSmartComponentController extends EntityViewController {
           $return['options'][] = ['label' => $label, 'value' => $value];
         }
       }
-      if (($configuration = $display->getComponent($field->getName())) && isset($configuration['type']) && str_starts_with($configuration['type'], 'imagecache_external_')) {
+      if (($configuration = $display?->getComponent($field->getName())) && isset($configuration['type']) && str_starts_with($configuration['type'], 'imagecache_external_')) {
         $return['type'] = 'file';
       }
     }
