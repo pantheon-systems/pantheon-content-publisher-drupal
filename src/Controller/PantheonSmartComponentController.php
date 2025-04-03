@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Entity\Controller\EntityViewController;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
 use Drupal\file\Entity\File;
@@ -60,6 +61,8 @@ class PantheonSmartComponentController extends EntityViewController {
   }
 
   protected function convertFieldToPantheon(FieldConfigInterface $field): array {
+    $bundle = $field->getTargetBundle();
+    $display = EntityViewDisplay::load("pantheon_smart_instance.$bundle.default");
     $schema = $field->getFieldStorageDefinition()->getSchema();
     $properties = $field->getFieldStorageDefinition()->getPropertyDefinitions();
     if (empty($schema['columns'])) {
@@ -85,6 +88,9 @@ class PantheonSmartComponentController extends EntityViewController {
         foreach (options_allowed_values($field->getFieldStorageDefinition()) as $value => $label) {
           $return['options'][] = ['label' => $label, 'value' => $value];
         }
+      }
+      if (($configuration = $display->getComponent($field->getName())) && isset($configuration['type']) && str_starts_with($configuration['type'], 'imagecache_external_')) {
+        $return['type'] = 'file';
       }
     }
     return $return;
