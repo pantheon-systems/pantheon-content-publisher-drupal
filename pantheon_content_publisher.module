@@ -7,8 +7,6 @@ declare(strict_types=1);
  * Provides a pantheon content publisher entity type.
  */
 
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Render\Element;
 
 /**
