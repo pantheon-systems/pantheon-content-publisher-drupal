@@ -125,6 +125,7 @@ class PantheonSmartComponentController extends EntityViewController {
     assert($renderer instanceof BareHtmlPageRendererInterface);
     $response = $renderer->renderBarePage($build, $component->label(), 'markup');
     $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, PantheonContentPublisherXFrameSubscriber::HEADER_VALUE);
+    $response->headers->set('Access-Control-Allow-Origin', '*');
     return $response;
   }
 
