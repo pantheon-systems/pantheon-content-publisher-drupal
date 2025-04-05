@@ -117,6 +117,13 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
       ])
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['slug'] = BaseFieldDefinition::create('string')
+      ->setSetting('is_ascii', TRUE)
+      ->setDisplayOptions('view', [
+        'region' => 'hidden',
+      ])
+      ->setDisplayConfigurable('view', FALSE);
+
     return $fields;
   }
 

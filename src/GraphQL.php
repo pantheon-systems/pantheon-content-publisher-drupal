@@ -30,6 +30,7 @@ class GraphQL {
     $query = (new RootType('article'))->addArgument(new Argument('id', $id))->addSubTypes([
       'title',
       'content',
+      'slug',
       'metadata',
     ]);
     return $this->request($query);
