@@ -9,6 +9,7 @@ use Drupal\media\Entity\Media;
 use Drupal\pantheon_content_publisher\Controller\PantheonSmartComponentController;
 use Drupal\Tests\media\Kernel\MediaKernelTestBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Smart component test
@@ -62,6 +63,20 @@ class PantheonSmartComponentTest extends MediaKernelTestBase {
     $expected = json_decode(file_get_contents(__DIR__ . '/../../fixtures/smart_component_schema_test.json'), TRUE);
     $actual = json_decode($response->getContent(), TRUE);
     $this->assertEquals($expected, $actual);
+  }
+
+  public function testFormatter(): void {
+    $controller = $this->container
+      ->get('controller_resolver')
+      ->getControllerFromDefinition(PantheonSmartComponentController::class . '::viewSmartComponent');
+    $args = [
+      'tag' => 'component',
+      'type' => 'smart_component_test',
+      'plain_text_field' => $this->randomString(),
+      'list_field' => 'option_2',
+    ];
+    $request = new Request(['args' => base64_encode(json_encode([$args]))]);
+    $result = $controller($request, 'smart_component_test');
   }
 
 }

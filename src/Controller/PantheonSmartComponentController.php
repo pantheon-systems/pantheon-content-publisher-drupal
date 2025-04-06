@@ -111,10 +111,10 @@ class PantheonSmartComponentController extends EntityViewController {
    */
   public function viewSmartComponent(Request $request, string $component) {
     $component = strtolower($component);
+    $values = ['component' => $component];
     if (!$component = PantheonSmartComponent::load($component)) {
       throw new NotFoundHttpException();
     }
-    $values = ['component' => $component];
     if ($request->query->has('attrs') && ($attrs = base64_decode($request->query->get('attrs'), TRUE)) && ($data = json_decode($attrs, TRUE))) {
       $values += $data;
     }
