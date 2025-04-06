@@ -104,7 +104,10 @@ class PantheonTagsFormatter extends FormatterBase  {
 
       case 'component':
 
-        if (!empty($node['type']) && $component = $this->entityTypeManager->getStorage('pantheon_smart_component')->load($node['type'])) {
+        if (!empty($node['type'])) {
+          $component = $this->entityTypeManager
+            ->getStorage('pantheon_smart_instance')
+            ->create(['component' => $node['type']] + $node['attrs']);
           $build = $this->entityTypeManager
             ->getViewBuilder('pantheon_smart_instance')
             ->view($component);

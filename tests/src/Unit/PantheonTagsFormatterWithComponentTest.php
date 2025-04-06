@@ -27,6 +27,7 @@ class PantheonTagsFormatterWithComponentTest extends UnitTestCase {
     $tags = [
       'tag' => 'component',
       'type' => 'does_not_matter_the_mock_ignores_this',
+      'attrs' => ['some_field_name' => 'this_is_also_ignored'],
     ];
     $element = $this
       ->getFormatter($html)
@@ -52,7 +53,7 @@ class PantheonTagsFormatterWithComponentTest extends UnitTestCase {
     $storage = $this->createMock(EntityStorageInterface::class);
     $storage
       ->expects($this->once())
-      ->method('load')
+      ->method('create')
       ->willReturn($component);
     $viewBuilder = $this->createMock(EntityViewBuilderInterface::class);
     $viewBuilder
@@ -64,7 +65,7 @@ class PantheonTagsFormatterWithComponentTest extends UnitTestCase {
     $entityTypeManager
       ->expects($this->once())
       ->method('getStorage')
-      ->with('pantheon_smart_component')
+      ->with('pantheon_smart_instance')
       ->willReturn($storage);
     $entityTypeManager
       ->expects($this->once())
