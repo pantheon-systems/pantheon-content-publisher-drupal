@@ -6,9 +6,12 @@ namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Random;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
+use Drupal\Core\Render\RendererInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the Pantheon Tags formatter.
@@ -19,7 +22,18 @@ use Drupal\Core\Field\FormatterBase;
  *   field_types = {"string_long"},
  * )
  */
-class PantheonTagsFormatter extends FormatterBase {
+class PantheonTagsFormatter extends FormatterBase  {
+
+  protected EntityTypeManagerInterface $entityTypeManager;
+
+  protected RendererInterface $renderer;
+
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $formatter = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $formatter->entityTypeManager = $container->get('entity_type.manager');
+    $formatter->renderer = $container->get('renderer');
+    return $formatter;
+  }
 
   /**
    * {@inheritdoc}
@@ -38,7 +52,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier((new Random)->string(16));
       $container->setAttribute('class', $uniqueClass);
 
-      static::processNode($domDocument, $node, $container, $uniqueClass, $items->getEntity()->_image_data);
+      $this->processNode($node, $container, $uniqueClass, $items->getEntity()->_image_data);
 
       $element[$delta] = [
         '#type' => 'inline_template',
@@ -53,8 +67,6 @@ class PantheonTagsFormatter extends FormatterBase {
   /**
    * Process a node array into a DOM element.
    *
-   * @param \DOMDocument $domDocument
-   *   The dom document being worked on.
    * @param array $node
    *   The current node data.
    * @param \DOMElement $parent
@@ -66,7 +78,7 @@ class PantheonTagsFormatter extends FormatterBase {
    *
    * @throws \DOMException
    */
-  protected static function processNode(\DOMDocument $domDocument, array $node, \DOMElement $parent, string $uniqueClass, array &$image_data): void {
+  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, array &$image_data): void {
     $defaults = [
       'tag' => 'div',
       'data' => '',
@@ -75,17 +87,38 @@ class PantheonTagsFormatter extends FormatterBase {
       'children' => [],
     ];
     ['tag' => $tag, 'data' => $data, 'attrs' => $attrs, 'style' => $style, 'children' => $children] = array_filter($node) + $defaults;
-    if (!$attrs && !$data && !$children) {
+    if (!$attrs && !$data && !$children && empty($node['type'])) {
       return;
     }
-    if ($tag === 'style' && $data) {
-      $children = [];
-      $data = ".$uniqueClass $data";
+    switch ($tag) {
+      case 'style':
+        if ($data) {
+          $children = [];
+          $data = ".$uniqueClass $data";
+        }
+        break;
+
+      case 'img':
+        $image_data[$attrs['src']] = $attrs;
+        break;
+
+      case 'component':
+
+        if (!empty($node['type']) && $component = $this->entityTypeManager->getStorage('pantheon_smart_component')->load($node['type'])) {
+          $build = $this->entityTypeManager
+            ->getViewBuilder('pantheon_smart_instance')
+            ->view($component);
+          $html = (string) $this->renderer->renderInIsolation($build);
+          $tmp = new \DOMDocument();
+          $tmp->loadHTML($html);
+          foreach ($tmp->getElementsByTagName('body')->item(0)->childNodes as $componentNode) {
+            $componentNode = $parent->ownerDocument->importNode($componentNode, TRUE);
+            $parent->appendChild($componentNode);
+          }
+          return;
+        }
     }
-    if ($tag === 'img') {
-      $image_data[$attrs['src']] = $attrs;
-    }
-    $element = $domDocument->createElement($tag, $data);
+    $element = $parent->ownerDocument->createElement($tag, $data);
     foreach ($attrs as $key => $value) {
       if (isset($value)) {
         $element->setAttribute($key, $value);
@@ -95,12 +128,12 @@ class PantheonTagsFormatter extends FormatterBase {
       $element->setAttribute('style', implode('; ', $style));
     }
     foreach ($children as $child) {
-      static::processNode($domDocument, $child, $element, $uniqueClass, $image_data);
+      $this->processNode($child, $element, $uniqueClass, $image_data);
     }
     $parent->appendChild($element);
   }
 
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+  public static function isApplicable(FieldDefinitionInterface $field_definition): bool {
     return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
   }
 
