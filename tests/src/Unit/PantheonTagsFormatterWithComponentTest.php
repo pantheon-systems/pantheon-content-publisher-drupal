@@ -16,7 +16,7 @@ use Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter\PantheonTagsFo
 use Drupal\Tests\UnitTestCase;
 
 /**
- * Test description.
+ * Test the DOM parts for smart components in pantheon_document_tags_formatter.
  *
  * @group pantheon_content_publisher
  */
