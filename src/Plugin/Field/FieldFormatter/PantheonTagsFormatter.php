@@ -126,11 +126,13 @@ class PantheonTagsFormatter extends FormatterBase  {
           $html = (string) $this->renderer->renderInIsolation($build);
           // DOM is decoding &quot; but not the rest. Don't ask me why.
           $tmp = Html::load(str_replace('&quot;', $quote, $html));
-          $parent->appendChild($parent->ownerDocument->importNode($tmp->documentElement, TRUE));
-          return;
+          $element = $parent->ownerDocument->importNode($tmp->documentElement, TRUE);
+          $attrs = [];
         }
     }
-    $element = $parent->ownerDocument->createElement($tag, $data);
+    if (!isset($element)) {
+      $element = $parent->ownerDocument->createElement($tag, $data);
+    }
     foreach ($attrs as $key => $value) {
       if (isset($value)) {
         $element->setAttribute($key, $value);
