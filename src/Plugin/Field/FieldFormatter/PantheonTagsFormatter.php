@@ -129,7 +129,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $element->setAttribute('style', implode('; ', $style));
     }
     foreach ($children as $child) {
-      $this->processNode($child, $element, $uniqueClass, $quote, $image_data);
+      $this->processNode($child, $element, $uniqueClass, $image_data);
     }
     $parent->appendChild($element);
   }
