@@ -122,9 +122,8 @@ class PantheonTagsFormatter extends FormatterBase  {
             ->getViewBuilder('pantheon_smart_instance')
             ->view($component);
           $html = (string) $this->renderer->renderInIsolation($build);
-          $tmp = new \DOMDocument();
           // DOM is decoding &quot; but not the rest. Don't ask me why.
-          $tmp->loadHTML(str_replace('&quot;', $quote, $html), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+          $tmp = Html::load(str_replace('&quot;', $quote, $html));
           $parent->appendChild($parent->ownerDocument->importNode($tmp->documentElement, TRUE));
           return;
         }
