@@ -16,15 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PantheonContentPublisherViewController extends EntityViewController {
 
-  /**
-   * HTTP response header name.
-   *
-   * PantheonDocumentXFrameSubscriber checks this header and if present
-   * with ::PREVIEW_HEADER_VALUE value then both this header and the
-   * X-Frame-Options header added by FinishResponseSubscriber is removed and
-   * so this header is never sent to the client.
-   */
-
   public function pantheonView(Request $request, $pantheon_id): array {
     $collections = PantheonDocumentCollection::loadMultiple();
     $collection = reset($collections);
@@ -38,7 +29,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
     if ($is_preview) {
       $page['#attached']['library'][] = 'pantheon_content_publisher/drupal.pantheon_content_publisher.preview';
       $page['#attached']['drupalSettings']['pantheon_content_publisher']['site_id'] = $collection->id();
-      $page['#attached']['http_header'][] = [PantheonContentPublisherXFrameSubscriber::HEADER_NAME, PantheonContentPublisherXFrameSubscriber::HEADER_VALUE];
+      $page['#attached']['http_header'][] = [PantheonContentPublisherXFrameSubscriber::HEADER_NAME, ''];
     }
     $page['#cache']['contexts'][] = 'url.query_args:publishingLevel';
     return $page;

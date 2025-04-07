@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher\EventSubscriber;
 
-use Drupal\pantheon_content_publisher\Controller\PantheonContentPublisherViewController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -14,10 +13,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 final class PantheonContentPublisherXFrameSubscriber implements EventSubscriberInterface {
 
+  /**
+   * HTTP response header name.
+   *
+   * If this header is present then both this header and the X-Frame-Options
+   * header added by FinishResponseSubscriber is removed and so this header
+   * is never sent to the client.
+   */
   const HEADER_NAME = 'X-Pantheon-Content-Publisher';
-
-  const HEADER_VALUE = 'remove';
-
 
   /**
    * Constructs a PantheonDocumentXFrameSubscriber object.
@@ -29,7 +32,7 @@ final class PantheonContentPublisherXFrameSubscriber implements EventSubscriberI
    */
   public function onKernelResponse(ResponseEvent $event): void {
     $headers = $event->getResponse()->headers;
-    if ($headers->get(static::HEADER_NAME) === static::HEADER_VALUE) {
+    if ($headers->has(static::HEADER_NAME)) {
       // This page is meant to be presented in an iframe.
       $headers->remove('X-Frame-Options');
       // This header was only used to signal this subscriber.

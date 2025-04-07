@@ -17,6 +17,7 @@ use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXF
 use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -83,7 +84,7 @@ class PantheonSmartComponentController extends EntityViewController {
     if (count($return['fields']) === 1) {
       $return['type'] = $return['fields'][array_key_first($return['fields'])]['type'];
       unset($return['fields']);
-      if (is_a($field->getItemDefinition()->getClass(), ListItemBase::class, TRUE))  {
+      if (is_a($field->getItemDefinition()->getClass(), ListItemBase::class, TRUE)) {
         $return['type'] = 'enum';
         foreach (options_allowed_values($field->getFieldStorageDefinition()) as $value => $label) {
           $return['options'][] = ['label' => $label, 'value' => $value];
@@ -107,9 +108,9 @@ class PantheonSmartComponentController extends EntityViewController {
    *   change the request path in midddleware or elsewhere so just take the
    *   name as string and convert it in method.
    *
-   * @return \Drupal\Core\Render\AttachmentsInterface|\Drupal\Core\Render\HtmlResponse|void
+   * @return \Drupal\Core\Render\AttachmentsInterface|\Drupal\Core\Render\HtmlResponse
    */
-  public function viewSmartComponent(Request $request, string $component) {
+  public function viewSmartComponent(Request $request, string $component): Response {
     $component = strtolower($component);
     $values = ['component' => $component];
     if (!$component = PantheonSmartComponent::load($component)) {
@@ -124,7 +125,7 @@ class PantheonSmartComponentController extends EntityViewController {
     $renderer = \Drupal::service('bare_html_page_renderer');
     assert($renderer instanceof BareHtmlPageRendererInterface);
     $response = $renderer->renderBarePage($build, $component->label(), 'markup');
-    $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, PantheonContentPublisherXFrameSubscriber::HEADER_VALUE);
+    $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, '');
     $response->headers->set('Access-Control-Allow-Origin', '*');
     return $response;
   }
