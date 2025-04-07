@@ -1,0 +1,31 @@
+uuid: e045096e-ecd1-4141-85d0-3164a579e3b0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.pantheon_smart_instance.smart_component_test.list_field
+    - field.field.pantheon_smart_instance.smart_component_test.plain_text_field
+    - pantheon_content_publisher.pantheon_smart_component.smart_component_test
+  module:
+    - options
+id: pantheon_smart_instance.smart_component_test.default
+targetEntityType: pantheon_smart_instance
+bundle: smart_component_test
+mode: default
+content:
+  list_field:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  plain_text_field:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden: {  }

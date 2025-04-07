@@ -21,7 +21,6 @@ class PantheonSmartComponentTestBase extends MediaKernelTestBase {
   protected static $modules = [
     'pantheon_content_publisher',
     'pantheon_smart_component_test',
-    'field',
     'text',
     'options',
   ];

@@ -47,17 +47,20 @@ class PantheonTagsFormatter extends FormatterBase  {
       }
       $domDocument = new \DOMDocument();
       $container = $domDocument->createElement('div');
+      $random = new Random();
+      $quote = $random->string(16);
 
       // Generate a unique class name for scoping
-      $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier((new Random)->string(16));
+      $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier($random->string(16));
       $container->setAttribute('class', $uniqueClass);
 
-      $this->processNode($node, $container, $uniqueClass, $items->getEntity()->_image_data);
+      $this->processNode($node, $container, $uniqueClass, $quote, $items->getEntity()->_image_data);
 
       $element[$delta] = [
         '#type' => 'inline_template',
         '#template' => '{{ value | raw }}',
-        '#context' => ['value' => $domDocument->saveHTML($container)],
+        // See $quote in ::processNode() what this replace is.
+        '#context' => ['value' => str_replace($quote, '&quot;', $domDocument->saveHTML($container))],
       ];
     }
 
@@ -73,12 +76,19 @@ class PantheonTagsFormatter extends FormatterBase  {
    *   The parent DOM element.
    * @param string $uniqueClass
    *   The unique class used for CSS scoping.
+   * @param string $quote
+   *   DOM is decoding &quot; but not the rest. Don't ask me why. So this
+   *   random string is replacing &quot; on importing the HTML output of a
+   *   smart component and in turn it is replaced back when exporting the
+   *   entire DOM.
    * @param array $image_data
    *   Image tag information is collected in this array.
    *
    * @throws \DOMException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, array &$image_data): void {
+  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, string $quote, array &$image_data): void {
     $defaults = [
       'tag' => 'div',
       'data' => '',
@@ -113,11 +123,9 @@ class PantheonTagsFormatter extends FormatterBase  {
             ->view($component);
           $html = (string) $this->renderer->renderInIsolation($build);
           $tmp = new \DOMDocument();
-          $tmp->loadHTML($html);
-          foreach ($tmp->getElementsByTagName('body')->item(0)->childNodes as $componentNode) {
-            $componentNode = $parent->ownerDocument->importNode($componentNode, TRUE);
-            $parent->appendChild($componentNode);
-          }
+          // DOM is decoding &quot; but not the rest. Don't ask me why.
+          $tmp->loadHTML(str_replace('&quot;', $quote, $html), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+          $parent->appendChild($parent->ownerDocument->importNode($tmp->documentElement, TRUE));
           return;
         }
     }
@@ -131,7 +139,7 @@ class PantheonTagsFormatter extends FormatterBase  {
       $element->setAttribute('style', implode('; ', $style));
     }
     foreach ($children as $child) {
-      $this->processNode($child, $element, $uniqueClass, $image_data);
+      $this->processNode($child, $element, $uniqueClass, $quote, $image_data);
     }
     $parent->appendChild($element);
   }
