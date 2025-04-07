@@ -142,10 +142,6 @@ class PantheonTagsFormatter extends FormatterBase  {
     $parent->appendChild($element);
   }
 
-  public static function isApplicable(FieldDefinitionInterface $field_definition): bool {
-    return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
-  }
-
   /**
    * Renders a smart component with the given type.
    *
@@ -165,6 +161,13 @@ class PantheonTagsFormatter extends FormatterBase  {
     $html = (string) $this->renderer->renderInIsolation($build);
     // DOM is decoding &quot; but not the rest. Don't ask me why.
     return Html::load(str_replace('&quot;', $quote, $html))->documentElement;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition): bool {
+    return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
   }
 
 }
