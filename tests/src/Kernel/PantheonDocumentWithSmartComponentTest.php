@@ -15,7 +15,6 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
 
   use PantheonContentPublisherDocumentTrait {
     PantheonContentPublisherDocumentTrait::setUp as documentTraitSetup;
-    PantheonContentPublisherDocumentTrait::getArticle as getArticleTrait;
   }
 
   protected string $textContent;
@@ -32,6 +31,15 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
   protected function setUp(): void {
     // Make sure the string contains a double quote.
     $this->textContent = $this->randomString() . '"';
+    $args = [
+      'tag' => 'component',
+      'type' => 'smart_component_test',
+      'attrs' => [
+        'plain_text_field' => $this->textContent,
+        'list_field' => 'option_2',
+      ],
+    ];
+    $this->articleContent = json_encode($args);
     $this->documentTraitSetup();
   }
 
@@ -46,20 +54,6 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     $this->assertStringContainsString('<div>A list field</div>', $content);
     $this->assertStringContainsString('Option 2', $content);
     $this->assertStringContainsString(htmlspecialchars($this->textContent), $content);
-  }
-
-  protected function getArticle() {
-    $args = [
-      'tag' => 'component',
-      'type' => 'smart_component_test',
-      'attrs' => [
-        'plain_text_field' => $this->textContent,
-        'list_field' => 'option_2',
-      ],
-    ];
-    $article = $this->getArticleTrait();
-    $article['content'] = json_encode($args);
-    return $article;
   }
 
 }

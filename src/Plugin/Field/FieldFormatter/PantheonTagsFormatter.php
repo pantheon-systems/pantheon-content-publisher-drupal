@@ -48,10 +48,10 @@ class PantheonTagsFormatter extends FormatterBase  {
       $domDocument = new \DOMDocument();
       $container = $domDocument->createElement('div');
       $random = new Random();
-      $quote = $random->string(16);
+      $quote = $random->name(16);
 
       // Generate a unique class name for scoping
-      $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier($random->string(16));
+      $uniqueClass = 'pantheon_' . Html::cleanCssIdentifier($random->name(16));
       $container->setAttribute('class', $uniqueClass);
 
       $this->processNode($node, $container, $uniqueClass, $quote, $items->getEntity()->_image_data);

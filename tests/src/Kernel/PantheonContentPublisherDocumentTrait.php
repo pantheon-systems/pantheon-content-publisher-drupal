@@ -26,6 +26,8 @@ trait PantheonContentPublisherDocumentTrait {
    */
   protected array $storage = [];
 
+  protected string $articleContent = 'test content';
+
   protected PantheonDocumentCollectionInterface $collection;
 
   protected function setUp(): void {
@@ -196,7 +198,7 @@ trait PantheonContentPublisherDocumentTrait {
         'A textarea meta' => 'textarea test contents',
         'description' => 'A random description',
       ],
-      'content' => 'test content',
+      'content' => $this->articleContent,
       'title' => 'test title',
       'slug' => 'test-slug',
     ];
