@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestBase implements PantheonContentDocumentTestInterface {
 
-  use PantheonContentPublisherDocumentTrait {
-    PantheonContentPublisherDocumentTrait::setUp as documentTraitSetup;
+  use PantheonDocumentTestTrait {
+    PantheonDocumentTestTrait::setUp as documentTraitSetup;
   }
 
   protected string $textFieldValue;

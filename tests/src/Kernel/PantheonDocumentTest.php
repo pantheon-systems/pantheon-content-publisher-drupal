@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocumentTestInterface {
 
-  use PantheonContentPublisherDocumentTrait;
+  use PantheonDocumentTestTrait;
 
   /**
    * {@inheritdoc}

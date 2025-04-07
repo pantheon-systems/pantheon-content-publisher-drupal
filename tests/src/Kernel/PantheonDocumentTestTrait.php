@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  * When this trait is used, PantheonContentDocumentTestInterface must be
  * implemented as that interface holds the constants.
  */
-trait PantheonContentPublisherDocumentTrait {
+trait PantheonDocumentTestTrait {
 
   /**
    * Guzzle responses keyed by GraphQL queries.
@@ -61,11 +61,6 @@ trait PantheonContentPublisherDocumentTrait {
     $this->container->set('http_client', $mock);
     // Finally, save the collection.
     $this->collection->save();
-    // Prepare for ::handle(), it must be here to ensure it is only called
-    // once because there is a set_error_handle() call inside
-    // DrupalKernel::bootEnvironment() which needs to reverted.
-    DrupalKernel::bootEnvironment();
-    restore_error_handler();
   }
 
   /**
@@ -217,7 +212,7 @@ trait PantheonContentPublisherDocumentTrait {
   }
 
   protected function handle(Request $request): SymfonyResponse {
-    $result = $this->container->get('kernel')->handle($request);
+    $result = $this->container->get('http_kernel')->handle($request);
     return $result;
   }
 
