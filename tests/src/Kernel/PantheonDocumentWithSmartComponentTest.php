@@ -15,6 +15,7 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
 
   use PantheonContentPublisherDocumentTrait {
     PantheonContentPublisherDocumentTrait::setUp as documentTraitSetup;
+    PantheonContentPublisherDocumentTrait::getArticle as getArticleTrait;
   }
 
   protected string $textContent;
@@ -56,20 +57,9 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
         'list_field' => 'option_2',
       ],
     ];
-    return [
-      'metadata' => [
-        'A boolean meta' => TRUE,
-        'A date meta' => ['msSinceEpoch' => 1741385249172],
-        'A file meta' => 'https://cdn.prod.pcc.pantheon.io/pcc-prod-user-uploads/dfa6f309-537c-4ffe-bbdf-4a40a6e70a61',
-        'A list meta' => 'Option c',
-        'A text meta' => 'Plain text field test contents',
-        'A textarea meta' => 'textarea test contents',
-        'description' => 'A random description',
-      ],
-      'content' => json_encode($args),
-      'title' => 'test title',
-      'slug' => 'test-slug',
-    ];
+    $article = $this->getArticleTrait();
+    $article['content'] = json_encode($args);
+    return $article;
   }
 
 }
