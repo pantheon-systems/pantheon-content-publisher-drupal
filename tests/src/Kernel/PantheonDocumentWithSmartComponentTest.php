@@ -17,7 +17,7 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     PantheonContentPublisherDocumentTrait::setUp as documentTraitSetup;
   }
 
-  protected string $textContent;
+  protected string $textFieldValue;
 
   /**
    * {@inheritdoc}
@@ -30,12 +30,12 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
 
   protected function setUp(): void {
     // Make sure the string contains a double quote.
-    $this->textContent = $this->randomString() . '"';
+    $this->textFieldValue = $this->randomString() . '"';
     $args = [
       'tag' => 'component',
       'type' => 'smart_component_test',
       'attrs' => [
-        'plain_text_field' => $this->textContent,
+        'plain_text_field' => $this->textFieldValue,
         'list_field' => 'option_2',
       ],
     ];
@@ -53,7 +53,7 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     $this->assertStringContainsString('<div>A plain text field</div>', $content);
     $this->assertStringContainsString('<div>A list field</div>', $content);
     $this->assertStringContainsString('Option 2', $content);
-    $this->assertStringContainsString(htmlspecialchars($this->textContent), $content);
+    $this->assertStringContainsString(htmlspecialchars($this->textFieldValue), $content);
   }
 
 }
