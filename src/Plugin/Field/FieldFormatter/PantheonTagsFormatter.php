@@ -6,11 +6,12 @@ namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Random;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityViewBuilderInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -24,13 +25,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class PantheonTagsFormatter extends FormatterBase  {
 
-  protected EntityTypeManagerInterface $entityTypeManager;
+  protected EntityViewBuilderInterface $viewBuilder;
 
   protected RendererInterface $renderer;
 
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $formatter = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    $formatter->entityTypeManager = $container->get('entity_type.manager');
+    $formatter->viewBuilder = $container
+      ->get('entity_type.manager')
+      ->getViewBuilder('pantheon_smart_instance');
     $formatter->renderer = $container->get('renderer');
     return $formatter;
   }
@@ -102,6 +105,7 @@ class PantheonTagsFormatter extends FormatterBase  {
     if (!$attrs && !$data && !$children && empty($node['type'])) {
       return;
     }
+    $domDocument = $parent->ownerDocument;
     switch ($tag) {
       case 'style':
         if ($data) {
@@ -115,23 +119,14 @@ class PantheonTagsFormatter extends FormatterBase  {
         break;
 
       case 'component':
-
         if (!empty($node['type'])) {
-          $component = $this->entityTypeManager
-            ->getStorage('pantheon_smart_instance')
-            ->create(['component' => $node['type']] + $attrs);
-          $build = $this->entityTypeManager
-            ->getViewBuilder('pantheon_smart_instance')
-            ->view($component);
-          $html = (string) $this->renderer->renderInIsolation($build);
-          // DOM is decoding &quot; but not the rest. Don't ask me why.
-          $tmp = Html::load(str_replace('&quot;', $quote, $html));
-          $element = $parent->ownerDocument->importNode($tmp->documentElement, TRUE);
+          $element = $domDocument->importNode($this->renderSmartComponent($node['type'], $attrs, $quote), TRUE);
           $attrs = [];
         }
+        break;
     }
     if (!isset($element)) {
-      $element = $parent->ownerDocument->createElement($tag, $data);
+      $element = $domDocument->createElement($tag, $data);
     }
     foreach ($attrs as $key => $value) {
       if (isset($value)) {
@@ -149,6 +144,27 @@ class PantheonTagsFormatter extends FormatterBase  {
 
   public static function isApplicable(FieldDefinitionInterface $field_definition): bool {
     return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
+  }
+
+  /**
+   * Renders a smart component with the given type.
+   *
+   * @param string $type
+   *   The type of the smart component to render.
+   * @param array $fieldData
+   *   Data for fields.
+   * @param string $quote
+   *   See ::processNode().
+   *
+   * @return \DOMElement
+   *   The rendered smart component as a \DOMElement.
+   */
+  protected function renderSmartComponent(string $type, array $fieldData, string $quote): \DOMElement {
+    $component = PantheonSmartInstance::create(['component' => $type] + $fieldData);
+    $build = $this->viewBuilder->view($component);
+    $html = (string) $this->renderer->renderInIsolation($build);
+    // DOM is decoding &quot; but not the rest. Don't ask me why.
+    return Html::load(str_replace('&quot;', $quote, $html))->documentElement;
   }
 
 }
