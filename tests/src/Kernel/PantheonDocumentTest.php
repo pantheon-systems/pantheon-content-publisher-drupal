@@ -6,6 +6,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Entity\Index;
@@ -17,7 +18,23 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @group pantheon_document
  */
-class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
+class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocumentTestInterface {
+
+  use PantheonContentPublisherDocumentTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $modules = [
+    'system',
+    'field',
+    'options',
+    'text',
+    'pantheon_content_publisher',
+    'search_api',
+    'search_api_db',
+    'search_api_db_defaults',
+  ];
 
   public function testSearchAPIIndex() {
     // Creating the collection created a batch, let's run it.
@@ -123,6 +140,8 @@ class PantheonContentPublisherTest extends PantheonContentPublisherTestBase {
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
     $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
   }
+
+
 
 }
 
