@@ -7,6 +7,7 @@ declare(strict_types=1);
  * Provides a pantheon content publisher entity type.
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Render\Element;
 
 /**
@@ -26,8 +27,8 @@ function pantheon_content_publisher_theme(): array {
  *
  * @param array $variables
  *   An associative array containing:
- *   - elements: An associative array containing the pantheon content publisher information and any
- *     fields attached to the entity.
+ *   - elements: An associative array containing the pantheon content publisher
+ *     information and any fields attached to the entity.
  *   - attributes: HTML attributes for the containing element.
  */
 function template_preprocess_pantheon_document(array &$variables): void {
@@ -58,7 +59,7 @@ function template_preprocess_pantheon_smart_instance(array &$variables): void {
 /**
  * Implements hook_entity_operation_alter().
  */
-function pantheon_content_publisher_entity_operation_alter(array &$operations, \Drupal\Core\Entity\EntityInterface $entity) {
+function pantheon_content_publisher_entity_operation_alter(array &$operations, EntityInterface $entity) {
   $entityTypeId = $entity->getEntityTypeId();
   if ($entityTypeId === 'pantheon_smart_component') {
     unset($operations['manage-form-display']);

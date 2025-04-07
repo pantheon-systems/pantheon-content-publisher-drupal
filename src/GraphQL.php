@@ -50,7 +50,7 @@ class GraphQL {
         'id',
         'title',
         'metadata',
-      ])
+      ]),
     ]);
     return $this->request($query)['articles'];
   }

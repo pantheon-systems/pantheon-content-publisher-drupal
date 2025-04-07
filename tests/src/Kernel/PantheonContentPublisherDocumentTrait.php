@@ -80,7 +80,7 @@ trait PantheonContentPublisherDocumentTrait {
     }
     $this->setGuzzleResponse('getArticle', fn (&$article) => NestedArray::setValue($article, $parents, $newValue));
     if ($triggerWebhook) {
-      $this->executeWebhook();;
+      $this->executeWebhook();
     }
     return $newValue;
   }
@@ -212,7 +212,7 @@ trait PantheonContentPublisherDocumentTrait {
 
   protected function getArticles() {
     return ['articles' => [[
-      'id' => self::ARTICLE_ID
+      'id' => self::ARTICLE_ID,
     ] + $this->getArticle()]];
   }
 
@@ -222,4 +222,3 @@ trait PantheonContentPublisherDocumentTrait {
   }
 
 }
-

@@ -7,7 +7,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
  *
  * @group pantheon_document
  */
-interface PantheonContentDocumentTestInterface  {
+interface PantheonContentDocumentTestInterface {
 
   const ARTICLE_ID = '1_dRWJT4gJ05ZwtD6HyE1GdRxExL4FIAMkDIcIH8nlgM';
 
@@ -37,6 +37,4 @@ interface PantheonContentDocumentTestInterface  {
     'getArticle' => 'article',
   ];
 
-
 }
-

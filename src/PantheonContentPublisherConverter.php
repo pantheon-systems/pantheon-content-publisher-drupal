@@ -66,7 +66,7 @@ class PantheonContentPublisherConverter {
   }
 
   public function drupalFieldToPantheonField(string $drupal_field): string|FALSE {
-    return array_search($drupal_field, array_map(fn ($field) => strtok($field, '.'), $this->getFields())) ;
+    return array_search($drupal_field, array_map(fn ($field) => strtok($field, '.'), $this->getFields()));
   }
 
   protected function pantheonFieldToDrupalField(string $pantheon_field): string {

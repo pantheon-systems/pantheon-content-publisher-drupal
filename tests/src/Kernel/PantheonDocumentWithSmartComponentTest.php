@@ -7,7 +7,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Smart component test
+ * Smart component test.
  *
  * @group pantheon_content_publisher
  */

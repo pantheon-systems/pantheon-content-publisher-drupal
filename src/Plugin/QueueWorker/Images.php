@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class Images extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
-  protected FileStorageInterface  $fileStorage;
+  protected FileStorageInterface $fileStorage;
 
   /**
    * Constructs a new Images instance.
@@ -86,8 +86,8 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
         'bundle' => 'image',
         'name' => $file->getFilename(),
         'field_media_image' => [
-            'target_id' => $file->id(),
-          ] + $image,
+          'target_id' => $file->id(),
+        ] + $image,
       ]);
       $media->save();
     }

@@ -7,8 +7,6 @@ namespace Drupal\pantheon_content_publisher\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
-use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
-use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorageInterface;
 use Drupal\search_api\Entity\Index;
@@ -23,9 +21,7 @@ class PantheonContentPublisherController extends ControllerBase {
 
   protected PantheonDocumentStorageInterface $pantheonContentPublisherStorage;
 
-  public function __construct(
-    EntityTypeManagerInterface $entityTypeManager
-  ) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
     $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_document');
   }
 

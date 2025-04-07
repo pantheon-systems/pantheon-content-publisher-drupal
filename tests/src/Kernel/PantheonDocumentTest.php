@@ -62,7 +62,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertSame(options_allowed_values($storages['pantheon_document.alistmeta']), [
       'Option a' => 'Option a',
       'Option b' => 'Option b',
-      'Option c' => 'Option c'
+      'Option c' => 'Option c',
     ]);
     $this->assertSame($storages['pantheon_document.atextmeta']->getType(), 'string');
     $this->assertSame($storages['pantheon_document.atextareameta']->getType(), 'string_long');
@@ -74,7 +74,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $storages = FieldStorageConfig::loadMultiple();
     $this->assertSame(options_allowed_values($storages['pantheon_document.alistmeta']), [
       'Option a' => 'Option a',
-      'Option c' => 'Option c'
+      'Option c' => 'Option c',
     ]);
     // Remove the list field.
     $this->setGuzzleResponse('metadata', fn (&$metadata) => NestedArray::unsetValue($metadata, ['metadataFields', 'A list meta']));
@@ -141,7 +141,4 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
   }
 
-
-
 }
-

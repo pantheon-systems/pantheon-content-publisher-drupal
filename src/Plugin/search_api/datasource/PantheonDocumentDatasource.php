@@ -2,7 +2,6 @@
 
 namespace Drupal\pantheon_content_publisher\Plugin\search_api\datasource;
 
-
 use Drupal\Component\Utility\Crypt;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
@@ -59,17 +58,17 @@ class PantheonDocumentDatasource extends ContentEntity {
     $entity_ids = [];
     $found = FALSE;
     foreach ($collections as $collection) {
-      if ($page > 0 && isset($last_ids[$context_key])
-          && $last_ids[$context_key]['page'] == ($page - 1)
-          && $this->getEntityTypeId() !== 'search_api_task') {
-          $cursor = $last_ids[$context_key]['cursor'];
+      if ($page > 0 && isset($last_ids[$context_key]) &&
+          $last_ids[$context_key]['page'] == ($page - 1) &&
+          $this->getEntityTypeId() !== 'search_api_task') {
+        $cursor = $last_ids[$context_key]['cursor'];
       }
       else {
         $cursor = NULL;
       }
       $result = $collection->getGraphQL()->getArticleIds(isset($page) ? $page_size : NULL, $cursor);
       foreach ($result['articles'] ?? [] as $info) {
-        $entity_ids[] = PantheonDocumentStorage::getEntityId($collection,  $info['id']);
+        $entity_ids[] = PantheonDocumentStorage::getEntityId($collection, $info['id']);
       }
       $found = $found || $entity_ids;
       if (isset($page)) {

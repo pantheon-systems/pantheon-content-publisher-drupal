@@ -23,7 +23,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_types = {"string_long"},
  * )
  */
-class PantheonTagsFormatter extends FormatterBase  {
+class PantheonTagsFormatter extends FormatterBase {
 
   protected EntityViewBuilderInterface $viewBuilder;
 
@@ -55,7 +55,7 @@ class PantheonTagsFormatter extends FormatterBase  {
       $random = new Random();
       $quote = $random->machineName(16);
 
-      // Generate a unique class name for scoping
+      // Generate a unique class name for scoping.
       $uniqueClass = 'pantheon_' . $random->machineName(16, TRUE);
       $container->setAttribute('class', $uniqueClass);
 

@@ -8,7 +8,7 @@ use Drupal\pantheon_content_publisher\Controller\PantheonSmartComponentControlle
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Smart component test
+ * Smart component test.
  *
  * @group pantheon_content_publisher
  */
