@@ -7,6 +7,7 @@ namespace Drupal\pantheon_content_publisher\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
+use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorageInterface;
 use Drupal\search_api\Entity\Index;
@@ -30,7 +31,7 @@ class PantheonContentPublisherController extends ControllerBase {
    */
   public function webhook(Request $request): Response {
     if ($decoded = @json_decode($request->getContent(), TRUE)) {
-      $collection_id = $decoded['payload']['siteId'];
+      $collection_id = $decoded['payload']['siteId'] ?? array_key_first(PantheonDocumentCollection::loadMultiple());
       $entity_id = PantheonDocumentStorage::getEntityId($collection_id, $decoded['payload']['articleId']);
       if ($decoded['event'] === 'article.unpublish') {
         PantheonDocument::create([
