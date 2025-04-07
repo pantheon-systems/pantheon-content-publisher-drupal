@@ -6,8 +6,11 @@ namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
+use Drupal\Core\Render\HtmlResponse;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\file\Entity\File;
 use Drupal\media\Entity\Media;
 use Drupal\options\Plugin\Field\FieldType\ListItemBase;
@@ -15,15 +18,27 @@ use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
 use Drupal\pantheon_content_publisher\PantheonSmartComponentInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Returns responses for Pantheon content publisher routes.
  */
 class PantheonSmartComponentController extends EntityViewController {
+
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, RendererInterface $renderer, protected BareHtmlPageRendererInterface $barePageHtmlRenderer) {
+    parent::__construct($entity_type_manager, $renderer);
+  }
+
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('renderer'),
+      $container->get('bare_html_page_renderer')
+    );
+  }
 
   const TYPES = [
     'text' => 'textarea',
@@ -108,9 +123,9 @@ class PantheonSmartComponentController extends EntityViewController {
    *   change the request path in midddleware or elsewhere so just take the
    *   name as string and convert it in method.
    *
-   * @return \Drupal\Core\Render\AttachmentsInterface|\Drupal\Core\Render\HtmlResponse
+   * @return \Drupal\Core\Render\HtmlResponse
    */
-  public function viewSmartComponent(Request $request, string $component): Response {
+  public function viewSmartComponent(Request $request, string $component): HtmlResponse {
     $component = strtolower($component);
     $values = ['component' => $component];
     if (!$component = PantheonSmartComponent::load($component)) {
@@ -122,9 +137,7 @@ class PantheonSmartComponentController extends EntityViewController {
     $build = parent::view(PantheonSmartInstance::create($values));
     $build['#cache']['contexts'][] = 'url.path';
     $build['#cache']['contexts'][] = 'url.query_args:args';
-    $renderer = \Drupal::service('bare_html_page_renderer');
-    assert($renderer instanceof BareHtmlPageRendererInterface);
-    $response = $renderer->renderBarePage($build, $component->label(), 'markup');
+    $response = $this->barePageHtmlRenderer->renderBarePage($build, $component->label(), 'markup');
     $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, '');
     $response->headers->set('Access-Control-Allow-Origin', '*');
     return $response;
