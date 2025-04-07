@@ -51,7 +51,7 @@ class PantheonTagsFormatter extends FormatterBase  {
       $quote = $random->machineName(16);
 
       // Generate a unique class name for scoping
-      $uniqueClass = 'pantheon_' . $random->machineName(16);
+      $uniqueClass = 'pantheon_' . $random->machineName(16, TRUE);
       $container->setAttribute('class', $uniqueClass);
 
       $this->processNode($node, $container, $uniqueClass, $quote, $items->getEntity()->_image_data);
