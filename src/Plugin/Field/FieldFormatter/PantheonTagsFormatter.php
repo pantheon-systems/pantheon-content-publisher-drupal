@@ -53,19 +53,17 @@ class PantheonTagsFormatter extends FormatterBase {
         ->appendChild($domDocument->createElement('body'))
         ->appendChild($domDocument->createElement('div'));
       $random = new Random();
-      $quote = $random->machineName(16);
 
       // Generate a unique class name for scoping.
       $uniqueClass = 'pantheon_' . $random->machineName(16, TRUE);
       $container->setAttribute('class', $uniqueClass);
 
-      $this->processNode($node, $container, $uniqueClass, $quote, $items->getEntity()->_image_data);
+      $this->processNode($node, $container, $uniqueClass, $items->getEntity()->_image_data);
 
       $element[$delta] = [
         '#type' => 'inline_template',
         '#template' => '{{ value | raw }}',
-        // See $quote in ::processNode() what this replace is.
-        '#context' => ['value' => str_replace($quote, '&quot;', Html::serialize($domDocument))],
+        '#context' => ['value' => Html::serialize($domDocument)],
       ];
     }
 
@@ -81,19 +79,10 @@ class PantheonTagsFormatter extends FormatterBase {
    *   The parent DOM element.
    * @param string $uniqueClass
    *   The unique class used for CSS scoping.
-   * @param string $quote
-   *   DOM is decoding &quot; but not the rest. Don't ask me why. So this
-   *   random string is replacing &quot; on importing the HTML output of a
-   *   smart component and in turn it is replaced back when exporting the
-   *   entire DOM.
    * @param array $image_data
    *   Image tag information is collected in this array.
-   *
-   * @throws \DOMException
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, string $quote, array &$image_data): void {
+  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, array &$image_data): void {
     $defaults = [
       'tag' => 'div',
       'data' => '',
@@ -120,7 +109,10 @@ class PantheonTagsFormatter extends FormatterBase {
 
       case 'component':
         if (!empty($node['type'])) {
-          $element = $domDocument->importNode($this->renderSmartComponent($node['type'], $attrs, $quote), TRUE);
+          $component = PantheonSmartInstance::create(['component' => $node['type']] + $attrs);
+          $build = $this->viewBuilder->view($component);
+          $html = (string) $this->renderer->renderInIsolation($build);
+          $element = $domDocument->importNode(Html::load($html)->documentElement, TRUE);
           $attrs = [];
         }
         break;
@@ -140,27 +132,6 @@ class PantheonTagsFormatter extends FormatterBase {
       $this->processNode($child, $element, $uniqueClass, $quote, $image_data);
     }
     $parent->appendChild($element);
-  }
-
-  /**
-   * Renders a smart component with the given type.
-   *
-   * @param string $type
-   *   The type of the smart component to render.
-   * @param array $fieldData
-   *   Data for fields.
-   * @param string $quote
-   *   See ::processNode().
-   *
-   * @return \DOMElement
-   *   The rendered smart component as a \DOMElement.
-   */
-  protected function renderSmartComponent(string $type, array $fieldData, string $quote): \DOMElement {
-    $component = PantheonSmartInstance::create(['component' => $type] + $fieldData);
-    $build = $this->viewBuilder->view($component);
-    $html = (string) $this->renderer->renderInIsolation($build);
-    // DOM is decoding &quot; but not the rest. Don't ask me why.
-    return Html::load(str_replace('&quot;', $quote, $html))->documentElement;
   }
 
   /**

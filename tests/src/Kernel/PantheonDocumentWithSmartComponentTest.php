@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
+use Drupal\KernelTests\AssertContentTrait;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -16,6 +17,7 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
   use PantheonDocumentTestTrait {
     PantheonDocumentTestTrait::setUp as documentTraitSetup;
   }
+  use AssertContentTrait;
 
   protected string $textFieldValue;
 
@@ -29,8 +31,8 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
   ];
 
   protected function setUp(): void {
-    // Make sure the string contains a double quote.
-    $this->textFieldValue = $this->randomString() . '"';
+    // Make sure the string contains a single and a double quote both.
+    $this->textFieldValue = $this->randomString() . '"' . "'";
     $args = [
       'tag' => 'component',
       'type' => 'smart_component_test',
@@ -48,12 +50,14 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
    */
   public function testFormatter(): void {
     $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
-    $response = $this->handle($request);
-    $content = $response->getContent();
-    $this->assertStringContainsString('<div>A plain text field</div>', $content);
-    $this->assertStringContainsString('<div>A list field</div>', $content);
-    $this->assertStringContainsString('Option 2', $content);
-    $this->assertStringContainsString(htmlspecialchars($this->textFieldValue), $content);
+    $this->setRawContent($this->handle($request)->getContent());
+    // First check for the field labels.
+    $this->assertText('A plain text field');
+    $this->assertText('A list field');
+    // Then the field values.
+    $this->assertText(htmlspecialchars($this->textFieldValue, ENT_NOQUOTES));
+    // Note how setUp is using the machine name option_2, this is the value.
+    $this->assertText('Option 2');
   }
 
 }
