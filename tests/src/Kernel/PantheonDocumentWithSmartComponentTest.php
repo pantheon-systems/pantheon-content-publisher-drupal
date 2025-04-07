@@ -28,11 +28,11 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     'search_api_db_defaults',
   ];
 
-    protected function setUp(): void {
-      // Make sure the string contains a double quote.
-      $this->textContent = $this->randomString() . '"';
-      $this->documentTraitSetup();
-    }
+  protected function setUp(): void {
+    // Make sure the string contains a double quote.
+    $this->textContent = $this->randomString() . '"';
+    $this->documentTraitSetup();
+  }
 
   /**
    * Test callback.
