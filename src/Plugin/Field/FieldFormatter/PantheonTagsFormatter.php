@@ -46,7 +46,9 @@ class PantheonTagsFormatter extends FormatterBase  {
         continue;
       }
       $domDocument = new \DOMDocument();
-      $container = $domDocument->createElement('div');
+      $container = $domDocument
+        ->appendChild($domDocument->createElement('body'))
+        ->appendChild($domDocument->createElement('div'));
       $random = new Random();
       $quote = $random->machineName(16);
 
@@ -60,7 +62,7 @@ class PantheonTagsFormatter extends FormatterBase  {
         '#type' => 'inline_template',
         '#template' => '{{ value | raw }}',
         // See $quote in ::processNode() what this replace is.
-        '#context' => ['value' => str_replace($quote, '&quot;', $domDocument->saveHTML($container))],
+        '#context' => ['value' => str_replace($quote, '&quot;', Html::serialize($domDocument))],
       ];
     }
 
