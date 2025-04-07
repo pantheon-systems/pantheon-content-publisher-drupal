@@ -132,7 +132,7 @@ trait PantheonDocumentTestTrait {
         'siteId' => $this->collection->id(),
       ],
     ];
-    $request = Request::create('/pantheon_content_publisher/webhook', 'POST', content: json_encode($content));
+    $request = Request::create('/api/pantheoncloud/webhook', 'POST', content: json_encode($content));
     $this->handle($request);
   }
 
