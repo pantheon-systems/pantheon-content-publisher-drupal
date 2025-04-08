@@ -71,6 +71,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
     'list' => 'list_string',
     'text' => 'string',
     'textarea' => 'string_long',
+    'file' => 'string',
   ];
 
   protected string $id;
