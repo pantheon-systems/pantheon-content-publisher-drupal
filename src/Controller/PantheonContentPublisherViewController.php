@@ -17,10 +17,10 @@ use Symfony\Component\HttpFoundation\Request;
 class PantheonContentPublisherViewController extends EntityViewController {
 
   public function pantheonView(Request $request, $pantheon_id): array {
-    $collections = PantheonDocumentCollection::loadMultiple();
-    $collection = reset($collections);
+    $query = $request->query;
+    $collection = $query->get('siteId') ?: array_key_first(PantheonDocumentCollection::loadMultiple());
     $document = PantheonDocument::load(PantheonDocumentStorage::getEntityId($collection, $pantheon_id));
-    if ($is_preview = $request->query->get('publishingLevel') === 'REALTIME') {
+    if ($is_preview = $query->get('publishingLevel') === 'REALTIME') {
       // PantheonTagsFormatter turns this into
       // <div id="pantheon-content-publisher-preview"></div>
       $document->get('content')->value = '{"attrs":{"id":"pantheon-content-publisher-preview"}}';

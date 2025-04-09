@@ -1,8 +1,8 @@
 import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pantheon-systems/pcc-sdk-core";
 
-const url = new URL(window.location.href);
-const params = new URLSearchParams(url.search);
-const documentId = url.pathname.split('/')[4];
+const url = window.location.href
+const params = new URLSearchParams((new URL(url)).search);
+const documentId = url.substring((drupalSettings.path.baseUrl + drupalSettings.path.pathPrefix).length).split('/')[3]
 
 const pantheonClient = new PantheonClient({
     siteId: window.drupalSettings.pantheon_content_publisher.site_id,
@@ -74,6 +74,13 @@ function generateHTMLFromJSON(json, parentElement = null) {
 
         const hasChildren = children && children.length;
         const hasData = data !== null && data !== '';
+
+        if (tag === 'component' && attrs) {
+            const path = '/api/pantheoncloud/component/' + node.type + '?attrs=' . base64.encode((new TextEncoder).encode(JSON.stringify(attrs)));
+            const element = createElement('iframe', {src: Drupal.url(path)});
+            parent.appendChild(element);
+            return;
+        }
         if (!hasChildren && !hasData && (attrs === undefined || Object.keys(attrs).length === 0)) {
             return;
         }

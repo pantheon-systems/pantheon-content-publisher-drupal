@@ -72,7 +72,7 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
     $fs = \Drupal::service('file_system');
     assert($fs instanceof FileSystemInterface);
     $directory = 'public://pantheon_document/' . $this->id();
-    $fs->prepareDirectory($directory, FileSystemInterface:: CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+    $fs->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
     $directory = 'public://pantheon_document/' . $collection;
     foreach ($pantheon_files as $uri => $image) {
       $filename = basename($uri);

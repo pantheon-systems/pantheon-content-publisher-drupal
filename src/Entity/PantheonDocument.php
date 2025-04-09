@@ -74,15 +74,42 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
     $fields['id'] = BaseFieldDefinition::create('string')
       ->setLabel(new TranslatableMarkup('ID'))
       ->setReadOnly(TRUE)
-      ->setSetting('is_ascii', TRUE);
+      ->setSetting('is_ascii', TRUE)
+      ->setDisplayOptions('view', [
+        'region' => 'hidden',
+      ])
+      ->setDisplayConfigurable('view', FALSE);
+
 
     $fields['title'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Label'))
+      ->setLabel(t('Title'))
       ->setRequired(TRUE)
       ->setSetting('max_length', 255)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'string',
+        'weight' => -5,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['description'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Description'))
+      ->setRequired(TRUE)
+      ->setSetting('max_length', 4096)
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'type' => 'string',
+        'weight' => -5,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['image'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Description'))
+      ->setRequired(TRUE)
+      ->setSetting('max_length', 255)
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'type' => 'imagecache_external_image',
         'weight' => -5,
       ])
       ->setDisplayConfigurable('view', TRUE);
