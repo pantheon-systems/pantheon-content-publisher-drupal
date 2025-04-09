@@ -76,10 +76,11 @@ function generateHTMLFromJSON(json, parentElement = null) {
         const hasData = data !== null && data !== '';
 
         if (tag === 'component' && attrs) {
-            const path = '/api/pantheoncloud/component/' + node.type + '?attrs=' . base64.encode((new TextEncoder).encode(JSON.stringify(attrs)));
-            const element = createElement('iframe', {src: Drupal.url(path)});
+            const element = createElement('div');
             parent.appendChild(element);
-            return;
+            const encoded = base64.encode((new TextEncoder).encode(JSON.stringify(attrs)));
+            fetch(Drupal.url('/api/pantheoncloud/component/' + node.type + '?attrs=' + encoded))
+                .then(async response => element.outerHTML = await response.text())
         }
         if (!hasChildren && !hasData && (attrs === undefined || Object.keys(attrs).length === 0)) {
             return;
