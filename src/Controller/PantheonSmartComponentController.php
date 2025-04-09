@@ -73,7 +73,9 @@ class PantheonSmartComponentController extends EntityViewController {
         $json[$id]['fields'][$field->getName()] = $this->convertFieldToPantheon($field);
       }
     }
-    return new JsonResponse($pantheon_smart_component ? ($json[$pantheon_smart_component->id()] ?? []) : $json);
+    $response = new JsonResponse($pantheon_smart_component ? ($json[$pantheon_smart_component->id()] ?? []) : $json, 200);
+    $response->setMaxAge(60);
+    return $response;
   }
 
   protected function convertFieldToPantheon(FieldConfigInterface $field): array {

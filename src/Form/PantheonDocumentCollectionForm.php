@@ -106,7 +106,6 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       assert($collection instanceof PantheonDocumentCollectionInterface);
       if ($collection->isNew()) {
         $collection->getGraphQL()->getMetadata();
-
       }
     }
     catch (\Exception $e) {
