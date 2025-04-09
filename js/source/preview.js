@@ -70,7 +70,7 @@ function generateHTMLFromJSON(json, parentElement = null) {
     };
 
     const processNode = (node, parent, uniqueClass) => {
-        const {tag, data, children, style, attrs} = node;
+        const { tag, data, children, style, attrs } = node;
 
         const hasChildren = children && children.length;
         const hasData = data !== null && data !== '';
@@ -81,6 +81,7 @@ function generateHTMLFromJSON(json, parentElement = null) {
             const encoded = base64.encode((new TextEncoder).encode(JSON.stringify(attrs)));
             fetch(Drupal.url('/api/pantheoncloud/component/' + node.type + '?attrs=' + encoded))
                 .then(async response => element.outerHTML = await response.text())
+            return;
         }
         if (!hasChildren && !hasData && (attrs === undefined || Object.keys(attrs).length === 0)) {
             return;
