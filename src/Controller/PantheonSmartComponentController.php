@@ -139,9 +139,14 @@ class PantheonSmartComponentController extends EntityViewController {
     $build = parent::view(PantheonSmartInstance::create($values));
     $build['#cache']['contexts'][] = 'url.path';
     $build['#cache']['contexts'][] = 'url.query_args:args';
-    $response = $this->barePageHtmlRenderer->renderBarePage($build, $component->label(), 'markup');
-    $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, '');
-    $response->headers->set('Access-Control-Allow-Origin', '*');
+    if ($request->query->has('snippet')) {
+      $response = new HtmlResponse($this->renderer->renderInIsolation($build));
+    }
+    else {
+      $response = $this->barePageHtmlRenderer->renderBarePage($build, $component->label(), 'markup');
+      $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, '');
+      $response->headers->set('Access-Control-Allow-Origin', '*');
+    }
     return $response;
   }
 
