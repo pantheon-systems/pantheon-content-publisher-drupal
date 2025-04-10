@@ -10,4 +10,15 @@ mix.options({
       child_process: false
     }
   }
-}).js('source/preview.js', '.');
+})
+.babelConfig({
+  presets: [
+    ['@babel/preset-env', {
+      targets: {
+        esmodules: true
+      },
+      exclude: ['@babel/plugin-transform-async-to-generator']
+    }]
+  ]
+})
+.js('source/preview.js', '.');
