@@ -8,31 +8,23 @@ const pantheonClient = new PantheonClient({
     token: 'pcc_grant ' + params.get('pccGrant')
 });
 
-const observable = pantheonClient.apolloClient.subscribe({
+pantheonClient.apolloClient.subscribe({
     query: ARTICLE_UPDATE_SUBSCRIPTION,
     variables: {
         id: documentId,
         contentType: "TREE_PANTHEON_V2",
         publishingLevel: PublishingLevel.REALTIME,
     },
-});
-
-observable.subscribe({
-    next: (update) => {
-        if (!update.data) return;
-        const article = update.data.article;
-        // Bail if current article is not equal to one in session
-        // @TODO it's already checked and register above and needs to be revisited again before removing the following code
-        if (documentId !== article.id) {
-            return;
-        }
-
+})
+.subscribe({
+    next: ({ data }) => {
+        if (!data) return;
         // const entryTitle = document.querySelector('h1');
         // entryTitle.innerHTML = article.title;
 
-        var previewContentContainer = document.getElementById('pantheon-content-publisher-preview');
+        const previewContentContainer = document.getElementById('pantheon-content-publisher-preview');
         previewContentContainer.innerHTML = '';
-        previewContentContainer.appendChild(generateHTMLFromJSON(JSON.parse(update.data.article.content)));
+        previewContentContainer.appendChild(generateHTMLFromJSON(JSON.parse(data.article.content)));
     },
 });
 
@@ -44,9 +36,7 @@ function generateHTMLFromJSON(json, parentElement = null) {
         const element = document.createElement(tag);
 
         // Set attributes
-        for (const [key, value] of Object.entries(attrs)) {
-            element.setAttribute(key, value);
-        }
+        Object.entries(attrs).forEach(([k, v]) => element.setAttribute(k, v));
 
         // Set styles
         if (Array.isArray(styles)) {
@@ -55,49 +45,34 @@ function generateHTMLFromJSON(json, parentElement = null) {
                 element.style[key] = value;
             });
         } else if (typeof styles === 'object') {
-            for (const [key, value] of Object.entries(styles)) {
-                element.style[key] = value;
-            }
+            Object.entries(styles).forEach(([k, v]) => element.style[k] = v);
         }
 
-        // Set content
-        if (content !== null) {
-            element.innerHTML = content;
-        }
+        element.innerHTML = content;
 
         return element;
     };
 
     const processNode = (node, parent, uniqueClass) => {
-        const { tag, data, children, style, attrs } = node;
+        const { tag, data = '', children = [], style, attrs = { } } = node;
 
-        const hasChildren = children && children.length;
-        const hasData = data !== null && data !== '';
-
-        if (tag === 'component' && attrs) {
+        if (tag === 'component' && node.type) {
             const element = createElement('div');
             parent.appendChild(element);
             fetch(Drupal.url('api/pantheoncloud/component/' + node.type + '?attrs=' + window.btoa(JSON.stringify(attrs))))
                 .then(async response => response.ok ? element.outerHTML = await response.text() : console.error('Component does not load'));
             return;
         }
-        if (!hasChildren && !hasData && (attrs === undefined || Object.keys(attrs).length === 0)) {
+
+        if (!children.length && !data && !Object.keys(attrs).length) {
             return;
         }
 
         // Scope styles if the tag is 'style'
-        if (tag === 'style' && data) {
-            const scopedData = `.${uniqueClass} ${data}`;
-            const element = createElement(tag, attrs, style || [], scopedData);
-            parent.appendChild(element);
-            return;
-        }
+        const content = tag === 'style' ? `.${uniqueClass} ${data}` : data;
+        const element = createElement(tag, attrs, style, content);
 
-        const element = createElement(tag, attrs, style || [], data !== null ? data : '');
-
-        if (hasChildren) {
-            children.forEach(child => processNode(child, element, uniqueClass));
-        }
+        children.forEach(child => processNode(child, element, uniqueClass));
 
         parent.appendChild(element);
     };
