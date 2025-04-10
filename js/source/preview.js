@@ -1,5 +1,4 @@
 import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pantheon-systems/pcc-sdk-core";
-import "base-64";
 
 const params = new URLSearchParams(window.location.search);
 const documentId = drupalSettings.path.currentPath.split('/')[3];
@@ -78,8 +77,7 @@ function generateHTMLFromJSON(json, parentElement = null) {
         if (tag === 'component' && attrs) {
             const element = createElement('div');
             parent.appendChild(element);
-            const encoded = base64.encode((new TextEncoder).encode(JSON.stringify(attrs)));
-            fetch(Drupal.url('api/pantheoncloud/component/' + node.type + '?attrs=' + encoded))
+            fetch(Drupal.url('api/pantheoncloud/component/' + node.type + '?attrs=' + window.btoa(JSON.stringify(attrs))))
                 .then(async response => element.outerHTML = await response.text())
             return;
         }
