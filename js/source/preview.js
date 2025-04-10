@@ -48,13 +48,17 @@ function generateHTMLFromJSON(json, parentElement = null) {
             Object.entries(styles).forEach(([k, v]) => element.style[k] = v);
         }
 
-        element.innerHTML = content;
+        if (content !== null) {
+            element.innerHTML = content;
+        }
 
         return element;
     };
 
     const processNode = (node, parent, uniqueClass) => {
-        const { tag, data = '', children = [], style, attrs = { } } = node;
+        const { tag, data, style } = node;
+        const children = node.children ?? [];
+        const attrs = node.attrs ?? {};
 
         if (tag === 'component' && node.type) {
             const element = createElement('div');
@@ -69,8 +73,7 @@ function generateHTMLFromJSON(json, parentElement = null) {
         }
 
         // Scope styles if the tag is 'style'
-        const content = tag === 'style' ? `.${uniqueClass} ${data}` : data;
-        const element = createElement(tag, attrs, style, content);
+        const element = createElement(tag, attrs, style, tag === 'style' ? `.${uniqueClass} ${data}` : data);
 
         children.forEach(child => processNode(child, element, uniqueClass));
 
