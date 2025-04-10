@@ -3,4 +3,3 @@ drupal.pantheon_content_publisher.preview:
     js/preview.js: { preprocess: false }
   dependencies:
     - core/drupal
-    - core/drupalSettings
