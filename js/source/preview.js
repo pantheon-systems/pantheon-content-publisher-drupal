@@ -1,8 +1,7 @@
 import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pantheon-systems/pcc-sdk-core";
 
-const url = window.location.href
-const params = new URLSearchParams((new URL(url)).search);
-const documentId = url.substring((drupalSettings.path.baseUrl + drupalSettings.path.pathPrefix).length).split('/')[3]
+const params = new URLSearchParams(window.location.search);
+const documentId = drupalSettings.path.currentPath.split('/')[3];
 
 const pantheonClient = new PantheonClient({
     siteId: window.drupalSettings.pantheon_content_publisher.site_id,
