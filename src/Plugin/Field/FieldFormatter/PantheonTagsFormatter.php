@@ -83,6 +83,8 @@ class PantheonTagsFormatter extends FormatterBase {
    *   The parent DOM element.
    * @param string $uniqueClass
    *   The unique class used for CSS scoping.
+   * @param \Drupal\Core\Cache\RefinableCacheableDependencyInterface $metadata
+   *   The caching metadata.
    * @param array $image_data
    *   Image tag information is collected in this array.
    */

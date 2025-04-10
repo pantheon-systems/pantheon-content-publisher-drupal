@@ -42,6 +42,7 @@ class PantheonContentPublisherController extends ControllerBase {
       else {
         $document = $this->pantheonContentPublisherStorage->load($entity_id);
         $document->save();
+        PantheonDocumentCollection::load($collection_id)->save();
         Index::load(strtolower($collection_id))->indexItems();
         $document->get('content')->view(['type' => 'pantheon_document_tags_formatter']);
         if ($document->_image_data) {
