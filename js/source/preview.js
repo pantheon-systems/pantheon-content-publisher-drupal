@@ -44,7 +44,7 @@ function generateHTMLFromJSON(json, parentElement = null) {
                 const [key, value] = style.split(':').map(s => s.trim());
                 element.style[key] = value;
             });
-        } else if (typeof styles === 'object') {
+        } else if (styles && typeof styles === 'object') {
             Object.entries(styles).forEach(([k, v]) => element.style[k] = v);
         }
 
