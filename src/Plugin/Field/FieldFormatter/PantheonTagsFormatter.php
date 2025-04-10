@@ -6,6 +6,8 @@ namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Random;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\EntityViewBuilderInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -58,13 +60,15 @@ class PantheonTagsFormatter extends FormatterBase {
       $uniqueClass = 'pantheon_' . $random->machineName(16, TRUE);
       $container->setAttribute('class', $uniqueClass);
 
-      $this->processNode($node, $container, $uniqueClass, $items->getEntity()->_image_data);
+      $metadata = new CacheableMetadata();
+      $this->processNode($node, $container, $uniqueClass, $metadata, $items->getEntity()->_image_data);
 
       $element[$delta] = [
         '#type' => 'inline_template',
         '#template' => '{{ value | raw }}',
         '#context' => ['value' => Html::serialize($domDocument)],
       ];
+      $metadata->applyTo($element[$delta]);
     }
 
     return $element;
@@ -82,7 +86,7 @@ class PantheonTagsFormatter extends FormatterBase {
    * @param array $image_data
    *   Image tag information is collected in this array.
    */
-  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, array &$image_data): void {
+  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, RefinableCacheableDependencyInterface $metadata, array &$image_data): void {
     $defaults = [
       'tag' => 'div',
       'data' => '',
@@ -110,6 +114,8 @@ class PantheonTagsFormatter extends FormatterBase {
       case 'component':
         if (!empty($node['type'])) {
           $component = PantheonSmartInstance::create(['component' => $node['type']] + $attrs);
+          // Changing the display of the component should invalidate cache.
+          $metadata->addCacheableDependency($component);
           $build = $this->viewBuilder->view($component);
           $html = (string) $this->renderer->renderInIsolation($build);
           $element = $domDocument->importNode(Html::load($html)->documentElement, TRUE);
@@ -129,7 +135,7 @@ class PantheonTagsFormatter extends FormatterBase {
       $element->setAttribute('style', implode('; ', $style));
     }
     foreach ($children as $child) {
-      $this->processNode($child, $element, $uniqueClass, $image_data);
+      $this->processNode($child, $element, $uniqueClass, $metadata, $image_data);
     }
     $parent->appendChild($element);
   }
