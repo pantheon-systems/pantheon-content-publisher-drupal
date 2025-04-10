@@ -78,7 +78,8 @@ function generateHTMLFromJSON(json, parentElement = null) {
             const element = createElement('div');
             parent.appendChild(element);
             fetch(Drupal.url('api/pantheoncloud/component/' + node.type + '?attrs=' + window.btoa(JSON.stringify(attrs))))
-                .then(async response => element.outerHTML = await response.text())
+                .then(async response => response.ok ? element.outerHTML = await response.text() : Promise.reject('Component does not load'))
+                .catch(error => console.error('Error:', error));
             return;
         }
         if (!hasChildren && !hasData && (attrs === undefined || Object.keys(attrs).length === 0)) {
