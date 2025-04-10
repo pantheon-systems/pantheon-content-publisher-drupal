@@ -19,7 +19,12 @@ class PantheonContentPublisherViewController extends EntityViewController {
   public function pantheonView(Request $request, $pantheon_id): array {
     $query = $request->query;
     $collection = $query->get('siteId') ?: array_key_first(PantheonDocumentCollection::loadMultiple());
-    $document = PantheonDocument::load(PantheonDocumentStorage::getEntityId($collection, $pantheon_id));
+    try {
+      $document = PantheonDocument::load(PantheonDocumentStorage::getEntityId($collection, $pantheon_id));
+    }
+    catch (\Exception $e) {
+      $document = PantheonDocument::create(['collection' => $collection]);
+    }
     if ($is_preview = $query->get('publishingLevel') === 'REALTIME') {
       // PantheonTagsFormatter turns this into
       // <div id="pantheon-content-publisher-preview"></div>
