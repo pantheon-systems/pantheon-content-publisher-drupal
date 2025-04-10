@@ -104,7 +104,7 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['image'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Description'))
+      ->setLabel(t('Image'))
       ->setRequired(TRUE)
       ->setSetting('max_length', 255)
       ->setDisplayOptions('view', [
