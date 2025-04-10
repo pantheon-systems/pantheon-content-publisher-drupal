@@ -180,9 +180,11 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       $index->save();
       \Drupal::service('search_api.index_task_manager')->addItemsBatch($index);
       // Index all items in the same batch as well.
-      IndexBatchHelper::create($index);
-      if (function_exists('drush_backend_batch_process')) {
-        drush_backend_batch_process();
+      if ($this->getGraphQL()->getArticleIds()) {
+        IndexBatchHelper::create($index);
+        if (function_exists('drush_backend_batch_process')) {
+          drush_backend_batch_process();
+        }
       }
     }
     unset($txn);
