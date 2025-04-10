@@ -78,7 +78,7 @@ function generateHTMLFromJSON(json, parentElement = null) {
             const element = createElement('div');
             parent.appendChild(element);
             const encoded = base64.encode((new TextEncoder).encode(JSON.stringify(attrs)));
-            fetch(Drupal.url('/api/pantheoncloud/component/' + node.type + '?attrs=' + encoded))
+            fetch(Drupal.url('api/pantheoncloud/component/' + node.type + '?attrs=' + encoded))
                 .then(async response => element.outerHTML = await response.text())
             return;
         }
