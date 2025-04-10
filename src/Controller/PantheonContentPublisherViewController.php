@@ -8,6 +8,7 @@ use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
 use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
+use Drupal\pantheon_content_publisher\GraphQLException;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,14 +19,20 @@ class PantheonContentPublisherViewController extends EntityViewController {
 
   public function pantheonView(Request $request, $pantheon_id): array {
     $query = $request->query;
+    $is_preview = $query->get('publishingLevel') === 'REALTIME';
     $collection = $query->get('siteId') ?: array_key_first(PantheonDocumentCollection::loadMultiple());
     try {
       $document = PantheonDocument::load(PantheonDocumentStorage::getEntityId($collection, $pantheon_id));
     }
-    catch (\Exception $e) {
-      $document = PantheonDocument::create(['collection' => $collection]);
+    catch (GraphQLException $e) {
+      if ($is_preview) {
+        $document = PantheonDocument::create(['collection' => $collection]);
+      }
+      else {
+        throw $e;
+      }
     }
-    if ($is_preview = $query->get('publishingLevel') === 'REALTIME') {
+    if ($is_preview) {
       // PantheonTagsFormatter turns this into
       // <div id="pantheon-content-publisher-preview"></div>
       $document->get('content')->value = '{"attrs":{"id":"pantheon-content-publisher-preview"}}';

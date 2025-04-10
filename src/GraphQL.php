@@ -115,7 +115,7 @@ class GraphQL {
         return $decoded['data'][$name];
       }
     }
-    throw new \RuntimeException("Could not execute query for $name.");
+    throw new GraphQLException("Could not execute query for $name.");
   }
 
 }
