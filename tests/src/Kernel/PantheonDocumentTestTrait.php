@@ -202,6 +202,7 @@ trait PantheonDocumentTestTrait {
       'content' => $this->articleContent,
       'title' => 'test title',
       'slug' => 'test-slug',
+      'image' => 'test-image',
     ];
   }
 
