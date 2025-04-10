@@ -1,4 +1,5 @@
 import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pantheon-systems/pcc-sdk-core";
+import "base-64";
 
 const params = new URLSearchParams(window.location.search);
 const documentId = drupalSettings.path.currentPath.split('/')[3];
