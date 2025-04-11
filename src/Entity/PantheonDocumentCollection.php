@@ -127,6 +127,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
     // By now only the new fields remain.
     $prefix = 'field.storage.pantheon_document.';
     $field_storage_ids = array_flip(\Drupal::service('config.storage')->listAll($prefix));
+    $field_storage_ids[$prefix . 'content'] = TRUE;
     foreach ($metadata as $pantheon_field => $pantheon_data) {
       $candidate_base = strtolower(preg_replace('/[^a-z0-9_]+/i', '', $pantheon_field));
       /** @noinspection PhpStatementHasEmptyBodyInspection */
@@ -158,6 +159,9 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         'datasource_settings' => [$datasource => []],
         'dependencies' => $dependencies,
       ]);
+      $processor = \Drupal::service('search_api.plugin_helper')
+        ->createProcessorPlugin($index, 'pantheon_tags', ['fields' => ['content']]);
+      $index->addProcessor($processor)->save();
       $base_fields = \Drupal::service('entity_field.manager')
         ->getBaseFieldDefinitions('pantheon_document');
       $fields[] = $base_fields['content'];
@@ -175,6 +179,9 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         $data_definition = $storage->getPropertyDefinition($storage->getMainPropertyName());
         $search_api_field = $fields_helper->createFieldFromProperty($index, $data_definition, $datasource, $field->getName());
         $search_api_field->setLabel($field->getLabel());
+        if ($field->getName() === 'content') {
+          $search_api_field->setType('text');
+        }
         $index->addField($search_api_field);
       }
       $index->save();
