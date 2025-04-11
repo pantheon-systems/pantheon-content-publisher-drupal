@@ -161,7 +161,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       ]);
       $processor = \Drupal::service('search_api.plugin_helper')
         ->createProcessorPlugin($index, 'pantheon_tags', ['fields' => ['content']]);
-      $index->addProcessor($processor)->save();
+      $index->addProcessor($processor);
       $base_fields = \Drupal::service('entity_field.manager')
         ->getBaseFieldDefinitions('pantheon_document');
       $fields[] = $base_fields['content'];

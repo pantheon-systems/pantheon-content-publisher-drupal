@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
+namespace Drupal\pantheon_content_publisher;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Random;
@@ -17,7 +17,7 @@ use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 /**
  * Converts Pantheon content JSON to a renderable.
  */
-class PantheonTagsToRenderable {
+class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
 
   protected EntityViewBuilderInterface $viewBuilder;
 

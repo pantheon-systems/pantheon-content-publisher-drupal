@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
+namespace Drupal\pantheon_content_publisher;
 
 /**
  * Converts Pantheon content JSON to a renderable.

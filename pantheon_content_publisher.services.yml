@@ -6,7 +6,7 @@ services:
     class: Drupal\pantheon_content_publisher\PantheonContentPublisherConverter
     arguments: ['@keyvalue', '@entity.memory_cache']
   pantheon_content_publisher.tags_to_renderable:
-    class: Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter\PantheonTagsToRenderable
+    class: Drupal\pantheon_content_publisher\PantheonTagsToRenderable
     autowire: TRUE
   pantheon_content_publisher.event_subscriber:
     class: Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber

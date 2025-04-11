@@ -3,7 +3,7 @@
 namespace Drupal\pantheon_content_publisher\Plugin\search_api\processor;
 
 use Drupal\Core\Render\RendererInterface;
-use Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter\PantheonTagsToRenderableInterface;
+use Drupal\pantheon_content_publisher\PantheonTagsToRenderableInterface;
 use Drupal\search_api\Annotation\SearchApiProcessor;
 use Drupal\search_api\Processor\FieldsProcessorPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,7 +20,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
  * )
  */
 class PantheonTags extends FieldsProcessorPluginBase implements ContainerFactoryPluginInterface {
-
 
   /**
    * PantheonTags constructor.
@@ -42,10 +41,7 @@ class PantheonTags extends FieldsProcessorPluginBase implements ContainerFactory
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  protected function process(&$value) {
+  protected function processFieldValue(&$value, $type) {
     if ($build = $this->tagsToRenderable->convertJsonToRenderable($value)) {
       $value = $this->renderer->renderInIsolation($build);
     }
