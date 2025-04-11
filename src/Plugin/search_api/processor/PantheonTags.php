@@ -43,7 +43,7 @@ class PantheonTags extends FieldsProcessorPluginBase implements ContainerFactory
 
   protected function processFieldValue(&$value, $type) {
     if ($build = $this->tagsToRenderable->convertJsonToRenderable($value)) {
-      $value = $this->renderer->renderInIsolation($build);
+      $value = (string) $this->renderer->renderInIsolation($build);
     }
   }
 
