@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\pantheon_content_publisher\PantheonTagsToRenderable;
@@ -38,6 +39,13 @@ class PantheonTagsFormatter extends FormatterBase {
     }
 
     return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
   }
 
 }
