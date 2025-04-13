@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher;
 
+use Drupal\key\Entity\Key;
 use GraphQL\RequestBuilder\Argument;
 use GraphQL\RequestBuilder\Interfaces\TypeInterface;
 use GraphQL\RequestBuilder\RootType;

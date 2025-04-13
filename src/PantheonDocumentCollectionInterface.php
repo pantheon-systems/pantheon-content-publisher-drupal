@@ -13,6 +13,14 @@ interface PantheonDocumentCollectionInterface extends ConfigEntityInterface {
 
   public function getToken(): string;
 
+  /**
+   * @internal
+   *
+   * @return string
+   *   The id of th key entity.
+   */
+  public function getKey(): string;
+
   public function getUrl(): string;
 
   public function getGraphQL(): GraphQL;

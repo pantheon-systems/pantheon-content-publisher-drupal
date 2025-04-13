@@ -8,3 +8,4 @@ dependencies:
   - media_library_form_element:media_library_form_element
   - imagecache_external
   - text
+  - key

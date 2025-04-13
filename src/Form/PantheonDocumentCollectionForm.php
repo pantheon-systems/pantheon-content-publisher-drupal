@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\LocalRedirectResponse;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Routing\UrlGeneratorInterface;
+use Drupal\key\Entity\Key;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\search_api\Entity\Server;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,6 +33,16 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state): array {
+    if (!$servers = Server::loadMultiple()) {
+      $this->messenger()->addMessage(t('Please add a search API server first'));
+      $url = $this->urlGenerator->generateFromRoute('entity.search_api_server.add_form', [], ['query' => $this->getDestinationArray()]);
+      throw new EnforcedResponseException(new LocalRedirectResponse($url));
+    }
+    if (!$keys = Key::loadMultiple()) {
+      $this->messenger()->addMessage(t('Please add a key first'));
+      $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $this->getDestinationArray()]);
+      throw new EnforcedResponseException(new LocalRedirectResponse($url));
+    }
     $form = parent::form($form, $form_state);
     assert($this->entity instanceof PantheonDocumentCollectionInterface);
 
@@ -51,11 +62,14 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       ];
     }
 
-    $form['token'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Content Publisher token'),
+    $key_options = array_map(static fn ($key) => $key->label(), $keys);
+
+    $form['key'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Select Key'),
+      '#options' => $key_options,
+      '#default_value' => $this->entity->getKey(),
       '#required' => TRUE,
-      '#default_value' => $this->entity->getToken(),
     ];
 
     $form['url'] = [
@@ -71,17 +85,20 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       '#default_value' => $this->entity->get('description'),
     ];
 
-    if (!$servers = Server::loadMultiple()) {
-      $this->messenger()->addMessage(t('Please add a search API server first'));
-      $url = $this->urlGenerator->generateFromRoute('entity.search_api_server.add_form', [], ['query' => $this->getDestinationArray()]);
-      throw new EnforcedResponseException(new LocalRedirectResponse($url));
+    if (count($servers) === 1) {
+      $form['search_api_server'] = [
+        '#type' => 'value',
+        '#value' => array_key_first($servers),
+      ];
     }
-    $form['search_api_server'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Search server'),
-      '#options' => array_map(fn ($s) => $s->label(), $servers),
-      '#default_value' => $this->entity->get('search_api_server'),
-    ];
+    else {
+      $form['search_api_server'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Search server'),
+        '#options' => array_map(fn ($s) => $s->label(), $servers),
+        '#default_value' => $this->entity->get('search_api_server'),
+      ];
+    }
 
     return $form;
   }

@@ -10,6 +10,7 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
+use Drupal\key\Entity\Key;
 use Drupal\pantheon_content_publisher\GraphQL;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherConverter;
@@ -56,7 +57,7 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  *   config_export = {
  *     "label",
  *     "id",
- *     "token",
+ *     "key",
  *     "url",
  *     "description",
  *     "search_api_server"
@@ -82,12 +83,16 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
 
   protected string $search_api_server = '';
 
-  protected string $token = '';
+  protected string $key = '';
 
   protected string $url = '';
 
   public function getToken(): string {
-    return $this->token;
+    return Key::load($this->key)->getKeyValue();
+  }
+
+  public function getKey(): string {
+    return $this->key;
   }
 
   public function getUrl(): string {

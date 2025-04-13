@@ -14,9 +14,9 @@ pantheon_content_publisher.pantheon_document_collection.*:
     site_id:
       type: string
       label: 'Site id'
-    token:
+    key:
       type: string
-      label: Token
+      label: Key
     url:
       type: string
       label: 'Site Url'
