@@ -6,6 +6,7 @@ namespace Drupal\pantheon_content_publisher\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 
 /**
@@ -59,15 +60,18 @@ class PantheonSmartComponentForm extends EntityForm {
     else {
       $this->entity->set('icon', NULL);
     }
-    $result = parent::save($form, $form_state);
     $message_args = ['%label' => $this->entity->label()];
-    $this->messenger()->addStatus(
-      match($result) {
-        \SAVED_NEW => $this->t('Created new example %label.', $message_args),
-        \SAVED_UPDATED => $this->t('Updated example %label.', $message_args),
-      }
-    );
-    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
+    $result = parent::save($form, $form_state);
+    if ($result === \SAVED_NEW) {
+      $message = $this->t('Fields needs to be added to the new component %label.', $message_args);
+      $url = Url::fromRoute('entity.pantheon_smart_instance.field_ui_fields', ['pantheon_smart_component' => $this->entity->id()]);
+    }
+    else {
+      $message = $this->t('Updated smart component %label.', $message_args);
+      $url = $this->entity->toUrl('collection');
+    }
+    $this->messenger()->addStatus($message);
+    $form_state->setRedirectUrl($url);
     return $result;
   }
 
