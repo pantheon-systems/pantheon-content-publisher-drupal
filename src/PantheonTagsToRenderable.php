@@ -28,7 +28,7 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
   /**
    * {@inheritdoc}
    */
-  public function convertJsonToRenderable(string $json, array &$image_data = []): array {
+  public function convertJsonToRenderable(string $json): array {
     if (!$node = @json_decode($json, TRUE)) {
       return [];
     }
@@ -43,7 +43,7 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
     $container->setAttribute('class', $uniqueClass);
 
     $metadata = new CacheableMetadata();
-    $this->processNode($node, $container, $uniqueClass, $metadata, $image_data);
+    $this->processNode($node, $container, $uniqueClass, $metadata);
 
     $build = [
       '#type' => 'inline_template',
@@ -53,6 +53,13 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
     $metadata->applyTo($build);
 
     return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getImageData(string $json): array {
+    return $this->collectImageData(@json_decode($json, TRUE) ?: []);
   }
 
   /**
@@ -66,10 +73,8 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
    *   The unique class used for CSS scoping.
    * @param \Drupal\Core\Cache\RefinableCacheableDependencyInterface $metadata
    *   The caching metadata.
-   * @param array $image_data
-   *   Image tag information is collected in this array.
    */
-  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, RefinableCacheableDependencyInterface $metadata, array &$image_data): void {
+  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, RefinableCacheableDependencyInterface $metadata): void {
     $defaults = [
       'tag' => 'div',
       'data' => '',
@@ -88,10 +93,6 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
           $children = [];
           $data = ".$uniqueClass $data";
         }
-        break;
-
-      case 'img':
-        $image_data[$attrs['src']] = $attrs;
         break;
 
       case 'component':
@@ -118,9 +119,20 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
       $element->setAttribute('style', implode('; ', $style));
     }
     foreach ($children as $child) {
-      $this->processNode($child, $element, $uniqueClass, $metadata, $image_data);
+      $this->processNode($child, $element, $uniqueClass, $metadata);
     }
     $parent->appendChild($element);
+  }
+
+  protected function collectImageData(array $node): array {
+    $image_data = [];
+    if (($node['tag'] ?? '') === 'img' && !empty($node['attrs'])) {
+      $image_data[] = $node['attrs'];
+    }
+    foreach ($node['children'] ?? [] as $child) {
+      $image_data = array_merge($this->collectImageData($child), $image_data);
+    }
+    return $image_data;
   }
 
   /**

@@ -10,6 +10,7 @@ use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorageInterface;
+use Drupal\pantheon_content_publisher\PantheonTagsToRenderableInterface;
 use Drupal\search_api\Entity\Index;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,7 @@ class PantheonContentPublisherController extends ControllerBase {
 
   protected PantheonDocumentStorageInterface $pantheonContentPublisherStorage;
 
-  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, protected PantheonTagsToRenderableInterface $tagsToRenderable) {
     $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_document');
   }
 
@@ -44,9 +45,8 @@ class PantheonContentPublisherController extends ControllerBase {
         $document->save();
         PantheonDocumentCollection::load($collection_id)->save();
         Index::load(strtolower($collection_id))->indexItems();
-        $document->get('content')->view(['type' => 'pantheon_document_tags_formatter']);
-        if ($document->_image_data) {
-          \Drupal::queue('pantheon_document_images')->createItem([$collection_id, $document->_image_data]);
+        if ($image_data = $this->tagsToRenderable->getImageData($document->get('content')->value)) {
+          \Drupal::queue('pantheon_document_images')->createItem([$collection_id, $image_data]);
         }
       }
     }

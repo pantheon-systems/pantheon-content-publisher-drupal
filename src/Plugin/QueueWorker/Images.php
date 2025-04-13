@@ -74,7 +74,8 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
     $directory = 'public://pantheon_document/' . $this->id();
     $fs->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
     $directory = 'public://pantheon_document/' . $collection;
-    foreach ($pantheon_files as $uri => $image) {
+    foreach ($pantheon_files as $image) {
+      $uri = $image['src'];
       $filename = basename($uri);
       $destination = $this->fileSystem->getDestinationFilename("$directory/$filename", FileExists::Rename);
       $destination_stream = @fopen($destination, 'w');

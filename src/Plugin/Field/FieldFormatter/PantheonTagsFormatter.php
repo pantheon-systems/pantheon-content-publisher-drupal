@@ -33,9 +33,8 @@ class PantheonTagsFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $element = [];
-    $items->getEntity()->_image_data = [];
     foreach ($items as $delta => $item) {
-      $element[$delta] = $this->tagsToRenderable->convertJsonToRenderable($item->value, $items->getEntity()->_image_data);
+      $element[$delta] = $this->tagsToRenderable->convertJsonToRenderable($item->value);
     }
 
     return $element;
