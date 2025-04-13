@@ -68,3 +68,23 @@ function pantheon_content_publisher_entity_operation_alter(array &$operations, E
     unset($operations['manage-fields'], $operations['manage-form-display']);
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function pantheon_content_publisher_form_key_add_form_alter(&$form) {
+  if (\Drupal::request()->query->get('key_type') === 'pantheon_content_publisher') {
+    $form['settings']['type_section'] = [];
+    $form['settings']['type_section']['key_type'] = [
+      '#type' => 'value',
+      '#value' => 'pantheon_content_publisher',
+    ];
+  }
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function pantheon_content_publisher_element_info_alter(array &$info) {
+  unset($info['key_select']['#empty_option']);
+}

@@ -11,7 +11,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\LocalRedirectResponse;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Routing\UrlGeneratorInterface;
-use Drupal\key\Entity\Key;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\search_api\Entity\Server;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -38,11 +37,6 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       $url = $this->urlGenerator->generateFromRoute('entity.search_api_server.add_form', [], ['query' => $this->getDestinationArray()]);
       throw new EnforcedResponseException(new LocalRedirectResponse($url));
     }
-    if (!$keys = Key::loadMultiple()) {
-      $this->messenger()->addMessage(t('Please add a key first'));
-      $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $this->getDestinationArray()]);
-      throw new EnforcedResponseException(new LocalRedirectResponse($url));
-    }
     $form = parent::form($form, $form_state);
     assert($this->entity instanceof PantheonDocumentCollectionInterface);
 
@@ -62,14 +56,15 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       ];
     }
 
-    $key_options = array_map(static fn ($key) => $key->label(), $keys);
-
     $form['key'] = [
-      '#type' => 'select',
+      '#type' => 'key_select',
       '#title' => $this->t('Select Key'),
-      '#options' => $key_options,
+      '#key_filters' => [
+        'type' => 'pantheon_content_publisher',
+      ],
       '#default_value' => $this->entity->getKey(),
       '#required' => TRUE,
+      '#after_build' => ['::noKeyRedirect'],
     ];
 
     $form['url'] = [
@@ -128,6 +123,15 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
     catch (\Exception $e) {
       $form_state->setErrorByName('id', t('Invalid collection ID/access token pair.'));
     }
+  }
+
+  public function noKeyRedirect(array $element) {
+    if (!$element['#options']) {
+      $this->messenger()->addMessage(t('Please add a key first'));
+      $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $this->getDestinationArray() + ['key_type' => 'pantheon_content_publisher']]);
+      throw new EnforcedResponseException(new LocalRedirectResponse($url));
+    }
+    return $element;
   }
 
 }
