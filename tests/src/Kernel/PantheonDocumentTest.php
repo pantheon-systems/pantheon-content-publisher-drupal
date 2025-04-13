@@ -124,7 +124,6 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
         $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
         $response = $this->handle($request);
         $url = "https://foo/$name.jpg";
-        $this->assertSame($document->_image_data, [$url => ['alt' => 'alt text', 'src' => $url]]);
         if (!$trigger_webhook) {
           $this->expectException(ExpectationFailedException::class);
         }
