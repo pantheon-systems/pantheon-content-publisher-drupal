@@ -98,10 +98,18 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertSame($newValue, $pantheonContentPublisher->atextareameta->value);
   }
 
+  /**
+   * Test the list builder and entity query both.
+   *
+   * The core list builder uses entity query. If it gets overridden for
+   * pagination purposes then a separate entity query test needs to be added
+   * but until then, for basic functionality this test is enough to test both
+   * the list builder and entity query.
+   *
+   * @coversClass \Drupal\pantheon_content_publisher\Query\Query
+   * @coversClass \Drupal\pantheon_content_publisher\PantheonDocumentListBuilder
+   */
   public function testListBuilder() {
-    // The core list builder uses entity query. If it gets overridden for
-    // pagination purposes then a separate entity query test needs to be
-    // added but until then, for basic functionality this test is enough.
     $build = $this->container->get('entity_type.manager')
       ->getListBuilder('pantheon_document')
       ->render();
