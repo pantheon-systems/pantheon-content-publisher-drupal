@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\DrupalKernel;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;

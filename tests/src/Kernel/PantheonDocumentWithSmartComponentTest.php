@@ -25,6 +25,7 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
    * {@inheritdoc}
    */
   protected static $modules = [
+    'key',
     'search_api',
     'search_api_db',
     'search_api_db_defaults',

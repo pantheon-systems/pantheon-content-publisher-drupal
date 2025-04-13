@@ -30,10 +30,11 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     'field',
     'options',
     'text',
-    'pantheon_content_publisher',
+    'key',
     'search_api',
     'search_api_db',
     'search_api_db_defaults',
+    'pantheon_content_publisher',
   ];
 
   public function testSearchAPIIndex() {
