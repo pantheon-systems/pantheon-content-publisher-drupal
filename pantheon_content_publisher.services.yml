@@ -8,6 +8,7 @@ services:
   pantheon_content_publisher.tags_to_renderable:
     class: Drupal\pantheon_content_publisher\PantheonTagsToRenderable
     autowire: TRUE
+  Drupal\pantheon_content_publisher\PantheonTagsToRenderableInterface: '@pantheon_content_publisher.tags_to_renderable'
   pantheon_content_publisher.event_subscriber:
     class: Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber
     tags:

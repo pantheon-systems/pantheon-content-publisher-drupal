@@ -26,6 +26,7 @@ interface PantheonContentDocumentTestInterface {
     'getArticle' => '{article(id:"%s"){title,content,slug,metadata}}',
     'getArticles' => '{articlesv3{articles{id,title,metadata}}}',
     'getArticleIds' => '{articlesv3(pageSize:100){articles{id},pageInfo{nextCursor}}}',
+    'getArticleIdsButJustOne' => '{articlesv3(pageSize:1){articles{id},pageInfo{nextCursor}}}',
     'getPage2ArticleIds' => '{articlesv3(pageSize:100,cursor:"next cursor"){articles{id},pageInfo{nextCursor}}}',
   ];
 

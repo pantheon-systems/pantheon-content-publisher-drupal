@@ -182,6 +182,10 @@ trait PantheonDocumentTestTrait {
     ];
   }
 
+  protected function getArticleIdsButJustOne(): array {
+    return $this->getArticleIds();
+  }
+
   protected function getPage2ArticleIds(): array {
     $articleIds = $this->getArticleIds();
     $articleIds['articles'] = [];
