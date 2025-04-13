@@ -15,7 +15,7 @@ interface PantheonTagsToRenderableInterface {
    * @param string $json
    *   A serialized json object describing a DOM.
    */
-  public function convertJsonToRenderable(string $json): array;
+  public function convertJsonToRenderable(string $json, int $trim_length = 0): array;
 
   /**
    * Extract image data from JSON.

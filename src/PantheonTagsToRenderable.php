@@ -28,7 +28,7 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
   /**
    * {@inheritdoc}
    */
-  public function convertJsonToRenderable(string $json): array {
+  public function convertJsonToRenderable(string $json, int $trim_length = 0): array {
     if (!$node = @json_decode($json, TRUE)) {
       return [];
     }
@@ -44,11 +44,19 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
 
     $metadata = new CacheableMetadata();
     $this->processNode($node, $container, $uniqueClass, $metadata);
+    $html = Html::serialize($domDocument);
+    if ($trim_length) {
+      $length = strlen($html);
+      $html = Html::normalize(text_summary($html, size: $trim_length));
+      if (strlen($html) < $length) {
+        $html .= '…';
+      }
+    }
 
     $build = [
       '#type' => 'inline_template',
       '#template' => '{{ value | raw }}',
-      '#context' => ['value' => Html::serialize($domDocument)],
+      '#context' => ['value' => $html],
     ];
     $metadata->applyTo($build);
 

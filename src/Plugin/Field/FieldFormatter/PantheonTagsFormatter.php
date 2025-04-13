@@ -6,8 +6,9 @@ namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\FormatterBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\pantheon_content_publisher\PantheonTagsToRenderable;
+use Drupal\text\Plugin\Field\FieldFormatter\TextTrimmedFormatter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -19,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_types = {"string_long"},
  * )
  */
-class PantheonTagsFormatter extends FormatterBase {
+class PantheonTagsFormatter extends TextTrimmedFormatter {
 
   protected PantheonTagsToRenderable $tagsToRenderable;
 
@@ -29,13 +30,26 @@ class PantheonTagsFormatter extends FormatterBase {
     return $formatter;
   }
 
+  public static function defaultSettings() {
+    $settings = parent::defaultSettings();
+    $settings['trim_length'] = 0;
+    return $settings;
+  }
+
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element = parent::settingsForm($form, $form_state);
+    $element['trim_length']['#description'] = t('The maximum length of the displayed content. Set to zero 0 to disable trimming');
+    return $element;
+  }
+
   /**
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $element = [];
+    $trimLength = (int) $this->getSetting('trim_length');
     foreach ($items as $delta => $item) {
-      $element[$delta] = $this->tagsToRenderable->convertJsonToRenderable($item->value);
+      $element[$delta] = $this->tagsToRenderable->convertJsonToRenderable($item->value, $trimLength);
     }
 
     return $element;
@@ -47,5 +61,6 @@ class PantheonTagsFormatter extends FormatterBase {
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
   }
+
 
 }
