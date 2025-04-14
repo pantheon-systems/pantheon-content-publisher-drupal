@@ -1,0 +1,19 @@
+uuid: e57196d6-a184-403f-85f9-5c20fd0a2de3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.remote_url
+    - media.type.image
+id: media.image.remote_url
+field_name: remote_url
+entity_type: media
+bundle: image
+label: remote_url
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

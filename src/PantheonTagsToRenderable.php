@@ -135,10 +135,10 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
   protected function collectImageData(array $node): array {
     $image_data = [];
     if (($node['tag'] ?? '') === 'img' && !empty($node['attrs'])) {
-      $image_data[] = $node['attrs'];
+      $image_data[$node['attrs']['src']] = $node['attrs'];
     }
     foreach ($node['children'] ?? [] as $child) {
-      $image_data = array_merge($this->collectImageData($child), $image_data);
+      $image_data += $this->collectImageData($child);
     }
     return $image_data;
   }

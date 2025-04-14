@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher\Plugin\QueueWorker;
 
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
@@ -11,7 +12,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
-use Drupal\file\FileStorageInterface;
 use Drupal\media\Entity\Media;
 use Psr\Http\Client\ClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class Images extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
-  protected FileStorageInterface $fileStorage;
+  protected EntityStorageInterface $mediaStorage
 
   /**
    * Constructs a new Images instance.
@@ -41,7 +41,7 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
     protected readonly ClientInterface $httpClient,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->fileStorage = $entityTypeManager->getStorage('file');
+    $this->mediaStorage = $entityTypeManager->getStorage('media');
   }
 
   /**
@@ -63,23 +63,23 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
    */
   public function processItem($data): void {
     [$collection, $pantheon_files] = $data;
-    $fids = $this->fileStorage->getQuery()
-      ->condition('uri', array_keys($pantheon_files), 'IN')
+    $media_ids = $this->mediaStorage->getQuery()
+      ->condition('remote_url', array_keys($pantheon_files), 'IN')
       ->accessCheck(FALSE)
       ->execute();
-    $uris = array_flip(array_map(fn (FileInterface $file) => $file->getUri(), File::loadMultiple($fids)));
-    $pantheon_files = array_diff_key($pantheon_files, $uris);
+    if ($media_ids) {
+      $existing_remote_urls = array_map(static fn($media) => $media->remote_url->value, Media::loadMultiple($media_ids));
+      $pantheon_files = array_diff_key($pantheon_files, array_flip($existing_remote_urls));
+    }
     $fs = \Drupal::service('file_system');
     assert($fs instanceof FileSystemInterface);
-    $directory = 'public://pantheon_document/' . $this->id();
-    $fs->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
     $directory = 'public://pantheon_document/' . $collection;
-    foreach ($pantheon_files as $image) {
-      $uri = $image['src'];
-      $filename = basename($uri);
+    $fs->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+    foreach ($pantheon_files as $src => $image) {
+      $filename = basename($src);
       $destination = $this->fileSystem->getDestinationFilename("$directory/$filename", FileExists::Rename);
       $destination_stream = @fopen($destination, 'w');
-      $this->httpClient->get($uri, ['sink' => $destination_stream]);
+      $this->httpClient->get($src, ['sink' => $destination_stream]);
       $file = File::create(['uri' => $destination]);
       $file->setPermanent();
       $file->save();
@@ -89,6 +89,7 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
         'field_media_image' => [
           'target_id' => $file->id(),
         ] + $image,
+        'remote_url' => $src,
       ]);
       $media->save();
     }
