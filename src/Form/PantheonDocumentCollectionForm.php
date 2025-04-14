@@ -58,7 +58,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
 
     $form['key'] = [
       '#type' => 'key_select',
-      '#title' => $this->t('Select Key'),
+      '#title' => $this->t('Token'),
       '#key_filters' => [
         'type' => 'pantheon_content_publisher',
       ],
@@ -85,11 +85,16 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
         '#type' => 'value',
         '#value' => array_key_first($servers),
       ];
+      $form['search_api_server_info'] = [
+        '#type' => 'item',
+        '#title' => t('Search API server'),
+        '#markup' => reset($servers)->label(),
+      ];
     }
     else {
       $form['search_api_server'] = [
         '#type' => 'select',
-        '#title' => $this->t('Search server'),
+        '#title' => $this->t('Search API server'),
         '#options' => array_map(fn ($s) => $s->label(), $servers),
         '#default_value' => $this->entity->get('search_api_server'),
       ];
@@ -126,11 +131,12 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
   }
 
   public function noKeyRedirect(array $element) {
+    $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $this->getDestinationArray() + ['key_type' => 'pantheon_content_publisher']]);
     if (!$element['#options']) {
-      $this->messenger()->addMessage(t('Please add a key first'));
-      $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $this->getDestinationArray() + ['key_type' => 'pantheon_content_publisher']]);
+      $this->messenger()->addMessage(t('Please add your token.'));
       throw new EnforcedResponseException(new LocalRedirectResponse($url));
     }
+    $element['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":link">create a new token</a>.', [':link' => $url]);
     return $element;
   }
 

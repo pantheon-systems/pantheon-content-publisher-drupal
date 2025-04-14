@@ -79,6 +79,12 @@ function pantheon_content_publisher_form_key_add_form_alter(&$form) {
       '#type' => 'value',
       '#value' => 'pantheon_content_publisher',
     ];
+    $form['label']['#title'] = t('Token name');
+    $form['settings']['input_section']['key_input_settings']['key_value']['#title'] = t('Token value');
+    $form['settings']['provider_section']['read_more'] = [
+      '#markup' => '<p>' . t('Find more about providers <a href="https://www.drupal.org/docs/contributed-modules/key/concepts-and-terminology#s-key-providers">here</a>, find a list of available providers <a href="https://www.drupal.org/docs/contributed-modules/key/supported-modules#s-providers-modules">here</a>.') . '</p>',
+    ];
+    $form['#title'] = 'Add token';
   }
 }
 
