@@ -46,7 +46,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertCount(1, $indexes);
     $index = reset($indexes);
     $this->assertSame(strtolower($this->collection->id()), $index->id());
-    $this->assertSame(['abooleanmeta', 'adatemeta', 'afilemeta', 'alistmeta', 'atextareameta', 'atextmeta', 'content'], array_keys($index->getFields()));
+    $this->assertSame(['abooleanmeta', 'adatemeta', 'afilemeta', 'alistmeta', 'atextareameta', 'atextmeta', 'content', 'title'], array_keys($index->getFields()));
     $this->assertSame(1, $index->getTrackerInstance()->getTotalItemsCount());
     $this->assertSame(0, $index->getTrackerInstance()->getRemainingItemsCount());
     $this->assertSame('textarea test contents', $this->getSearchAPIvalue('atextareameta'));
