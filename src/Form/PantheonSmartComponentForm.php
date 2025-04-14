@@ -64,7 +64,7 @@ class PantheonSmartComponentForm extends EntityForm {
     $result = parent::save($form, $form_state);
     if ($result === \SAVED_NEW) {
       $message = $this->t('Fields needs to be added to the new component %label.', $message_args);
-      $url = Url::fromRoute('entity.pantheon_smart_instance.field_ui_fields', ['pantheon_smart_component' => $this->entity->id()]);
+      $url = Url::fromRoute('field_ui.field_storage_config_add_pantheon_smart_instance', ['pantheon_smart_component' => $this->entity->id()]);
     }
     else {
       $message = $this->t('Updated smart component %label.', $message_args);

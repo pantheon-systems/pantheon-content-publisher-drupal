@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class Images extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
-  protected EntityStorageInterface $mediaStorage
+  protected EntityStorageInterface $mediaStorage;
 
   /**
    * Constructs a new Images instance.
