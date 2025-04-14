@@ -6,9 +6,9 @@ namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\pantheon_content_publisher\PantheonTagsToRenderable;
-use Drupal\text\Plugin\Field\FieldFormatter\TextTrimmedFormatter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_types = {"string_long"},
  * )
  */
-class PantheonTagsFormatter extends TextTrimmedFormatter {
+class PantheonTagsFormatter extends FormatterBase {
 
   protected PantheonTagsToRenderable $tagsToRenderable;
 
@@ -28,18 +28,6 @@ class PantheonTagsFormatter extends TextTrimmedFormatter {
     $formatter = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $formatter->tagsToRenderable = $container->get('pantheon_content_publisher.tags_to_renderable');
     return $formatter;
-  }
-
-  public static function defaultSettings() {
-    $settings = parent::defaultSettings();
-    $settings['trim_length'] = 0;
-    return $settings;
-  }
-
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = parent::settingsForm($form, $form_state);
-    $element['trim_length']['#description'] = t('The maximum length of the displayed content. Set to zero 0 to disable trimming');
-    return $element;
   }
 
   /**

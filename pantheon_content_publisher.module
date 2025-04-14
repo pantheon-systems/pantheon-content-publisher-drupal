@@ -8,7 +8,9 @@ declare(strict_types=1);
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\search_api\Plugin\views\field\SearchApiEntityField;
 
 /**
  * Implements hook_theme().
@@ -93,4 +95,17 @@ function pantheon_content_publisher_form_key_add_form_alter(&$form) {
  */
 function pantheon_content_publisher_element_info_alter(array &$info) {
   unset($info['key_select']['#empty_option']);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function pantheon_content_publisher_form_views_ui_config_item_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $handler = $form_state->get('handler');
+  if ($handler instanceof SearchApiEntityField && $handler->realField === 'entity:pantheon_document/content') {
+    $form['options']['field_rendering']['#disabled'] = TRUE;
+    $form['options']['field_rendering']['#value'] = 1;
+    $form['options']['type']['#options'] = array_intersect_key($form['options']['type']['#options'], ['pantheon_document_tags_formatter' => TRUE]);
+  }
+
 }

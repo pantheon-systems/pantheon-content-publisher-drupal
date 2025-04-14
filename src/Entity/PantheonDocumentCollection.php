@@ -133,6 +133,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
     $prefix = 'field.storage.pantheon_document.';
     $field_storage_ids = array_flip(\Drupal::service('config.storage')->listAll($prefix));
     $field_storage_ids[$prefix . 'content'] = TRUE;
+    $field_storage_ids[$prefix . 'title'] = TRUE;
     foreach ($metadata as $pantheon_field => $pantheon_data) {
       $candidate_base = strtolower(preg_replace('/[^a-z0-9_]+/i', '', $pantheon_field));
       /** @noinspection PhpStatementHasEmptyBodyInspection */
@@ -170,6 +171,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       $base_fields = \Drupal::service('entity_field.manager')
         ->getBaseFieldDefinitions('pantheon_document');
       $fields[] = $base_fields['content'];
+      $fields[] = $base_fields['title'];
     }
     // Save automatically tracks all items in a batch. This tracking does
     // not happen during config sync so handle that separately.
