@@ -88,8 +88,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
   protected string $url = '';
 
   public function getToken(): string {
-    // The casting and the null operator is only for testing purposes.
-    return (string) Key::load($this->key)?->getKeyValue();
+    return ($this->key && ($key = Key::load($this->key))) ? $key->getKeyValue() : '';
   }
 
   public function getKey(): string {
