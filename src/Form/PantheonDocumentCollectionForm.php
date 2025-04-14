@@ -140,7 +140,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
   public function noKeyRedirect(array $element) {
     $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $this->getDestinationArray() + ['key_type' => 'pantheon_content_publisher']]);
     if (!$element['#options']) {
-      $this->messenger()->addMessage(t('Please add your token.'));
+      $this->messenger()->addMessage(t('Please add your access token.'));
       throw new EnforcedResponseException(new LocalRedirectResponse($url));
     }
     $element['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":link">create a new token</a>.', [':link' => $url]);
