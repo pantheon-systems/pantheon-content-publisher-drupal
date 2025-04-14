@@ -55,6 +55,13 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
         '#required' => TRUE,
       ];
     }
+    else {
+      $form['id'] = [
+        '#type' => 'item',
+        '#title' => $this->t('Content Publisher Site ID'),
+        '#markup' => $this->entity->id(),
+      ];
+    }
 
     $form['key'] = [
       '#type' => 'key_select',
