@@ -44,9 +44,9 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  *   bundle_of = "pantheon_document",
  *   links = {
    *     "collection" = "/admin/structure/pantheon_content_publisher_collection",
-   *     "add_form" = "/admin/structure/pantheon_content_publisher_collection/add",
-   *     "edit_form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}",
-   *     "delete_form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}/delete",
+   *     "add-form" = "/admin/structure/pantheon_content_publisher_collection/add",
+   *     "edit-form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}",
+   *     "delete-form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}/delete",
  *   },
  *   entity_keys = {
  *     "id" = "id",
@@ -88,6 +88,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
   protected string $url = '';
 
   public function getToken(): string {
+    // The casting and the null operator is only for testing purposes.
     return (string) Key::load($this->key)?->getKeyValue();
   }
 
