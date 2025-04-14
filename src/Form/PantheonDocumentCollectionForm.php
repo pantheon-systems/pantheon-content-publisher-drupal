@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\LocalRedirectResponse;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Routing\UrlGeneratorInterface;
+use Drupal\Core\Url;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\search_api\Entity\Server;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -143,7 +144,11 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       $this->messenger()->addMessage(t('Please add your access token.'));
       throw new EnforcedResponseException(new LocalRedirectResponse($url));
     }
-    $element['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":link">create a new token</a>.', [':link' => $url]);
+    $args = [
+      ':new' => $url,
+      ':list' => Url::fromRoute('entity.key.collection')->toString(),
+    ];
+    $element['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":link">create a new token</a>. You can edit tokens <a href=":list">here</a>.', $args);
     return $element;
   }
 
