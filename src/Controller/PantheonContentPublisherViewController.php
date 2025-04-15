@@ -39,7 +39,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
     }
     $page = $this->view($document);
     if ($is_preview) {
-      $page['#attached']['library'][] = 'pantheon_content_publisher/drupal.pantheon_content_publisher.preview';
+      $page['#attached']['library'][] = 'pantheon_content_publisher/preview';
       $page['#attached']['drupalSettings']['pantheon_content_publisher']['site_id'] = $collection;
       $page['#attached']['http_header'][] = [PantheonContentPublisherXFrameSubscriber::HEADER_NAME, ''];
     }

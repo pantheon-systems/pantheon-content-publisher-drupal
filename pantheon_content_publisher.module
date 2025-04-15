@@ -19,6 +19,12 @@ function pantheon_content_publisher_theme(): array {
   return [
     'pantheon_document' => ['render element' => 'elements'],
     'pantheon_smart_instance' => ['render element' => 'elements'],
+    'pantheon_progress' => [
+      'variables' => [
+        'items' => [],
+        'current_step' => 0,
+      ],
+    ],
   ];
 }
 
@@ -58,6 +64,10 @@ function template_preprocess_pantheon_smart_instance(array &$variables): void {
   }
 }
 
+function template_preprocess_pantheon_progress(array &$variables): void {
+  $variables['#attached']['library'][] = 'pantheon_content_publisher/progress';
+}
+
 /**
  * Implements hook_entity_operation_alter().
  */
@@ -74,8 +84,42 @@ function pantheon_content_publisher_entity_operation_alter(array &$operations, E
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function pantheon_content_publisher_form_search_api_server_form_alter(&$form) {
+  _pantheon_content_publisher_add_progress_bar($form);
+}
+
+function _pantheon_content_publisher_add_progress_bar(&$form, $current_step = 0) {
+  $query = \Drupal::request()->query;
+  if ($query->has('destination')) {
+    preg_match('#/pantheon_document_collection/.+missing=([12])#', $query->get('destination'), $matches);
+  }
+  elseif ($query->has('missing')) {
+    $matches[1] = $query->get('missing');
+  }
+  if (isset($matches[1])) {
+    $items = [
+      t('Search API server'),
+      t('Access token'),
+      t('Pantheon collection'),
+    ];
+    if ($matches[1] === "1") {
+      unset($items[0]);
+    }
+    $form['pantheon_progress'] = [
+      '#theme' => 'pantheon_progress',
+      '#weight' => -100,
+      '#items' => $items,
+      '#current_step' => $current_step,
+    ];
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function pantheon_content_publisher_form_key_add_form_alter(&$form) {
   if (\Drupal::request()->query->get('key_type') === 'pantheon_content_publisher') {
+    _pantheon_content_publisher_add_progress_bar($form, 1);
     $form['settings']['type_section'] = [];
     $form['settings']['type_section']['key_type'] = [
       '#type' => 'value',

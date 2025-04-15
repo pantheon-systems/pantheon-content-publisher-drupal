@@ -33,11 +33,6 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state): array {
-    if (!$servers = Server::loadMultiple()) {
-      $this->messenger()->addMessage(t('Please add a search API server first'));
-      $url = $this->urlGenerator->generateFromRoute('entity.search_api_server.add_form', [], ['query' => $this->getDestinationArray()]);
-      throw new EnforcedResponseException(new LocalRedirectResponse($url));
-    }
     $form = parent::form($form, $form_state);
     assert($this->entity instanceof PantheonDocumentCollectionInterface);
 
@@ -72,7 +67,6 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       ],
       '#default_value' => $this->entity->getKey(),
       '#required' => TRUE,
-      '#after_build' => ['::noKeyRedirect'],
     ];
 
     $form['url'] = [
@@ -88,6 +82,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       '#default_value' => $this->entity->get('description'),
     ];
 
+    $servers = Server::loadMultiple();
     if (count($servers) === 1) {
       $form['search_api_server'] = [
         '#type' => 'value',
@@ -107,6 +102,8 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
         '#default_value' => $this->entity->get('search_api_server'),
       ];
     }
+    $form['#after_build'][] = '::noKeyRedirect';
+
 
     return $form;
   }
@@ -139,8 +136,24 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
   }
 
   public function noKeyRedirect(array $element) {
-    $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $this->getDestinationArray() + ['key_type' => 'pantheon_content_publisher']]);
-    if (!$element['#options']) {
+    $destination = $this->getDestinationArray();
+    // If there is exactly one search API server which is the most common use
+    // case then the search_api_server element is not a select.
+    $no_search_api_server = ($element['search_api_server']['#options'] ?? FALSE) === [];
+    $no_key = !$element['key']['#options'];
+    if (!\Drupal::request()->query->has('missing')) {
+      $destination['destination'] .= (str_contains($destination['destination'], '?') ? '&' : '?') . 'missing=' . ($no_search_api_server + $no_key);
+    }
+    else {
+      _pantheon_content_publisher_add_progress_bar($element, 2);
+    }
+    if ($no_search_api_server) {
+      $this->messenger()->addMessage(t('Please add a search API server.'));
+      $url = $this->urlGenerator->generateFromRoute('entity.search_api_server.add_form', [], ['query' => $destination]);
+      throw new EnforcedResponseException(new LocalRedirectResponse($url));
+    }
+    $url = $this->urlGenerator->generateFromRoute('entity.key.add_form', [], ['query' => $destination + ['key_type' => 'pantheon_content_publisher']]);
+    if ($no_key) {
       $this->messenger()->addMessage(t('Please add your access token.'));
       throw new EnforcedResponseException(new LocalRedirectResponse($url));
     }
@@ -148,7 +161,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       ':new' => $url,
       ':list' => Url::fromRoute('entity.key.collection')->toString(),
     ];
-    $element['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":new">create a new token</a>. You can edit tokens <a href=":list">here</a>.', $args);
+    $element['key']['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":new">create a new token</a>. You can edit tokens <a href=":list">here</a>.', $args);
     return $element;
   }
 

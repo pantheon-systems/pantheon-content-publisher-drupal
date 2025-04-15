@@ -1,0 +1,8 @@
+<div class="progress-container">
+  <progress max="{{ items|length }}" value="{{ current_step }}"></progress>
+  <ul class="steps">
+    {% for item in items %}
+      <li class="{{ loop.index <= current_step ? 'active' : '' }}" data-step="{{ loop.index }}">{{ item }}</li>
+    {% endfor %}
+  </ul>
+</div>

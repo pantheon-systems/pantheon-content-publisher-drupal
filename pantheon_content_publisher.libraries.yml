@@ -1,5 +1,9 @@
-drupal.pantheon_content_publisher.preview:
+preview:
   js:
     js/preview.js: { preprocess: false }
   dependencies:
     - core/drupal
+progress:
+  css:
+    component:
+      css/pantheon_progress.css: {}
