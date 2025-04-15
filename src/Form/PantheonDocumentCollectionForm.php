@@ -148,7 +148,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       ':new' => $url,
       ':list' => Url::fromRoute('entity.key.collection')->toString(),
     ];
-    $element['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":link">create a new token</a>. You can edit tokens <a href=":list">here</a>.', $args);
+    $element['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":new">create a new token</a>. You can edit tokens <a href=":list">here</a>.', $args);
     return $element;
   }
 

@@ -215,8 +215,4 @@ trait PantheonDocumentTestTrait {
     ] + $this->getArticle()]];
   }
 
-  protected function handle(Request $request): SymfonyResponse {
-    return $this->container->get('http_kernel')->handle($request);
-  }
-
 }

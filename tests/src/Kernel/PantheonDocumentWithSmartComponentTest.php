@@ -18,6 +18,7 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     PantheonDocumentTestTrait::setUp as documentTraitSetup;
   }
   use AssertContentTrait;
+  use PantheonKernelHandleTrait;
 
   protected string $textFieldValue;
 
@@ -47,11 +48,10 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
   }
 
   /**
-   * Test callback.
+   * Test the formatter when a smart component is present.
    */
   public function testFormatter(): void {
-    $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
-    $this->setRawContent($this->handle($request)->getContent());
+    $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
     // First check for the field labels.
     $this->assertText('A plain text field');
     $this->assertText('A list field');

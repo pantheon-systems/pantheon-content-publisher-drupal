@@ -11,7 +11,6 @@ use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXF
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Entity\Index;
 use PHPUnit\Framework\ExpectationFailedException;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test description.
@@ -21,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocumentTestInterface {
 
   use PantheonDocumentTestTrait;
+  use PantheonKernelHandleTrait;
 
   /**
    * {@inheritdoc}
@@ -130,8 +130,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
           $this->expectException(ExpectationFailedException::class);
         }
         $this->assertSame($content, $document->get('content')->value);
-        $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
-        $response = $this->handle($request);
+        $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
         $url = "https://foo/$name.jpg";
         if (!$trigger_webhook) {
           $this->expectException(ExpectationFailedException::class);
@@ -142,8 +141,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
   }
 
   public function testPreview() {
-    $request = Request::create(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
-    $response = $this->handle($request);
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
     $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
