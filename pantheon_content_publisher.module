@@ -88,12 +88,14 @@ function pantheon_content_publisher_form_search_api_server_form_alter(&$form) {
   _pantheon_content_publisher_add_progress_bar($form);
 }
 
-function _pantheon_content_publisher_add_progress_bar(&$form, $current_step = 0) {
+function _pantheon_content_publisher_add_progress_bar(&$form, $current_step = 0, $ours = FALSE) {
   $query = \Drupal::request()->query;
+  // This is for the add search api server form and the add key form.
   if ($query->has('destination')) {
     preg_match('#/pantheon_document_collection/.+missing=([12])#', $query->get('destination'), $matches);
   }
-  elseif ($query->has('missing')) {
+  // This is for the pantheon document collection form.
+  elseif ($ours && $query->has('missing')) {
     $matches[1] = $query->get('missing');
   }
   if (isset($matches[1])) {

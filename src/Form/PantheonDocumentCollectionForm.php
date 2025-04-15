@@ -127,6 +127,9 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       $collection = $this->getEntity();
       assert($collection instanceof PantheonDocumentCollectionInterface);
       if ($collection->isNew()) {
+        if ($this->entityTypeManager->getStorage($collection->getEntityTypeId())->load($collection->id())) {
+          $form_state->setErrorByName('id', t('This collection already exists.'));
+        }
         $collection->getGraphQL()->getMetadata();
       }
     }
@@ -145,7 +148,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       $destination['destination'] .= (str_contains($destination['destination'], '?') ? '&' : '?') . 'missing=' . ($no_search_api_server + $no_key);
     }
     else {
-      _pantheon_content_publisher_add_progress_bar($element, 2);
+      _pantheon_content_publisher_add_progress_bar($element, 2, TRUE);
     }
     if ($no_search_api_server) {
       $this->messenger()->addMessage(t('Please add a search API server.'));
