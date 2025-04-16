@@ -71,10 +71,8 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
       $existing_remote_urls = array_map(static fn($media) => $media->remote_url->value, Media::loadMultiple($media_ids));
       $pantheon_files = array_diff_key($pantheon_files, array_flip($existing_remote_urls));
     }
-    $fs = \Drupal::service('file_system');
-    assert($fs instanceof FileSystemInterface);
     $directory = 'public://pantheon_document/' . $collection;
-    $fs->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+    $this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
     foreach ($pantheon_files as $src => $image) {
       $filename = basename($src);
       $destination = $this->fileSystem->getDestinationFilename("$directory/$filename", FileExists::Rename);
