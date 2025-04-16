@@ -144,7 +144,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
     // case then the search_api_server element is not a select.
     $no_search_api_server = ($element['search_api_server']['#options'] ?? FALSE) === [];
     $no_key = !$element['key']['#options'];
-    if (!\Drupal::request()->query->has('missing')) {
+    if (!$this->getRequest()->query->has('missing')) {
       $destination['destination'] .= (str_contains($destination['destination'], '?') ? '&' : '?') . 'missing=' . ($no_search_api_server + $no_key);
     }
     else {

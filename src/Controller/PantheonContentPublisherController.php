@@ -6,6 +6,8 @@ namespace Drupal\pantheon_content_publisher\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Queue\QueueInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
@@ -23,8 +25,15 @@ class PantheonContentPublisherController extends ControllerBase {
 
   protected PantheonDocumentStorageInterface $pantheonContentPublisherStorage;
 
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, protected PantheonTagsToRenderableInterface $tagsToRenderable) {
+  protected QueueInterface $queue;
+
+  public function __construct(
+      EntityTypeManagerInterface $entityTypeManager,
+      QueueFactory $queueFactory,
+      protected PantheonTagsToRenderableInterface $tagsToRenderable
+  ) {
     $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_document');
+    $this->queue = $queueFactory->get('pantheon_document_images');
   }
 
   /**
@@ -46,7 +55,7 @@ class PantheonContentPublisherController extends ControllerBase {
         PantheonDocumentCollection::load($collection_id)->save();
         Index::load(strtolower($collection_id))->indexItems();
         if ($image_data = $this->tagsToRenderable->getImageData($document->get('content')->value)) {
-          \Drupal::queue('pantheon_document_images')->createItem([$collection_id, $image_data]);
+          $this->queue->createItem([$collection_id, $image_data]);
         }
       }
     }
