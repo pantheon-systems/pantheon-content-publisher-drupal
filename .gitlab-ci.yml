@@ -5,3 +5,6 @@ include:
       - '/includes/include.drupalci.main.yml'
       - '/includes/include.drupalci.variables.yml'
       - '/includes/include.drupalci.workflows.yml'
+variables:
+  SKIP_PHPCS: 1
+  SKIP_CSPELL: 1
