@@ -10,7 +10,7 @@ declare(strict_types=1);
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
-use Drupal\pantheon_content_publisher\Form\PantheonDocumentCollectionForm;
+use Drupal\pantheon_content_publisher\ProgressBar;
 use Drupal\search_api\Plugin\views\field\SearchApiEntityField;
 
 /**
@@ -86,7 +86,7 @@ function pantheon_content_publisher_entity_operation_alter(array &$operations, E
  * Implements hook_form_FORM_ID_alter().
  */
 function pantheon_content_publisher_form_search_api_server_form_alter(&$form) {
-  PantheonDocumentCollectionForm::addProgressBar($form, 's');
+  ProgressBar::addProgressBar($form, ProgressBar::SERVER);
 }
 
 
@@ -95,7 +95,7 @@ function pantheon_content_publisher_form_search_api_server_form_alter(&$form) {
  */
 function pantheon_content_publisher_form_key_add_form_alter(&$form) {
   if (\Drupal::request()->query->get('key_type') === 'pantheon_content_publisher') {
-    PantheonDocumentCollectionForm::addProgressBar($form, 'k');
+    ProgressBar::addProgressBar($form, ProgressBar::KEY);
     $form['settings']['type_section'] = [];
     $form['settings']['type_section']['key_type'] = [
       '#type' => 'value',

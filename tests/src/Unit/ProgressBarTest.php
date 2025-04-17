@@ -10,9 +10,9 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\pantheon_content_publisher\Form\PantheonDocumentCollectionForm;
+use Drupal\pantheon_content_publisher\ProgressBar;
 use Drupal\Tests\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -20,8 +20,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Test description.
  *
  * @group pantheon_content_publisher
+ * @coversClass \Drupal\pantheon_content_publisher\Form\PantheonDocumentCollectionForm
  */
-final class PantheonDocumentCollectionFormTest extends UnitTestCase {
+class ProgressBarTest extends UnitTestCase {
 
   protected PantheonDocumentCollectionForm $form;
   protected UrlGeneratorInterface|MockObject $urlGenerator;
@@ -54,9 +55,9 @@ final class PantheonDocumentCollectionFormTest extends UnitTestCase {
   }
 
   /**
-   * @dataProvider missingDataProvider
+   * @dataProvider redirectWhenDataIsMissingProvider
    */
-  public function testMissing(array $element, string $missing, string $route_name, string $query = ''): void {
+  public function testRedirectsWhenDataIsMissing(array $element, string $missing, string $route_name, string $query = ''): void {
     $this->urlGenerator->expects($this->once())
       ->method('generateFromRoute')
       ->with($route_name, [], $this->callback(fn ($options) => $this->assertStringContainsString('missing=' . $missing, $options['query']['destination']) || TRUE))
@@ -68,16 +69,14 @@ final class PantheonDocumentCollectionFormTest extends UnitTestCase {
       $this->form->progressBarOrRedirect($element);
     }
     catch (EnforcedResponseException $e) {
-      $response = $e->getResponse();
-      $this->assertInstanceOf(RedirectResponse::class, $response);
-      $this->assertSame($route_name . '?destination=' . rawurlencode("/admin/structure/pantheon_document_collection/add?missing=$missing") . $query, $response->getTargetUrl());
+      $this->assertSame($route_name . '?destination=' . rawurlencode("/admin/structure/pantheon_document_collection/add?missing=$missing") . $query, $e->getResponse()->getTargetUrl());
     }
   }
 
   /**
-   * @dataProvider missingPresentDataProvider
+   * @dataProvider progressBarOnCollectionFormProvider
    */
-  public function testProgressBarWhenMissingPresent(string $missing, bool $has_s, bool $has_k, int $current_step): void {
+  public function testProgressBarOnCollectionForm(string $missing, bool $has_server, bool $has_key, int $current_step): void {
     $this->request->query->set('missing', $missing);
     $this->urlGenerator->expects($this->exactly(2))
       ->method('generateFromRoute')
@@ -91,75 +90,85 @@ final class PantheonDocumentCollectionFormTest extends UnitTestCase {
 
     $form = $this->form->progressBarOrRedirect($form);
 
-    $this->assertProgressBar($form, $has_s, $has_k, $current_step);
+    $this->assertProgressBar($form, $has_server, $has_key, $current_step);
   }
 
   /**
-   * @dataProvider progressBarDataProvider
+   * @dataProvider progressBarOnOtherFormSProvider
    */
-  public function testAddProgressBar(string $missing, string $current_key, bool $has_s, bool $has_k, int $current_step): void {
+  public function testProgressBarOnOtherForms(string $missing, string $current_key, bool $has_server, bool $has_key, int $current_step): void {
     $this->request->query->set('destination', "/admin/structure/pantheon_document_collection/add?missing=$missing");
     $form = [];
-    PantheonDocumentCollectionForm::addProgressBar($form, $current_key);
-    $this->assertProgressBar($form, $has_s, $has_k, $current_step);
+    ProgressBar::addProgressBar($form, $current_key);
+    $this->assertProgressBar($form, $has_server, $has_key, $current_step);
   }
 
-  public function assertProgressBar(array $form, bool $has_s, bool $has_k, int $expected_current_step): void {
+  public function assertProgressBar(array $form, bool $has_servererver, bool $has_keyey, int $expected_current_step): void {
     $items = $form['pantheon_progress']['#items'];
-    if ($has_s) {
-      $this->assertArrayHasKey('s', $items);
+    if ($has_servererver) {
+      $this->assertArrayHasKey(ProgressBar::SERVER, $items);
     }
-    if ($has_k) {
-      $this->assertArrayHasKey('k', $items);
+    if ($has_keyey) {
+      $this->assertArrayHasKey(ProgressBar::KEY, $items);
     }
-    $this->assertArrayHasKey('p', $items);
+    $this->assertArrayHasKey(ProgressBar::PANTHEON, $items);
     $this->assertSame($expected_current_step, $form['pantheon_progress']['#current_step']);
   }
 
-  public static function missingDataProvider(): array  {
+  public static function redirectWhenDataIsMissingProvider(): array  {
     return [
+      // Key is present but server is not.
       [
         [
           'search_api_server' => ['#options' => []],
           'key' => ['#options' => ['key1' => 'Key']],
         ],
-        's',
+        ProgressBar::SERVER,
         'entity.search_api_server.add_form',
       ],
+      // Server is present but key is not.
       [
         [
           'search_api_server' => ['#options' => ['server1' => 'Server']],
           'key' => ['#options' => []],
         ],
-        'k',
+        ProgressBar::KEY,
         'entity.key.add_form',
         '&key_type=pantheon_content_publisher',
       ],
+      // Neither are present.
       [
         [
           'search_api_server' => ['#options' => []],
           'key' => ['#options' => []],
         ],
-        'sk',
+        ProgressBar::SERVER . ProgressBar::KEY,
         'entity.search_api_server.add_form',
       ],
     ];
   }
 
-  public static function missingPresentDataProvider(): array  {
+  public static function progressBarOnCollectionFormProvider(): array  {
     return [
-      ['s', TRUE, FALSE, 2],
+      // Only the server is missing.
+      [ProgressBar::SERVER, TRUE, FALSE, 2],
+      // Only the key is missing.
+      [ProgressBar::KEY, FALSE, TRUE, 2],
+      // Both the server and the key are missing.
       ['sk', TRUE, TRUE, 3],
-      ['k', FALSE, TRUE, 2],
     ];
   }
 
-  public static function progressBarDataProvider(): array  {
+  public static function progressBarOnOtherFormSProvider(): array  {
     return [
-      ['s', 's', TRUE, FALSE, 1],
-      ['sk', 's', TRUE, TRUE, 1],
-      ['sk', 'k', TRUE, TRUE, 2],
-      ['k', 'k', FALSE, TRUE, 1],
+      // Add server form when only the server is missing.
+      [ProgressBar::SERVER, ProgressBar::SERVER, TRUE, FALSE, 1],
+      // Add server form when both the server and the key are missing.
+      [ProgressBar::SERVER . ProgressBar::KEY, ProgressBar::SERVER, TRUE, TRUE, 1],
+      // Add key form when only the key are missing.
+      [ProgressBar::KEY, ProgressBar::KEY, FALSE, TRUE, 1],
+      // Add key form when both the server and the key are missing.
+      [ProgressBar::SERVER . ProgressBar::KEY, ProgressBar::KEY, TRUE, TRUE, 2],
     ];
   }
 

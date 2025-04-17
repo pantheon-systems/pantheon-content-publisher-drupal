@@ -12,6 +12,7 @@ use Drupal\Core\Routing\LocalRedirectResponse;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Url;
+use Drupal\pantheon_content_publisher\ProgressBar;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\search_api\Entity\Server;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -148,15 +149,15 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
     if (!$this->getRequest()->query->has('missing')) {
       $missing = '';
       if ($no_search_api_server) {
-        $missing .= 's';
+        $missing .= ProgressBar::SERVER;
       }
       if ($no_key) {
-        $missing .= 'k';
+        $missing .= ProgressBar::KEY;
       }
       $destination['destination'] .= (str_contains($destination['destination'], '?') ? '&' : '?') . 'missing=' . $missing;
     }
     else {
-      static::addProgressBar($element, 'p');
+      ProgressBar::addProgressBar($element, ProgressBar::PANTHEON);
     }
     if ($no_search_api_server) {
       $this->messenger()->addMessage(t('Please add a search API server.'));
@@ -174,32 +175,6 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
     ];
     $element['key']['#description'] = t('Choose an available token. If the desired token is not listed, <a href=":new">create a new token</a>. You can edit tokens <a href=":list">here</a>.', $args);
     return $element;
-  }
-
-  public static function addProgressBar(&$form, string $current_key): void{
-    $query = \Drupal::request()->query;
-    // This is for the add search api server form and the add key form.
-    if ($query->has('destination')) {
-      preg_match('#/pantheon_document_collection/.+missing=([ks]{1,2})#', $query->get('destination'), $matches);
-    }
-    // This is for the pantheon document collection form.
-    elseif ($current_key === 'p' && $query->has('missing')) {
-      $matches[1] = $query->get('missing');
-    }
-    if (isset($matches[1])) {
-      $items = [
-        's' => t('Search API server'),
-        'k' => t('Access token'),
-      ];
-      $items = array_intersect_key($items, array_flip(str_split($matches[1])));
-      $items['p'] = t('Pantheon collection');
-      $form['pantheon_progress'] = [
-        '#theme' => 'pantheon_progress',
-        '#weight' => -100,
-        '#items' => $items,
-        '#current_step' => array_search($current_key, array_keys($items)) + 1,
-      ];
-    }
   }
 
 }
