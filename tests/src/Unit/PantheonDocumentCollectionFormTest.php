@@ -43,8 +43,9 @@ final class PantheonDocumentCollectionFormTest extends UnitTestCase {
     $this->form->setRequestStack($requestStack);
 
     $redirectDestination = $this->createMock(RedirectDestinationInterface::class);
-    $redirectDestination->method('get')->willReturn('/node');
-    $redirectDestination->method('getAsArray')->willReturn(['destination' => '/admin/structure/pantheon_document_collection/add']);
+    $redirectDestination
+      ->method('getAsArray')
+      ->willReturn(['destination' => '/admin/structure/pantheon_document_collection/add']);
 
     $container = new ContainerBuilder();
     $container->set('request_stack', $requestStack);
