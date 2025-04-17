@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\key\Entity\Key;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Test trait to set up a document test.
@@ -35,6 +35,7 @@ trait PantheonDocumentTestTrait {
     $this->installConfig(['search_api', 'system']);
     $this->installSchema('search_api', ['search_api_item']);
     $this->installEntitySchema('search_api_task');
+    Key::create(['id' => 'test', 'key_provider' => 'config'])->save();
     // Create a collection, this also creates a search API index and puts all
     // items in it. Do not save it yet, though because saving triggers GraphQL
     // queries and the GraphQL responses need the collection id, so collection
@@ -42,7 +43,7 @@ trait PantheonDocumentTestTrait {
     $this->collection = $this->container->get('entity_type.manager')->getStorage('pantheon_document_collection')->create([
       'id' => $this->randomMachineName(),
       'label' => $this->randomString(),
-      'token' => $this->randomMachineName(),
+      'key' => 'test',
       'url' => $this->randomMachineName(),
       'search_api_server' => 'default_server',
     ]);

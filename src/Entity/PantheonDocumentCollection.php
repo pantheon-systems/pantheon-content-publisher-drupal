@@ -15,6 +15,7 @@ use Drupal\pantheon_content_publisher\GraphQL;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherConverter;
 use Drupal\search_api\Entity\Index;
+use Drupal\search_api\Entity\Server;
 use Drupal\search_api\IndexBatchHelper;
 use Drupal\search_api\Utility\FieldsHelperInterface;
 
@@ -103,7 +104,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
     parent::preSave($storage);
     if ($this->isNew()) {
       $this->dependencies['enforced']['config'][] = Key::load($this->key)->getConfigDependencyName();
-      $this->dependencies['enforced']['config'][] = Index::load($this->search_api_server)->getServerInstance()->getConfigDependencyName();
+      $this->dependencies['enforced']['config'][] = Server::load($this->search_api_server)->getConfigDependencyName();
     }
   }
 
