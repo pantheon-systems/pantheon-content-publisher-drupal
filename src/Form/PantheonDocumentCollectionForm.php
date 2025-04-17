@@ -44,17 +44,18 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       '#required' => TRUE,
     ];
 
+    $title = $this->t('Content Publisher Collection Identifier (Site ID)');
     if ($this->entity->isNew()) {
       $form['id'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Content Publisher Site ID'),
+        '#title' => $title,
         '#required' => TRUE,
       ];
     }
     else {
       $form['id_info'] = [
         '#type' => 'item',
-        '#title' => $this->t('Content Publisher Site ID'),
+        '#title' => $title,
         '#markup' => $this->entity->id(),
       ];
     }
