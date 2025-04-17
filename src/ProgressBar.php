@@ -32,7 +32,7 @@ abstract class ProgressBar {
         '#theme' => 'pantheon_progress',
         '#weight' => -100,
         '#items' => $items,
-        '#current_step' => array_search($current_key, array_keys($items)) + 1,
+        '#current_step' => array_search($current_key, array_keys($items)),
       ];
     }
   }
