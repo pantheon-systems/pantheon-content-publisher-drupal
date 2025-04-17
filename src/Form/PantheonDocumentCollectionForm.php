@@ -52,7 +52,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
       ];
     }
     else {
-      $form['id'] = [
+      $form['id_info'] = [
         '#type' => 'item',
         '#title' => $this->t('Content Publisher Site ID'),
         '#markup' => $this->entity->id(),
@@ -102,7 +102,7 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
         '#default_value' => $this->entity->get('search_api_server'),
       ];
     }
-    $form['#after_build'][] = '::noKeyRedirect';
+    $form['#after_build'][] = '::progressBarOrRedirect';
 
 
     return $form;
@@ -138,17 +138,24 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
     }
   }
 
-  public function noKeyRedirect(array $element) {
+  public function progressBarOrRedirect(array $element): array {
     $destination = $this->getDestinationArray();
     // If there is exactly one search API server which is the most common use
     // case then the search_api_server element is not a select.
     $no_search_api_server = ($element['search_api_server']['#options'] ?? FALSE) === [];
     $no_key = !$element['key']['#options'];
     if (!$this->getRequest()->query->has('missing')) {
-      $destination['destination'] .= (str_contains($destination['destination'], '?') ? '&' : '?') . 'missing=' . ($no_search_api_server + $no_key);
+      $missing = '';
+      if ($no_search_api_server) {
+        $missing .= 's';
+      }
+      if ($no_key) {
+        $missing .= 'k';
+      }
+      $destination['destination'] .= (str_contains($destination['destination'], '?') ? '&' : '?') . 'missing=' . $missing;
     }
     else {
-      _pantheon_content_publisher_add_progress_bar($element, 2, TRUE);
+      static::addProgressBar($element, 'p');
     }
     if ($no_search_api_server) {
       $this->messenger()->addMessage(t('Please add a search API server.'));
@@ -168,4 +175,31 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
     return $element;
   }
 
+  public static function addProgressBar(&$form, string $current_key): void{
+    $query = \Drupal::request()->query;
+    // This is for the add search api server form and the add key form.
+    if ($query->has('destination')) {
+      preg_match('#/pantheon_document_collection/.+missing=([ks]{1,2})#', $query->get('destination'), $matches);
+    }
+    // This is for the pantheon document collection form.
+    elseif ($current_key === 'p' && $query->has('missing')) {
+      $matches[1] = $query->get('missing');
+    }
+    if (isset($matches[1])) {
+      $items = [
+        's' => t('Search API server'),
+        'k' => t('Access token'),
+      ];
+      $items = array_intersect_key($items, array_flip(str_split($matches[1])));
+      $items['p'] = t('Pantheon collection');
+      $form['pantheon_progress'] = [
+        '#theme' => 'pantheon_progress',
+        '#weight' => -100,
+        '#items' => $items,
+        '#current_step' => array_search($current_key, array_keys($items)) + 1,
+      ];
+    }
+  }
+
 }
+

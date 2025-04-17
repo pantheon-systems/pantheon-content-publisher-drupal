@@ -99,6 +99,14 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
     return $this->url;
   }
 
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+    if ($this->isNew()) {
+      $this->dependencies['enforced']['config'][] = Key::load($this->key)->getConfigDependencyName();
+      $this->dependencies['enforced']['config'][] = Index::load($this->search_api_server)->getServerInstance()->getConfigDependencyName();
+    }
+  }
+
   public function postSave(EntityStorageInterface $entity_storage, $update = TRUE) {
     $metadata = $this->getGraphQL()->getMetadata();
     // First change and delete existing Drupal fields.
@@ -156,14 +164,12 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       $index = Index::load($index_id);
     }
     else {
-      $dependencies['enforced']['config'] = [$this->getConfigDependencyName()];
       $index = Index::create([
         'name' => $this->label(),
         'id' => $index_id,
         'status' => 1,
         'server' => $this->search_api_server,
         'datasource_settings' => [$datasource => []],
-        'dependencies' => $dependencies,
       ]);
       $processor = \Drupal::service('search_api.plugin_helper')
         ->createProcessorPlugin($index, 'pantheon_tags', ['fields' => ['content']]);
