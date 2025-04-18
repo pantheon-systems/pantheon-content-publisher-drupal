@@ -71,6 +71,8 @@ class PantheonSmartComponentForm extends EntityForm {
       $url = $this->entity->toUrl('collection');
     }
     $this->messenger()->addStatus($message);
+    // Add fields error out without a cache flush.
+    drupal_flush_all_caches();
     $form_state->setRedirectUrl($url);
     return $result;
   }
