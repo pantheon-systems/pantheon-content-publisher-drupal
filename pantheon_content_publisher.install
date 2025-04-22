@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+use Drupal\Core\Config\FileStorage;
+
+/**
+ * @file
+ * Installer for the pantheon content publisher module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function pantheon_content_publisher_install(): void {
+  $source_storage = new FileStorage('core/profiles/standard/config/optional');
+  $active_storage = \Drupal::service('config.storage');
+  $configs_to_import = [
+    'media.type.image',
+    'field.storage.media.field_media_image',
+    'field.field.media.image.field_media_image',
+  ];
+  foreach ($configs_to_import as $config_name) {
+    if ($source_storage->exists($config_name) && !$active_storage->exists($config_name) ) {
+      $data = $source_storage->read($config_name);
+      $active_storage->write($config_name, $data);
+    }
+  }
+}
