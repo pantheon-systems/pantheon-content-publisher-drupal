@@ -91,7 +91,7 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
       case 'component':
         if (!empty($node['type'])) {
           $component = PantheonSmartInstance::create(['component' => $node['type']] + $attrs);
-          // Changing the display of the component should invalidate cache.
+          // Changing the component should invalidate cache.
           $metadata->addCacheableDependency($component);
           $build = $this->viewBuilder->view($component);
           $html = (string) $this->renderer->renderInIsolation($build);

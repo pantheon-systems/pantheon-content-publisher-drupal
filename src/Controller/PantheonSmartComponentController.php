@@ -137,8 +137,10 @@ class PantheonSmartComponentController extends EntityViewController {
       $values += $data;
     }
     $build = parent::view(PantheonSmartInstance::create($values));
-    $build['#cache']['contexts'][] = 'url.path';
-    $build['#cache']['contexts'][] = 'url.query_args:args';
+    // Changing the component should invalidate the render cache, also
+    // different "args" query argument should vary the cache too.
+    $build['#cache']['contexts'] = array_merge($build['#cache']['contexts'] ?? [], $component->getCacheContexts(), ['url.path', 'url.query_args:args']);
+    $build['#cache']['tags'][] = array_merge($build['#cache']['tags'] ?? [], $component->getCacheTags());
     if ($request->query->has('snippet')) {
       $response = new HtmlResponse($this->renderer->renderInIsolation($build));
     }
