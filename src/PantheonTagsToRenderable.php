@@ -10,7 +10,6 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityViewBuilderInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartInstance;
 
@@ -54,13 +53,6 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
     $metadata->applyTo($build);
 
     return $build;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getImageData(string $json): array {
-    return $this->collectImageData(@json_decode($json, TRUE) ?: []);
   }
 
   /**
@@ -123,24 +115,6 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
       $this->processNode($child, $element, $uniqueClass, $metadata);
     }
     $parent->appendChild($element);
-  }
-
-  protected function collectImageData(array $node): array {
-    $image_data = [];
-    if (($node['tag'] ?? '') === 'img' && !empty($node['attrs'])) {
-      $image_data[$node['attrs']['src']] = $node['attrs'];
-    }
-    foreach ($node['children'] ?? [] as $child) {
-      $image_data += $this->collectImageData($child);
-    }
-    return $image_data;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition): bool {
-    return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
   }
 
 }

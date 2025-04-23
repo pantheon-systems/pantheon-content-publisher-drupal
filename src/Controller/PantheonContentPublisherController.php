@@ -54,7 +54,7 @@ class PantheonContentPublisherController extends ControllerBase {
         $document->save();
         PantheonDocumentCollection::load($collection_id)->save();
         Index::load(strtolower($collection_id))->indexItems();
-        if ($image_data = $this->tagsToRenderable->getImageData($document->get('content')->value)) {
+        if ($image_data = static::getImageData($document->get('content')->value)) {
           $this->queue->createItem([$collection_id, $image_data]);
         }
       }
@@ -64,6 +64,38 @@ class PantheonContentPublisherController extends ControllerBase {
 
   public function status(): JsonResponse {
     return new JsonResponse();
+  }
+
+  /**
+   * Extract image data from JSON.
+   *
+   * @param string $json
+   *   A serialized JSON object describing a DOM.
+   *
+   * @return array
+   *   Keys are URLs to images, the values are key-value pairs. Each key-value
+   *   pair is a HTML attribute of an img tag and its value.
+   */
+  protected static function getImageData(string $json): array {
+    return static::collectImageData(@json_decode($json, TRUE) ?: []);
+  }
+
+  /**
+   * @param array $node
+   *   An array describing a DOM node.
+   *
+   * @return array
+   *   Same return as ::getImageData().)
+   */
+  protected static function collectImageData(array $node): array {
+    $image_data = [];
+    if (($node['tag'] ?? '') === 'img' && !empty($node['attrs'])) {
+      $image_data[$node['attrs']['src']] = $node['attrs'];
+    }
+    foreach ($node['children'] ?? [] as $child) {
+      $image_data += static::collectImageData($child);
+    }
+    return $image_data;
   }
 
 }
