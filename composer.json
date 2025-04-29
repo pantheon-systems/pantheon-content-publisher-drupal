@@ -1,10 +1,10 @@
 {
-    "name": "drupal/pantheon_document",
+    "name": "drupal/pantheon_content_publisher",
     "type": "drupal-module",
     "description": "Pantheon Content Publisher",
     "keywords": ["Drupal"],
     "license": "GPL-2.0+",
-    "homepage": "https://www.drupal.org/project/pantheon_document",
+    "homepage": "https://www.drupal.org/project/pantheon_content_publisher",
     "authors": [
         {
             "name": "ghost of drupal past",
@@ -20,7 +20,7 @@
         "drupal/key": "^1.20"
     },
     "support": {
-        "issues": "https://www.drupal.org/project/issues/pantheon_document",
-        "source": "http://cgit.drupalcode.org/pantheon_document"
+        "issues": "https://www.drupal.org/project/issues/pantheon_content_publisher",
+        "source": "http://cgit.drupalcode.org/pantheon_content_publisher"
     }
 }
