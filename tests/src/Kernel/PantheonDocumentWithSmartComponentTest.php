@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 
 use Drupal\KernelTests\AssertContentTrait;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Smart component test.

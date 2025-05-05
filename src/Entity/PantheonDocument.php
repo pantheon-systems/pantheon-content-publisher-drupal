@@ -49,12 +49,8 @@ use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
  *   },
  *   links = {
  *     "collection" = "/admin/content/pantheon-content-publisher",
- *     "add-form" = "/pantheon-content-publisher/add/{pantheon_document_collection}",
- *     "add-page" = "/pantheon-content-publisher/add",
  *     "canonical" = "/pantheon-content-publisher/{pantheon_document}",
  *     "edit-form" = "/pantheon-content-publisher/{pantheon_document}/edit",
- *     "delete-form" = "/pantheon-content-publisher/{pantheon_document}/delete",
- *     "delete-multiple-form" = "/admin/content/pantheon-content-publisher/delete-multiple",
  *   },
  *   bundle_entity_type = "pantheon_document_collection",
  * )

@@ -44,6 +44,7 @@ class PantheonContentPublisherController extends ControllerBase {
       $collection_id = $decoded['payload']['siteId'] ?? array_key_first(PantheonDocumentCollection::loadMultiple());
       $entity_id = PantheonDocumentStorage::getEntityId($collection_id, $decoded['payload']['articleId']);
       if ($decoded['event'] === 'article.unpublish') {
+        // Delete the document from Search API.
         PantheonDocument::create([
           'collection' => $collection_id,
           'id' => $entity_id,
@@ -51,8 +52,12 @@ class PantheonContentPublisherController extends ControllerBase {
       }
       else {
         $document = $this->pantheonContentPublisherStorage->load($entity_id);
+        // Clear the appropriate entity caches and queue the document for
+        // indexing in Search API.
         $document->save();
+        // Sync metadata changes.
         PantheonDocumentCollection::load($collection_id)->save();
+        // Actually do the indexing.
         Index::load(strtolower($collection_id))->indexItems();
         if ($image_data = static::getImageData($document->get('content')->value)) {
           $this->queue->createItem([$collection_id, $image_data]);

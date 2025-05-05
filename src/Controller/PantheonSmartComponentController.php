@@ -133,18 +133,21 @@ class PantheonSmartComponentController extends EntityViewController {
     if (!$component = PantheonSmartComponent::load($component)) {
       throw new NotFoundHttpException();
     }
-    if ($request->query->has('attrs') && ($attrs = base64_decode($request->query->get('attrs'), TRUE)) && ($data = json_decode($attrs, TRUE))) {
+    $key = 'attrs';
+    if ($request->query->has($key) && ($attrs = base64_decode($request->query->get($key), TRUE)) && ($data = json_decode($attrs, TRUE))) {
       $values += $data;
     }
     $build = parent::view(PantheonSmartInstance::create($values));
     // Changing the component should invalidate the render cache, also
     // different "args" query argument should vary the cache too.
-    $build['#cache']['contexts'] = array_merge($build['#cache']['contexts'] ?? [], $component->getCacheContexts(), ['url.path', 'url.query_args:args']);
-    $build['#cache']['tags'][] = array_merge($build['#cache']['tags'] ?? [], $component->getCacheTags());
+    $build['#cache']['contexts'] = array_merge($build['#cache']['contexts'] ?? [], $component->getCacheContexts(), ['url.path', 'url.query_args:' . $key]);
+    $build['#cache']['tags'] = array_merge($build['#cache']['tags'] ?? [], $component->getCacheTags());
     if ($request->query->has('snippet')) {
+      // This is for the document preview pane.
       $response = new HtmlResponse($this->renderer->renderInIsolation($build));
     }
     else {
+      // This is for the preview pane in Google smart component edit popup.
       $response = $this->barePageHtmlRenderer->renderBarePage($build, $component->label(), 'markup');
       $response->headers->set(PantheonContentPublisherXFrameSubscriber::HEADER_NAME, '');
       $response->headers->set('Access-Control-Allow-Origin', '*');

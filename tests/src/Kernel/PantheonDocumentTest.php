@@ -145,6 +145,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
     $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
+    // @TODO assert preview.js is loaded.
   }
 
 }

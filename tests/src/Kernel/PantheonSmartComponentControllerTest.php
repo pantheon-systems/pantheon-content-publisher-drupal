@@ -22,6 +22,8 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
    * Test listComponents.
    */
   public function testSchemaConversion(): void {
+    // smart components are created in PantheonSmartComponentTestBase by
+    // importing the config of the pantheon_smart_component_test module.
     $response = $this->handle('/api/pantheoncloud/component_schema');
     $this->assertInstanceOf(JsonResponse::class, $response);
     $expected = json_decode(file_get_contents(__DIR__ . '/../../fixtures/smart_component_schema_test.json'), TRUE);
@@ -33,6 +35,8 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
    * Test component view
    */
   public function testView(): void {
+    // @TODO write a unit test to ensure this functionality fires the
+    // entity view builder.
     $values = [
       'plain_text_field' => $this->randomString(),
       'list_field' => 'option_2',
