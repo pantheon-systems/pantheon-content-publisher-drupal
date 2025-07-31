@@ -5,7 +5,7 @@ entity.pantheon_document_collection.overview:
   route_name: entity.pantheon_document_collection.collection
 
 entity.pantheon_document.collection:
-  title: 'Pantheon content publisher entities'
+  title: 'Pantheon Documents'
   description: 'List of pantheon content publisher entities.'
   route_name: entity.pantheon_document.collection
   parent: system.admin_content

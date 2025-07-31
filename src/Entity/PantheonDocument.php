@@ -16,8 +16,8 @@ use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
  *
  * @ContentEntityType(
  *   id = "pantheon_document",
- *   label = @Translation("Pantheon document"),
- *   label_collection = @Translation("Pantheon documents"),
+ *   label = @Translation("Pantheon Document"),
+ *   label_collection = @Translation("Pantheon Documents"),
  *   label_singular = @Translation("pantheon document"),
  *   label_plural = @Translation("pantheon documents"),
  *   label_count = @PluralTranslation(

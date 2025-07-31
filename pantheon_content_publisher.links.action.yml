@@ -4,12 +4,6 @@ entity.pantheon_document_collection.add_form:
   appears_on:
     - entity.pantheon_document_collection.collection
 
-pantheon_document.add_page:
-  title: 'Add pantheon content publisher'
-  route_name: entity.pantheon_document.add_page
-  appears_on:
-    - entity.pantheon_document.collection
-
 entity.pantheon_smart_component.add_form:
   route_name: 'entity.pantheon_smart_component.add_form'
   title: 'Add pantheon smart component'
