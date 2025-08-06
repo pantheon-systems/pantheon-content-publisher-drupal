@@ -106,7 +106,6 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
     }
     $form['#after_build'][] = '::progressBarOrRedirect';
 
-
     return $form;
   }
 
@@ -178,4 +177,3 @@ class PantheonDocumentCollectionForm extends EntityForm implements ContainerInje
   }
 
 }
-

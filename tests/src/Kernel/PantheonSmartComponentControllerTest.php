@@ -32,7 +32,7 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
   }
 
   /**
-   * Test component view
+   * Test component view.
    */
   public function testView(): void {
     // @TODO write a unit test to ensure this functionality fires the

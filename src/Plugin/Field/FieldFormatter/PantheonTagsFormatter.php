@@ -49,5 +49,4 @@ class PantheonTagsFormatter extends FormatterBase {
     return $field_definition->getName() === 'content' && $field_definition->getTargetEntityTypeId() === 'pantheon_document';
   }
 
-
 }

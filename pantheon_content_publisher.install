@@ -1,20 +1,20 @@
 <?php
 
-declare(strict_types=1);
-
-use Drupal\Core\Config\FileStorage;
-
 /**
  * @file
  * Installer for the pantheon content publisher module.
  */
+
+declare(strict_types=1);
+
+use Drupal\Core\Config\FileStorage;
 
 /**
  * Implements hook_install().
  */
 function pantheon_content_publisher_install(): void {
   $standard_storage = new FileStorage('core/profiles/standard/config/optional');
-  $pantheon_storage = new FileStorage(__DIR__ . '/config/hook_install');;
+  $pantheon_storage = new FileStorage(__DIR__ . '/config/hook_install');
   $active_storage = \Drupal::service('config.storage');
   $configs_to_import = [
     'media.type.image' => $standard_storage,
