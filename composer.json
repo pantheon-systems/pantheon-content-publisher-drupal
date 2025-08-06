@@ -12,6 +12,12 @@
             "role": "Maintainer"
         }
     ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+         ],
     "require": {
         "drupal/search_api": "^1.0",
         "drupal/media_library_form_element": "^2.1",
@@ -41,5 +47,10 @@
     "support": {
         "issues": "https://www.drupal.org/project/issues/pantheon_content_publisher",
         "source": "http://cgit.drupalcode.org/pantheon_content_publisher"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
