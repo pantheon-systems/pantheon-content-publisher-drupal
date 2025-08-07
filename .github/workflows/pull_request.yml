@@ -18,21 +18,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-
       - name: Composer install
         run: composer install
-
       - name: Code lint
         run: composer run-script code:lint
-
       - name: Code sniff
         run: composer run-script codesniff
-
       - name: Setup tmate session
         if: ${{ github.event.inputs.tmate_enabled == 1 }}
         uses: mxschmitt/action-tmate@v3
