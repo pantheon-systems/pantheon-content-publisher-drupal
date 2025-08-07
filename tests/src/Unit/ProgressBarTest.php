@@ -115,7 +115,7 @@ class ProgressBarTest extends UnitTestCase {
     $this->assertSame($expected_current_step, $form['pantheon_progress']['#current_step']);
   }
 
-  public static function redirectWhenDataIsMissingProvider(): array  {
+  public static function redirectWhenDataIsMissingProvider(): array {
     return [
       // Key is present but server is not.
       [
@@ -148,7 +148,7 @@ class ProgressBarTest extends UnitTestCase {
     ];
   }
 
-  public static function progressBarOnCollectionFormProvider(): array  {
+  public static function progressBarOnCollectionFormProvider(): array {
     return [
       // Only the server is missing.
       [ProgressBar::SERVER, TRUE, FALSE, 2],
@@ -159,7 +159,7 @@ class ProgressBarTest extends UnitTestCase {
     ];
   }
 
-  public static function progressBarOnOtherFormSProvider(): array  {
+  public static function progressBarOnOtherFormSProvider(): array {
     return [
       // Add server form when only the server is missing.
       [ProgressBar::SERVER, ProgressBar::SERVER, TRUE, FALSE, 1],
@@ -171,6 +171,5 @@ class ProgressBarTest extends UnitTestCase {
       [ProgressBar::SERVER . ProgressBar::KEY, ProgressBar::KEY, TRUE, TRUE, 2],
     ];
   }
-
 
 }

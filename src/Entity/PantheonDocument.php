@@ -76,7 +76,6 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
       ])
       ->setDisplayConfigurable('view', FALSE);
 
-
     $fields['title'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Title'))
       ->setRequired(TRUE)

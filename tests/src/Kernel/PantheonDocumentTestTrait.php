@@ -137,7 +137,8 @@ trait PantheonDocumentTestTrait {
   }
 
   protected function metadata(): array {
-    return ['metadataFields' => [
+    return [
+    'metadataFields' => [
       'A boolean meta' => [
         'title' => 'A boolean meta',
         'type' => 'boolean',
@@ -167,7 +168,8 @@ trait PantheonDocumentTestTrait {
         'title' => 'A textarea meta',
         'type' => 'textarea',
       ],
-    ]];
+    ],
+];
   }
 
   protected function getArticleIds(): array {
@@ -211,9 +213,12 @@ trait PantheonDocumentTestTrait {
   }
 
   protected function getArticles() {
-    return ['articles' => [[
+    return [
+    'articles' => [[
       'id' => self::ARTICLE_ID,
-    ] + $this->getArticle()]];
+    ] + $this->getArticle(),
+],
+];
   }
 
 }
