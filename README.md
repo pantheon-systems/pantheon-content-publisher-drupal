@@ -1,6 +1,6 @@
 # Pantheon Content Publisher for Drupal
 
-Pantheon content publisher module allows you to publish content created in Google Docs to your Drupal website.
+Pantheon content publisher module allows you to integrate content created in Google Docs to your Drupal website.
 
 ## Requirements
 - A Google Workspace Account.
