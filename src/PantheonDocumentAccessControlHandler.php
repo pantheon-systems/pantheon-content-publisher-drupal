@@ -37,4 +37,5 @@ class PantheonDocumentAccessControlHandler extends EntityAccessControlHandler {
         return AccessResult::neutral()->cachePerPermissions();
     }
   }
+
 }

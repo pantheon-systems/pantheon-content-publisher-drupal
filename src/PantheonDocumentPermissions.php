@@ -42,7 +42,7 @@ class PantheonDocumentPermissions implements ContainerInjectionInterface {
     return new static($container->get('entity_type.manager'));
   }
 
-   /**
+  /**
    * Returns permissions for the pantheon document entity type.
    *
    * @return array
@@ -55,4 +55,5 @@ class PantheonDocumentPermissions implements ContainerInjectionInterface {
       ],
     ];
   }
+
 }
