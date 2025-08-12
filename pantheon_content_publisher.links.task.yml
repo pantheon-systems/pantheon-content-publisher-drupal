@@ -6,11 +6,6 @@ entity.pantheon_document.edit_form:
   title: 'Edit'
   route_name: entity.pantheon_document.edit_form
   base_route: entity.pantheon_document.canonical
-entity.pantheon_document.delete_form:
-  title: 'Delete'
-  route_name: entity.pantheon_document.delete_form
-  base_route: entity.pantheon_document.canonical
-  weight: 10
 entity.pantheon_document.collection:
   title: 'Pantheon Documents'
   route_name: entity.pantheon_document.collection
