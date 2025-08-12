@@ -19,6 +19,3 @@ Refer the document for more information about installation and configuration of 
 ## Feedback and Collaboration
 
 Bug reports and feature requests should be posted in the Github repository. For code changes, please submit pull requests against the GitHub repository rather than posting pull requests or patches to drupal.org.
-
-
-
