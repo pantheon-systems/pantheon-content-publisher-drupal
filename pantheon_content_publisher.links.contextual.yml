@@ -2,9 +2,3 @@ entity.pantheon_document.edit_form:
   route_name: entity.pantheon_document.edit_form
   group: pantheon_document
   title: 'Edit'
-
-entity.pantheon_document.delete_form:
-  route_name: entity.pantheon_document.delete_form
-  group: pantheon_document
-  title: 'Delete'
-  weight: 10
