@@ -1,11 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * @file
  * Provides a pantheon content publisher entity type.
  */
+
+declare(strict_types=1);
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -88,7 +88,6 @@ function pantheon_content_publisher_entity_operation_alter(array &$operations, E
 function pantheon_content_publisher_form_search_api_server_form_alter(&$form) {
   ProgressBar::addProgressBar($form, ProgressBar::SERVER);
 }
-
 
 /**
  * Implements hook_form_FORM_ID_alter().

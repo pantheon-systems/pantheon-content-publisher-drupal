@@ -130,9 +130,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
    *   The Drupal entity id.
    */
   public static function getEntityId(string|PantheonDocumentCollectionInterface $collection, string $pantheon_id): string {
-    return
-      ($collection instanceof PantheonDocumentCollectionInterface ? $collection->id() : $collection) .
-      self::SEPARATOR .
+    return ($collection instanceof PantheonDocumentCollectionInterface ? $collection->id() : $collection) . self::SEPARATOR .
       $pantheon_id;
   }
 

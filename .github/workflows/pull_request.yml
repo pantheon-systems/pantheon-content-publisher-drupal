@@ -1,0 +1,33 @@
+name: Pull Request
+on:
+  pull_request:
+    branches:
+      - 1.0.x
+
+concurrency:
+  group: 'ci-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  linting:
+    name: Code linting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [8.2, 8.3, 8.4]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+      - name: Composer install
+        run: composer install
+      - name: Code lint
+        run: composer run-script code:lint
+      - name: Code sniff
+        run: composer run-script codesniff
+      - name: Setup tmate session
+        if: ${{ github.event.inputs.tmate_enabled == 1 }}
+        uses: mxschmitt/action-tmate@v3

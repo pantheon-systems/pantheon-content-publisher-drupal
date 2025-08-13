@@ -44,10 +44,10 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  *   admin_permission = "administer pantheon_document_collection",
  *   bundle_of = "pantheon_document",
  *   links = {
-   *     "collection" = "/admin/structure/pantheon_content_publisher_collection",
-   *     "add-form" = "/admin/structure/pantheon_content_publisher_collection/add",
-   *     "edit-form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}",
-   *     "delete-form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}/delete",
+ *     "collection" = "/admin/structure/pantheon_content_publisher_collection",
+ *     "add-form" = "/admin/structure/pantheon_content_publisher_collection/add",
+ *     "edit-form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}",
+ *     "delete-form" = "/admin/structure/pantheon_content_publisher_collection/{pantheon_document_collection}/delete",
  *   },
  *   entity_keys = {
  *     "id" = "id",
