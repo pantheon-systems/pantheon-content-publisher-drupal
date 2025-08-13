@@ -4,7 +4,7 @@ Pantheon content publisher module allows you to integrate content created in Goo
 
 ## Requirements
 
--  Drupal 10+ site on pantheon
+-  Drupal 10+ site
 -  PHP 8.2+
 -  PCC CLI : Pantheon Content Publisher’s command line tool installation. Directions to install the CLI are [here](https://pcc.pantheon.io/pcc-cli-setup).
 
