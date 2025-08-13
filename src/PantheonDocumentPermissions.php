@@ -10,7 +10,7 @@ use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides dynamic permissions of the Pantheon Content Publisher module.
+ * Provides dynamic permissions for the pantheon content publisher module.
  *
  * @see pantheon_content_publisher.permissions.yml
  */
@@ -26,7 +26,7 @@ class PantheonDocumentPermissions implements ContainerInjectionInterface {
   protected $entityTypeManager;
 
   /**
-   * Constructs a pantheon comtent publisher instance.
+   * Constructs a pantheon content publisher instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
