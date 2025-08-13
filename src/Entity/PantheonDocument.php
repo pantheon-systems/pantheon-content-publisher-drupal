@@ -28,6 +28,7 @@ use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
  *   handlers = {
  *     "list_builder" = "Drupal\pantheon_content_publisher\PantheonDocumentListBuilder",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+ *     "access" = "Drupal\pantheon_content_publisher\PantheonDocumentAccessControlHandler",
  *     "form" = {
  *       "add" = "Drupal\pantheon_content_publisher\Form\PantheonDocumentForm",
  *       "edit" = "Drupal\pantheon_content_publisher\Form\PantheonDocumentForm",

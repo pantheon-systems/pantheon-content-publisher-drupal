@@ -8,3 +8,6 @@ administer pantheon_document types:
 
 administer pantheon_smart_component:
   title: 'Administer pantheon smart component'
+
+permission_callbacks:
+  - Drupal\pantheon_content_publisher\PantheonDocumentPermissions::permissions
