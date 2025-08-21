@@ -11,7 +11,7 @@ The Pantheon Content Publisher module allows you to integrate content created in
 
 ## Installation
 
-To install this module via composer, run the following command
+To install this module via Composer, run the following command
 ```
 composer require drupal/pantheon_content_publisher:"^1.0"
 
