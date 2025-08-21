@@ -1,12 +1,12 @@
 # Pantheon Content Publisher for Drupal
 
-Pantheon content publisher module allows you to integrate content created in Google Docs to your Drupal website.
+The Pantheon Content Publisher module allows you to integrate content created in Google Docs to your Drupal website.
 
 ## Requirements
 
 -  A Google Workspace Account
 -  Drupal 10+ site with PHP 8.2+
--  For sites hosted on Pantheon , enable Pantheon Search and configure search version in pantheon.yml. Follow the instructions [here](https://docs.pantheon.io/guides/solr-drupal/solr-drupal#enable-at-the-site-level)
+-  For sites hosted on Pantheon, enable [Pantheon Search](https://docs.pantheon.io/solr) and configure the search version in your `pantheon.yml`. Follow the instructions [here](https://docs.pantheon.io/guides/solr-drupal/solr-drupal#enable-at-the-site-level)
 -  PCC CLI (Pantheon Content Publisher Command Line Tool)
   
    Directions to install the CLI are [here](https://pcc.pantheon.io/pcc-cli-setup).
