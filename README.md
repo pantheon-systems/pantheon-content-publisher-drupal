@@ -2,8 +2,7 @@
 
 The Pantheon Content Publisher module allows you to integrate content created in Google Docs to your Drupal website.
 
-Refer the documentation for more information about installation and configuration of module [pcc.pantheon.io/pantheon-content-publisher-for-drupal](https://pcc.pantheon.io/pantheon-content-publisher-for-drupal)
-
+Refer the [documentation](https://pcc.pantheon.io/pantheon-content-publisher-for-drupal) for more information about installation and configuration of module.
 ## Requirements
 
 -  A Google Workspace Account
