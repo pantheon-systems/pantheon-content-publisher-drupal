@@ -2,6 +2,8 @@
 
 The Pantheon Content Publisher module allows you to integrate content created in Google Docs to your Drupal website.
 
+Refer the documentation for more information about installation and configuration of module [pcc.pantheon.io/pantheon-content-publisher-for-drupal](https://pcc.pantheon.io/pantheon-content-publisher-for-drupal)
+
 ## Requirements
 
 -  A Google Workspace Account
@@ -17,13 +19,14 @@ composer require drupal/pantheon_content_publisher:"^1.0"
 
 ```
 The module requires a backend Search API plugin. For sites hosted on Pantheon, it is recommended to use the Search API Pantheon module.
+
 To install Search API Pantheon Module, run the following command
 ```
 composer require drupal/search_api_pantheon:^8
 
 ```
 After installing the Content Publisher and Search API Pantheon modules locally with Composer, push the `composer.json` and `composer.lock` files to your Pantheon environment.
-Refer the documentation for more information about installation and configuration of module [pcc.pantheon.io/pantheon-content-publisher-for-drupal](https://pcc.pantheon.io/pantheon-content-publisher-for-drupal)
+
 
 ## Feedback and Collaboration
 
