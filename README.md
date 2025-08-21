@@ -22,7 +22,7 @@ To install Search API Pantheon Module, run the following command
 composer require drupal/search_api_pantheon:^8
 
 ```
-And then push the composer.json and composer.lock files to your Pantheon environment.
+After installing the Content Publisher and Search API Pantheon modules locally with Composer, push the `composer.json` and `composer.lock` files to your Pantheon environment.
 Refer the documentation for more information about installation and configuration of module [pcc.pantheon.io/pantheon-content-publisher-for-drupal](https://pcc.pantheon.io/pantheon-content-publisher-for-drupal)
 
 ## Feedback and Collaboration
