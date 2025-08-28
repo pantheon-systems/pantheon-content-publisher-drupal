@@ -30,3 +30,13 @@ function pantheon_content_publisher_install(): void {
   }
 
 }
+
+/**
+ * Deletes the Pantheon document delete action configuration.
+ */
+function pantheon_content_publisher_update_10001() {
+  $config = \Drupal::configFactory()->getEditable('system.action.pantheon_document_delete_action');
+  if (!$config->isNew()) {
+    $config->delete();
+  }
+}
