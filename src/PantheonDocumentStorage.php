@@ -56,6 +56,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
         continue;
       }
       $pantheon_data = $collection->getGraphQL()->getArticle($pantheon_id);
+      $metadata = $pantheon_data['metadata'] ?? [];
       $drupal_data = $this->pantheonContentPublisherConverter->pantheonMetadataToDrupalRecord($pantheon_data);
       $drupal_data += [
         'id' => $id,
@@ -63,7 +64,8 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
         'content' => $pantheon_data['content'],
         'title' => $pantheon_data['title'],
         'slug' => $pantheon_data['slug'],
-        'image' => $pantheon_data['image'],
+        'description' => $metadata['description'] ?? '',
+        'image' => $metadata['image'] ?? '',
       ];
       // Our main concerns are
       // 1) search API and search_api_entity_update() contains the entirety
