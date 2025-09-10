@@ -1,6 +1,6 @@
 entity.pantheon_document_collection.add_form:
   route_name: 'entity.pantheon_document_collection.add_form'
-  title: 'Add pantheon content publisher collection'
+  title: 'Connect a new collection'
   appears_on:
     - entity.pantheon_document_collection.collection
 

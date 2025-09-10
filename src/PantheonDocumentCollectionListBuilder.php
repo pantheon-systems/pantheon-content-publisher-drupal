@@ -16,8 +16,8 @@ class PantheonDocumentCollectionListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader(): array {
-    $header['label'] = $this->t('Label');
-    $header['id'] = $this->t('Machine name');
+    $header['label'] = $this->t('Collection name');
+    $header['id'] = $this->t('Collection ID');
     $header['status'] = $this->t('Status');
     return $header + parent::buildHeader();
   }
