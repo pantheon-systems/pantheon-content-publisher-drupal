@@ -1,7 +1,7 @@
 name: 'Pantheon Content Publisher'
 type: module
 description: 'Pantheon Content Publisher integration.'
-package: 'pantheon'
+package: 'Pantheon'
 core_version_requirement: ^10 || ^11
 dependencies:
   - search_api:search_api (>= 8.x-1.20)
