@@ -204,11 +204,11 @@ trait PantheonDocumentTestTrait {
         'A text meta' => 'Plain text field test contents',
         'A textarea meta' => 'textarea test contents',
         'description' => 'A random description',
+        'image' => 'test-image',
       ],
       'content' => $this->articleContent,
       'title' => 'test title',
       'slug' => 'test-slug',
-      'image' => 'test-image',
     ];
   }
 
