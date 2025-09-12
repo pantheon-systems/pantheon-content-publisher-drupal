@@ -55,7 +55,6 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       if (!$collection = $this->collectionStorage->load($collection_name)) {
         continue;
       }
-
       $pantheon_data = $collection->getGraphQL()->getArticle($pantheon_id);
       $metadata = $pantheon_data['metadata'] ?? [];
 
