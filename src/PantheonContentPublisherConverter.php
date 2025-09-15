@@ -73,8 +73,19 @@ class PantheonContentPublisherConverter {
     return $this->getFields()[$pantheon_field] ?? '';
   }
 
-  public function date(array $date): int {
-    return intdiv($date['msSinceEpoch'], 1000);
+  /**
+   * Convert Pantheon date to PHP date.
+   *
+   * @param $date
+   *   A date in milliseconds since 1970 Jan 1. Custom metadata fields send an
+   *   array with a key 'msSinceEpoch' while top level publishedDate is just
+   *   an int with the same data.
+   *
+   * @return int
+   *   Number of seconds since 1970 Jan 1.
+   */
+  public function date(int|array $date): int {
+    return intdiv((is_int($date) ? $date : $date['msSinceEpoch']), 1000);
   }
 
 }
