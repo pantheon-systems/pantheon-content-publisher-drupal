@@ -73,7 +73,7 @@ class PantheonContentPublisherConverter {
     return $this->getFields()[$pantheon_field] ?? '';
   }
 
-  protected function date(array $date): int {
+  public function date(array $date): int {
     return intdiv($date['msSinceEpoch'], 1000);
   }
 

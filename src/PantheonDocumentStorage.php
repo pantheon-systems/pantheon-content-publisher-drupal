@@ -71,6 +71,8 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
         'slug' => $pantheon_data['slug'],
         'description' => $metadata['description'] ?? '',
         'image' => $metadata['image'] ?? '',
+        'created' => $pantheon_data['publishedDate'] ?? '',
+        'changed' => $pantheon_data['updatedAt'] ?? '',
       ];
       // Our main concerns are
       // 1) search API and search_api_entity_update() contains the entirety
