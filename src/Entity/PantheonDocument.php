@@ -129,7 +129,7 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the pantheon content publisher was last edited.'));
+      ->setDescription(t('The time that the pantheon content publisher was last edited.'))
       ->setDisplayOptions('view', [
         'region' => 'hidden',
       ])
