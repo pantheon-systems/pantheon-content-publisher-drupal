@@ -139,6 +139,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       }
     }
     // By now only the new fields remain.
+    $fields = [];
     $prefix = 'field.storage.pantheon_document.';
     $field_storage_ids = array_flip(\Drupal::service('config.storage')->listAll($prefix));
     $field_storage_ids[$prefix . 'content'] = TRUE;
