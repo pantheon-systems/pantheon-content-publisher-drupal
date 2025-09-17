@@ -1,6 +1,6 @@
-name: 'Pantheon content publisher'
+name: 'Pantheon Content Publisher'
 type: module
-description: 'Pantheon content publisher integration.'
+description: 'Pantheon Content Publisher integration.'
 package: 'Pantheon'
 core_version_requirement: ^10 || ^11
 dependencies:
