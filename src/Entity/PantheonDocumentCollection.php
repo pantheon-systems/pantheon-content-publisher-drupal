@@ -27,7 +27,7 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
  *   label = @Translation("Pantheon document collection"),
  *   label_collection = @Translation("Pantheon document collections"),
  *   label_singular = @Translation("pantheon document collection"),
- *   label_plural = @Translation("pantheon document collections"),
+ *   label_plural = @Translation("Pantheon Document collections"),
  *   label_count = @PluralTranslation(
  *     singular = "@count pantheon document collection",
  *     plural = "@count pantheon document collections",
