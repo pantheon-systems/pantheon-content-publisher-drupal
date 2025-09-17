@@ -2,7 +2,7 @@ entity.pantheon_document_collection.collection:
   path: '/admin/structure/pantheon-content-publisher-collection'
   defaults:
     _entity_list: 'pantheon_document_collection'
-    _title: 'Pantheon content publisher collection configuration'
+    _title: 'Pantheon Content Publisher collections'
   requirements:
     _permission: 'administer pantheon_document_collection'
 
