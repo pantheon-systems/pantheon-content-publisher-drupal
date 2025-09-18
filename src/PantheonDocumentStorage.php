@@ -73,9 +73,9 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
         'slug' => $pantheon_data['slug'],
         'description' => $metadata['description'] ?? '',
         'image' => $metadata['image'] ?? '',
-        //createdAt is the  timestamp when document was first published.
+        // createdAt is the  timestamp when document was first published.
         'created' => $date_convert($pantheon_data['createdAt']),
-        //publishedDate is the timestamp when document was last published.
+        // publishedDate is the timestamp when document was last published.
         'changed' => $date_convert($pantheon_data['publishedDate']),
       ];
       // Our main concerns are
