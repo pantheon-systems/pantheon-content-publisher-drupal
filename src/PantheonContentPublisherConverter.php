@@ -55,6 +55,7 @@ class PantheonContentPublisherConverter {
   public function convert(array $pantheon_data, string $collection_name, string|int|NULL $id = NULL): array {
     $id ??= $pantheon_data['id'];
     $drupal_data = $this->pantheonMetadataToDrupalRecord($pantheon_data);
+    $metadata = $pantheon_data['metadata'] ?? [];
     // Use a reference to avoid notices on NULL.
     $date_convert = fn (&$x) => $x ? $this->date($x) : (int) $_SERVER['REQUEST_TIME'];
     return $drupal_data + [
