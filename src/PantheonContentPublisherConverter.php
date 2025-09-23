@@ -11,10 +11,13 @@ class PantheonContentPublisherConverter {
 
   protected array $fields;
 
-  protected KeyValueStoreInterface $keyValueStore;
+  protected KeyValueStoreInterface $fieldStore;
 
-  public function __construct(KeyValueFactoryInterface $keyValueFactory, protected MemoryCacheInterface $memoryCache) {
-    $this->keyValueStore = $keyValueFactory->get('pantheon_document.fields');
+  public function __construct(
+    KeyValueFactoryInterface $keyValueFactory,
+    protected MemoryCacheInterface $memoryCache
+  ) {
+    $this->fieldStore = $keyValueFactory->get('pantheon_document.fields');
   }
 
   /**
@@ -32,7 +35,7 @@ class PantheonContentPublisherConverter {
   protected function &getFields(): array {
     $cid = 'pantheon_document:fields';
     if (!$cache = $this->memoryCache->get($cid)) {
-      $fields = $this->keyValueStore->getAll();
+      $fields = $this->fieldStore->getAll();
       $this->memoryCache->set($cid, $fields, Cache::PERMANENT, ['field_config_list']);
       $cache = $this->memoryCache->get($cid);
     }
@@ -40,16 +43,35 @@ class PantheonContentPublisherConverter {
   }
 
   public function set(string $pantheon_field, string $drupal_field): void {
-    $this->keyValueStore->set($pantheon_field, $drupal_field);
+    $this->fieldStore->set($pantheon_field, $drupal_field);
     $this->getFields()[$pantheon_field] = $drupal_field;
   }
 
   public function delete(string $pantheon_field): void {
-    $this->keyValueStore->delete($pantheon_field);
+    $this->fieldStore->delete($pantheon_field);
     unset($this->getFields()[$pantheon_field]);
   }
 
-  public function pantheonMetadataToDrupalRecord(array $pantheon_record): array {
+  public function convert(array $pantheon_data, string $collection_name, string|int|NULL $id = NULL): array {
+    $id ??= $pantheon_data['id'];
+    $drupal_data = $this->pantheonMetadataToDrupalRecord($pantheon_data);
+    $metadata = $pantheon_data['metadata'] ?? [];
+    // Use a reference to avoid notices on NULL.
+    $date_convert = fn (&$x) => $x ? $this->date($x) : (int) $_SERVER['REQUEST_TIME'];
+    return $drupal_data + [
+      'id' => $id,
+      'collection' => $collection_name,
+      'content' => $pantheon_data['content'] ?? '',
+      'title' => $pantheon_data['title'] ?? '',
+      'slug' => $pantheon_data['slug'] ?? '',
+      'description' => $metadata['description'] ?? '',
+      'image' => $metadata['image'] ?? '',
+      'created' => $date_convert($pantheon_data['createdAt']),
+      'changed' => $date_convert($pantheon_data['publishedDate']),
+    ];
+  }
+
+  protected function pantheonMetadataToDrupalRecord(array $pantheon_record): array {
     $drupal_data = [];
     foreach ($pantheon_record['metadata'] as $pantheon_field => $metadata_value) {
       if ($drupal_field = $this->pantheonFieldToDrupalField($pantheon_field)) {
@@ -73,7 +95,7 @@ class PantheonContentPublisherConverter {
     return $this->getFields()[$pantheon_field] ?? '';
   }
 
-  protected function date(array $date): int {
+  protected function date(int|array $date): int {
     return intdiv($date['msSinceEpoch'], 1000);
   }
 

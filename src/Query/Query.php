@@ -35,8 +35,7 @@ class Query extends QueryBase {
     foreach ($collections as $collection) {
       foreach ($collection->getGraphQL()->getArticles() as $pantheon_record) {
         $key = PantheonDocumentStorage::getEntityId($collection, $pantheon_record['id']);
-        $value = $this->converter->pantheonMetadataToDrupalRecord($pantheon_record);
-        $records[$key] = $value;
+        $records[$key] = $this->converter->convert($pantheon_record, $collection->id());
       }
     }
 
