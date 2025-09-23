@@ -111,11 +111,19 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
    * @coversClass \Drupal\pantheon_content_publisher\PantheonDocumentListBuilder
    */
   public function testListBuilder() {
+    $second_article_id = str_replace('d', 'x', self::ARTICLE_ID);
+    $second_article = [
+      'id' =>  $second_article_id,
+    ] + $this->getArticle();
+    $this->setGuzzleResponse('getArticles', fn (&$x) => $x['articles'][] = $second_article);
+    $this->setGuzzleResponse('getArticle', fn ($x, &$y) => $y = str_replace(static::ARTICLE_ID, $second_article_id, $y));
     $build = $this->container->get('entity_type.manager')
       ->getListBuilder('pantheon_document')
       ->render();
     $html = (string) $this->container->get('renderer')->renderInIsolation($build);
     $entity_id = PantheonDocumentStorage::getEntityId($this->collection->id(), self::ARTICLE_ID);
+    $this->assertStringContainsString(sprintf('<td><a href="/pantheon-content-publisher/%s" hreflang="und">test title</a></td>', $entity_id), $html);
+    $entity_id = PantheonDocumentStorage::getEntityId($this->collection->id(), $second_article_id);
     $this->assertStringContainsString(sprintf('<td><a href="/pantheon-content-publisher/%s" hreflang="und">test title</a></td>', $entity_id), $html);
   }
 

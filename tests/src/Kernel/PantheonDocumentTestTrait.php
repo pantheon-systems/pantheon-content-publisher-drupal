@@ -99,7 +99,7 @@ trait PantheonDocumentTestTrait {
     }
     $data = $this->$method();
     if ($callable) {
-      $callable($data);
+      $callable($data, $query);
     }
     $this->storage[$query] = json_encode(['data' => [$type => $data]]);
   }
