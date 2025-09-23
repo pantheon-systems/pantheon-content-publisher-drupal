@@ -31,6 +31,8 @@ class GraphQL {
       'title',
       'content',
       'slug',
+      'createdAt',
+      'publishedDate',
       'metadata',
     ]);
     return $this->request($query);
