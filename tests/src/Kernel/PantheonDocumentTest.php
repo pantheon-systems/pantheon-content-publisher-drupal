@@ -113,7 +113,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
   public function testListBuilder() {
     $second_article_id = str_replace('d', 'x', self::ARTICLE_ID);
     $second_article = [
-      'id' =>  $second_article_id,
+      'id' => $second_article_id,
     ] + $this->getArticle();
     $this->setGuzzleResponse('getArticles', fn (&$x) => $x['articles'][] = $second_article);
     $this->setGuzzleResponse('getArticle', fn ($x, &$y) => $y = str_replace(static::ARTICLE_ID, $second_article_id, $y));
