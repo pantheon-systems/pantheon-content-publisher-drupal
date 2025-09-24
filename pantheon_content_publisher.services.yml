@@ -17,3 +17,8 @@ services:
     class: Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherRouteSubscriber
     tags:
       - { name: event_subscriber }
+  pantheon_content_publisher.queue_runner:
+    class: Drupal\pantheon_content_publisher\EventSubscriber\QueueRunner
+    tags:
+      - { name: event_subscriber }
+  Drupal\pantheon_content_publisher\EventSubscriber\QueueRunner: '@pantheon_content_publisher.queue_runner'
