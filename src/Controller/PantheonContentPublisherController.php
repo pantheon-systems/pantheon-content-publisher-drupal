@@ -35,7 +35,7 @@ class PantheonContentPublisherController extends ControllerBase {
   ) {
     $this->imageQueue = $queueFactory->get('pantheon_document_images');
     $this->entitySaveQueue = $queueFactory->get('pantheon_content_publisher_entity_save');
-    $this->deleteQueue =  $queueFactory->get('pantheon_document_entity_delete');
+    $this->deleteQueue = $queueFactory->get('pantheon_document_entity_delete');
   }
 
   /**
@@ -47,7 +47,7 @@ class PantheonContentPublisherController extends ControllerBase {
       // Sync metadata changes.
       $this->entitySaveQueue->createItem([
         'entity_type' => 'pantheon_document_collection',
-        'entity_id' => $collection_id
+        'entity_id' => $collection_id,
       ]);
       $entity_id = PantheonDocumentStorage::getEntityId($collection_id, $decoded['payload']['articleId']);
       if ($decoded['event'] === 'article.unpublish') {
@@ -61,7 +61,7 @@ class PantheonContentPublisherController extends ControllerBase {
         // indexing in Search API.
         $this->entitySaveQueue->createItem([
           'entity_type' => 'pantheon_document',
-          'entity_id' => $entity_id
+          'entity_id' => $entity_id,
         ]);
         // Extract images.
         $this->imageQueue->createItem($entity_id);
