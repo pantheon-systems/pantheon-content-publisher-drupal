@@ -3,10 +3,13 @@
 namespace Drupal\pantheon_content_publisher\Plugin\search_api\datasource;
 
 use Drupal\Component\Utility\Crypt;
+use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
+use Drupal\pantheon_content_publisher\EventSubscriber\SearchApiTrackItemsSubscriber;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Plugin\search_api\datasource\ContentEntity;
 use Drupal\search_api\Utility\Utility;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Represents a datasource which exposes the content entities.
@@ -17,22 +20,18 @@ use Drupal\search_api\Utility\Utility;
  */
 class PantheonDocumentDatasource extends ContentEntity {
 
+  protected KeyValueStoreInterface $kv;
+
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $datasource = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $datasource->kv = $container->get('keyvalue')->get(SearchApiTrackItemsSubscriber::COLLECTION);
+    return $datasource;
+  }
+
   public function getPartialItemIds($page = NULL, ?array $bundles = NULL, ?array $languages = NULL) {
     if (($bundles === [] && !$languages) || ($languages === [] && !$bundles)) {
       return NULL;
     }
-
-    // Build up the context for tracking the last ID for this batch page.
-    $batch_page_context = [
-      'index_id' => $this->getIndex()->id(),
-      // The derivative plugin ID includes the entity type ID.
-      'datasource_id' => $this->getPluginId(),
-      'bundles' => $bundles,
-      'languages' => $languages,
-    ];
-    $context_key = Crypt::hashBase64(serialize($batch_page_context));
-    $last_ids = $this->getState()->get(self::TRACKING_PAGE_STATE_KEY, []);
-    $page_size = $this->getConfigValue('tracking_page_size');
 
     // We want to determine all entities of either one of the given bundles OR
     // one of the given languages. That means we can't just filter for $bundles
@@ -53,40 +52,52 @@ class PantheonDocumentDatasource extends ContentEntity {
       $all_bundles = $this->getEntityBundles();
       $bundles_for_query = count($enabled_bundles) < count($all_bundles) ? $enabled_bundles : $all_bundles;
     }
+    // Page is across all collections in this index.
+    $page_context = [
+      'index_id' => $this->getIndex()->id(),
+      'datasource_id' => $this->getPluginId(),
+      'bundles' => $bundles,
+      'languages' => $languages,
+    ];
+    $page_key = Crypt::hashBase64(serialize($page_context));
+    $previous_page = (int) $this->kv->get($page_key);
+    $needs_cursor = $page > 0 && $previous_page === ($page - 1);
+    $is_paging = isset($page);
+    $page_size = $is_paging ? $this->getConfigValue('tracking_page_size') : NULL;
 
-    $collections = PantheonDocumentCollection::loadMultiple(array_keys($bundles_for_query));
+    $collections = PantheonDocumentCollection::loadMultiple($bundles_for_query);
+    ksort($collections);
     $entity_ids = [];
     $found = FALSE;
-    foreach ($collections as $collection) {
-      if ($page > 0 && isset($last_ids[$context_key]) &&
-          $last_ids[$context_key]['page'] == ($page - 1) &&
-          $this->getEntityTypeId() !== 'search_api_task') {
-        $cursor = $last_ids[$context_key]['cursor'];
+    foreach ($collections as $collection_id => $collection) {
+      // The cursor is per collection. ($needs_cursor can't be TRUE unless
+      // $is_paging is also TRUE so it is not strictly needed here but it's
+      // easier to understand.)
+      if ($is_paging || $needs_cursor) {
+        $cursor_context = [
+          'index_id' => $this->getIndex()->id(),
+          'datasource_id' => $this->getPluginId(),
+          'languages' => $languages,
+          'collection_id' => $collection_id,
+        ];
+        $cursor_key = Crypt::hashBase64(serialize($cursor_context));
       }
-      else {
-        $cursor = NULL;
-      }
-      $result = $collection->getGraphQL()->getArticleIds(isset($page) ? $page_size : NULL, $cursor);
+      $cursor = $needs_cursor ? $this->kv->get($cursor_key) : NULL;
+
+      $result = $collection->getGraphQL()->getArticleIds($page_size, $cursor);
       foreach ($result['articles'] ?? [] as $info) {
         $entity_ids[] = PantheonDocumentStorage::getEntityId($collection, $info['id']);
       }
       $found = $found || $entity_ids;
-      if (isset($page)) {
-        if ($entity_ids) {
-          $last_ids[$context_key] = [
-            'page' => (int) $page,
-            'cursor' => $result['pageInfo']['nextCursor'],
-          ];
-        }
-        else {
-          // Clean up state tracking of last ID.
-          unset($last_ids[$context_key]);
-        }
-        $this->getState()->set(self::TRACKING_PAGE_STATE_KEY, $last_ids);
+      if ($is_paging) {
+        $this->kv->set($cursor_key, $result['pageInfo']['nextCursor']);
       }
     }
     if (!$found) {
       return NULL;
+    }
+    if ($is_paging) {
+      $this->kv->set($page_key, $page);
     }
 
     // For all loaded entities, compute all their item IDs (one for each

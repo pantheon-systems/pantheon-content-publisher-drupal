@@ -22,3 +22,8 @@ services:
     tags:
       - { name: event_subscriber }
   Drupal\pantheon_content_publisher\EventSubscriber\QueueRunner: '@pantheon_content_publisher.queue_runner'
+  pantheon_content_publisher.search_api_tracker:
+    class: Drupal\pantheon_content_publisher\EventSubscriber\SearchApiTrackItemsSubscriber
+    autowire: TRUE
+    tags:
+      - { name: event_subscriber }
