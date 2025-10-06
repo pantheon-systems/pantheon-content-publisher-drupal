@@ -13,12 +13,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Defines 'pantheon_content_publisher_entity_save' queue worker.
  *
  * @QueueWorker(
- *   id = "pantheon_content_publisher_entity_save",
+ *   id = "pantheon_content_publisher_entity",
  *   title = @Translation("Pantheon content publisher entity save"),
  *   cron = {"time" = 60},
  * )
  */
-class EntitySave extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class EntityQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   public function __construct(
     array $configuration,
@@ -46,10 +46,16 @@ class EntitySave extends QueueWorkerBase implements ContainerFactoryPluginInterf
    */
   public function processItem($data): void {
     $entity_type_id = $data['entity_type'];
-    $this->entityTypeManager
+    $entity = $this->entityTypeManager
       ->getStorage($entity_type_id)
       ->load($data['entity_id'])
       ->save();
+    if (empty($data['delete'])) {
+      $entity->save();
+    }
+    else {
+      $entity->delete();
+    }
     $index_storage = $this->entityTypeManager->getStorage('search_api_index');
     $datasource_id = "entity:$entity_type_id";
     // Querying for datasource_id is possible, however the default config

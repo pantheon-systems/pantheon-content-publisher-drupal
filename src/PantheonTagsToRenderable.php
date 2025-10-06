@@ -101,7 +101,10 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
         break;
     }
     if (!isset($element)) {
-      $element = $domDocument->createElement($tag, $data);
+      $element = $domDocument->createElement(
+        $tag,
+        htmlspecialchars($data, ENT_XML1 | ENT_COMPAT, 'UTF-8')
+      );
     }
     foreach ($attrs as $key => $value) {
       if (isset($value)) {
