@@ -8,12 +8,10 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Queue\QueueInterface;
-use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocumentCollection;
+use Drupal\pantheon_content_publisher\EventSubscriber\QueueRunner;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
-use Drupal\pantheon_content_publisher\PantheonDocumentStorageInterface;
 use Drupal\pantheon_content_publisher\PantheonTagsToRenderableInterface;
-use Drupal\search_api\Entity\Index;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,17 +21,21 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PantheonContentPublisherController extends ControllerBase {
 
-  protected PantheonDocumentStorageInterface $pantheonContentPublisherStorage;
+  protected QueueInterface $imageQueue;
 
-  protected QueueInterface $queue;
+  protected QueueInterface $entitySaveQueue;
+
+  protected QueueInterface $deleteQueue;
 
   public function __construct(
       EntityTypeManagerInterface $entityTypeManager,
       QueueFactory $queueFactory,
-      protected PantheonTagsToRenderableInterface $tagsToRenderable
+      protected PantheonTagsToRenderableInterface $tagsToRenderable,
+      protected QueueRunner $queueRunner,
   ) {
-    $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_document');
-    $this->queue = $queueFactory->get('pantheon_document_images');
+    $this->imageQueue = $queueFactory->get('pantheon_document_images');
+    $this->entitySaveQueue = $queueFactory->get('pantheon_content_publisher_entity_save');
+    $this->deleteQueue = $queueFactory->get('pantheon_document_entity_delete');
   }
 
   /**
@@ -42,65 +44,35 @@ class PantheonContentPublisherController extends ControllerBase {
   public function webhook(Request $request): Response {
     if ($decoded = @json_decode($request->getContent(), TRUE)) {
       $collection_id = $decoded['payload']['siteId'] ?? array_key_first(PantheonDocumentCollection::loadMultiple());
+      // Sync metadata changes.
+      $this->entitySaveQueue->createItem([
+        'entity_type' => 'pantheon_document_collection',
+        'entity_id' => $collection_id,
+      ]);
       $entity_id = PantheonDocumentStorage::getEntityId($collection_id, $decoded['payload']['articleId']);
       if ($decoded['event'] === 'article.unpublish') {
-        // Delete the document from Search API.
-        PantheonDocument::create([
+        $this->deleteQueue->createItem([
           'collection' => $collection_id,
           'id' => $entity_id,
-        ])->delete();
+        ]);
       }
       else {
-        $document = $this->pantheonContentPublisherStorage->load($entity_id);
         // Clear the appropriate entity caches and queue the document for
         // indexing in Search API.
-        $document->save();
-        // Sync metadata changes.
-        PantheonDocumentCollection::load($collection_id)->save();
-        // Actually do the indexing.
-        Index::load(strtolower($collection_id))->indexItems();
-        if ($image_data = static::getImageData($document->get('content')->value)) {
-          $this->queue->createItem([$collection_id, $image_data]);
-        }
+        $this->entitySaveQueue->createItem([
+          'entity_type' => 'pantheon_document',
+          'entity_id' => $entity_id,
+        ]);
+        // Extract images.
+        $this->imageQueue->createItem($entity_id);
       }
     }
+    $this->queueRunner->enable();
     return new Response();
   }
 
   public function status(): JsonResponse {
     return new JsonResponse();
-  }
-
-  /**
-   * Extract image data from JSON.
-   *
-   * @param string $json
-   *   A serialized JSON object describing a DOM.
-   *
-   * @return array
-   *   Keys are URLs to images, the values are key-value pairs. Each key-value
-   *   pair is a HTML attribute of an img tag and its value.
-   */
-  protected static function getImageData(string $json): array {
-    return static::collectImageData(@json_decode($json, TRUE) ?: []);
-  }
-
-  /**
-   * @param array $node
-   *   An array describing a DOM node.
-   *
-   * @return array
-   *   Same return as ::getImageData().)
-   */
-  protected static function collectImageData(array $node): array {
-    $image_data = [];
-    if (($node['tag'] ?? '') === 'img' && !empty($node['attrs'])) {
-      $image_data[$node['attrs']['src']] = $node['attrs'];
-    }
-    foreach ($node['children'] ?? [] as $child) {
-      $image_data += static::collectImageData($child);
-    }
-    return $image_data;
   }
 
 }

@@ -11,8 +11,8 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\file\Entity\File;
-use Drupal\file\FileInterface;
 use Drupal\media\Entity\Media;
+use Drupal\pantheon_content_publisher\PantheonDocumentStorageInterface;
 use Psr\Http\Client\ClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -25,9 +25,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   cron = {"time" = 60},
  * )
  */
-final class Images extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class Images extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   protected EntityStorageInterface $mediaStorage;
+
+  protected PantheonDocumentStorageInterface $pantheonContentPublisherStorage;
 
   /**
    * Constructs a new Images instance.
@@ -41,6 +43,7 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
     protected readonly ClientInterface $httpClient,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->pantheonContentPublisherStorage = $entityTypeManager->getStorage('pantheon_document');
     $this->mediaStorage = $entityTypeManager->getStorage('media');
   }
 
@@ -62,7 +65,11 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
    * {@inheritdoc}
    */
   public function processItem($data): void {
-    [$collection, $pantheon_files] = $data;
+    $document = $this->pantheonContentPublisherStorage->load($data);
+    $content = $document->get('content');
+    if ($content->isEmpty() || !($pantheon_files = static::getImageData($content->value))) {
+      return;
+    }
     $media_ids = $this->mediaStorage->getQuery()
       ->condition('remote_url', array_keys($pantheon_files), 'IN')
       ->accessCheck(FALSE)
@@ -71,7 +78,7 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
       $existing_remote_urls = array_map(static fn($media) => $media->remote_url->value, Media::loadMultiple($media_ids));
       $pantheon_files = array_diff_key($pantheon_files, array_flip($existing_remote_urls));
     }
-    $directory = 'public://pantheon_document/' . $collection;
+    $directory = 'public://pantheon_document/' . $document->bundle();
     $this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
     foreach ($pantheon_files as $src => $image) {
       $filename = basename($src);
@@ -92,6 +99,38 @@ final class Images extends QueueWorkerBase implements ContainerFactoryPluginInte
       $media->save();
     }
 
+  }
+
+  /**
+   * Extract image data from JSON.
+   *
+   * @param string $json
+   *   A serialized JSON object describing a DOM.
+   *
+   * @return array
+   *   Keys are URLs to images, the values are key-value pairs. Each key-value
+   *   pair is a HTML attribute of an img tag and its value.
+   */
+  protected static function getImageData(string $json): array {
+    return static::collectImageData(@json_decode($json, TRUE) ?: []);
+  }
+
+  /**
+   * @param array $node
+   *   An array describing a DOM node.
+   *
+   * @return array
+   *   Same return as ::getImageData().)
+   */
+  protected static function collectImageData(array $node): array {
+    $image_data = [];
+    if (($node['tag'] ?? '') === 'img' && !empty($node['attrs'])) {
+      $image_data[$node['attrs']['src']] = $node['attrs'];
+    }
+    foreach ($node['children'] ?? [] as $child) {
+      $image_data += static::collectImageData($child);
+    }
+    return $image_data;
   }
 
 }
