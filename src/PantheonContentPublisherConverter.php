@@ -96,7 +96,7 @@ class PantheonContentPublisherConverter {
   }
 
   protected function date(int|array $date): int {
-    return intdiv($date['msSinceEpoch'], 1000);
+    return intdiv(is_int($date) ? $date : $date['msSinceEpoch'], 1000);
   }
 
 }
