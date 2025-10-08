@@ -23,9 +23,7 @@ class PantheonContentPublisherController extends ControllerBase {
 
   protected QueueInterface $imageQueue;
 
-  protected QueueInterface $entitySaveQueue;
-
-  protected QueueInterface $deleteQueue;
+  protected QueueInterface $entityQueue;
 
   public function __construct(
       EntityTypeManagerInterface $entityTypeManager,
@@ -34,8 +32,7 @@ class PantheonContentPublisherController extends ControllerBase {
       protected QueueRunner $queueRunner,
   ) {
     $this->imageQueue = $queueFactory->get('pantheon_document_images');
-    $this->entitySaveQueue = $queueFactory->get('pantheon_content_publisher_entity_save');
-    $this->deleteQueue = $queueFactory->get('pantheon_document_entity_delete');
+    $this->entityQueue = $queueFactory->get('pantheon_content_publisher_entity', TRUE);
   }
 
   /**
@@ -45,21 +42,22 @@ class PantheonContentPublisherController extends ControllerBase {
     if ($decoded = @json_decode($request->getContent(), TRUE)) {
       $collection_id = $decoded['payload']['siteId'] ?? array_key_first(PantheonDocumentCollection::loadMultiple());
       // Sync metadata changes.
-      $this->entitySaveQueue->createItem([
+      $this->entityQueue->createItem([
         'entity_type' => 'pantheon_document_collection',
         'entity_id' => $collection_id,
       ]);
       $entity_id = PantheonDocumentStorage::getEntityId($collection_id, $decoded['payload']['articleId']);
       if ($decoded['event'] === 'article.unpublish') {
-        $this->deleteQueue->createItem([
+        $this->entityQueue->createItem([
           'collection' => $collection_id,
           'id' => $entity_id,
+          'delete' => 1,
         ]);
       }
       else {
         // Clear the appropriate entity caches and queue the document for
         // indexing in Search API.
-        $this->entitySaveQueue->createItem([
+        $this->entityQueue->createItem([
           'entity_type' => 'pantheon_document',
           'entity_id' => $entity_id,
         ]);
