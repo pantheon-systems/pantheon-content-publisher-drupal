@@ -114,7 +114,11 @@ function pantheon_content_publisher_form_key_add_form_alter(&$form) {
  * Implements hook_element_info_alter().
  */
 function pantheon_content_publisher_element_info_alter(array &$info) {
-  unset($info['key_select']['#empty_option']);
+  // Drupal 11 compatibility: Keep empty option but set it to a safe string value
+  // to prevent TypeError when Html::escape() receives null values.
+  if (isset($info['key_select']['#empty_option'])) {
+    $info['key_select']['#empty_option'] = t('- Select a key -');
+  }
 }
 
 /**
