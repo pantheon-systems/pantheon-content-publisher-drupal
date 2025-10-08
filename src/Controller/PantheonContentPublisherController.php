@@ -49,8 +49,8 @@ class PantheonContentPublisherController extends ControllerBase {
       $entity_id = PantheonDocumentStorage::getEntityId($collection_id, $decoded['payload']['articleId']);
       if ($decoded['event'] === 'article.unpublish') {
         $this->entityQueue->createItem([
-          'collection' => $collection_id,
-          'id' => $entity_id,
+          'entity_type' => 'pantheon_document',
+          'entity_id' => $entity_id,
           'delete' => 1,
         ]);
       }
