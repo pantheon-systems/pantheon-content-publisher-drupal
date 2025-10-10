@@ -287,7 +287,12 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
   public static function getPantheonListOptions(FieldStorageConfigInterface $definition, $entity, &$cacheable): array {
     $cacheable = TRUE;
     $options = $definition->getThirdPartySetting('pantheon_content_publisher', 'pantheon_data')['options'];
-    return array_combine($options, $options);
+    // Drupal 11 compatibility: Filter out null values to prevent TypeError
+    // when Html::escape() is called on select option labels.
+    $options = array_filter($options, function ($value) {
+      return $value !== NULL && $value !== '';
+    });
+    return $options ? array_combine($options, $options) : [];
   }
 
   /**
