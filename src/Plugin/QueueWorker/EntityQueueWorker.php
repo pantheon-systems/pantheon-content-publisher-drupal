@@ -10,7 +10,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines 'pantheon_content_publisher_entity_save' queue worker.
+ * Defines 'pantheon_content_publisher_entity' queue worker.
  *
  * @QueueWorker(
  *   id = "pantheon_content_publisher_entity",

@@ -22,7 +22,7 @@ class QueueRunner implements EventSubscriberInterface {
     if (!file_exists($drush)) {
       return;
     }
-    $process = new Process([$drush, 'queue-run', 'pantheon_content_publisher_entity_save']);
+    $process = new Process([$drush, 'queue-run', 'pantheon_content_publisher_entity']);
     $process->setTimeout(0);
     $process->run();
   }
