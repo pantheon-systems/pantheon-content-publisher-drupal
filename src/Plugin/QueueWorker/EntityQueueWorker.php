@@ -10,7 +10,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines 'pantheon_content_publisher_entity_save' queue worker.
+ * Defines 'pantheon_content_publisher_entity' queue worker.
  *
  * @QueueWorker(
  *   id = "pantheon_content_publisher_entity",
@@ -48,13 +48,14 @@ class EntityQueueWorker extends QueueWorkerBase implements ContainerFactoryPlugi
     $entity_type_id = $data['entity_type'];
     $entity = $this->entityTypeManager
       ->getStorage($entity_type_id)
-      ->load($data['entity_id'])
-      ->save();
-    if (empty($data['delete'])) {
-      $entity->save();
-    }
-    else {
-      $entity->delete();
+      ->load($data['entity_id']);
+    if ($entity) {
+      if (empty($data['delete'])) {
+        $entity->save();
+      }
+      else {
+        $entity->delete();
+      }
     }
     $index_storage = $this->entityTypeManager->getStorage('search_api_index');
     $datasource_id = "entity:$entity_type_id";
