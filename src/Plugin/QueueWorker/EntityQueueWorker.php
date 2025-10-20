@@ -46,16 +46,20 @@ class EntityQueueWorker extends QueueWorkerBase implements ContainerFactoryPlugi
    */
   public function processItem($data): void {
     $entity_type_id = $data['entity_type'];
-    $entity = $this->entityTypeManager
-      ->getStorage($entity_type_id)
-      ->load($data['entity_id']);
-    if ($entity) {
-      if (empty($data['delete'])) {
-        $entity->save();
-      }
-      else {
-        $entity->delete();
-      }
+    $storage = $this->entityTypeManager->getStorage($entity_type_id);
+
+    if (empty($data['delete'])) {
+      $entity = $storage->load($data['entity_id']);
+      $entity->save();
+    }
+    else {
+      $entityType = $this->entityTypeManager->getDefinition($entity_type_id);
+      $entity = $storage->create([
+        $entityType->getKey('bundle') => $data['bundle'],
+        $entityType->getKey('id') => $data['entity_id'],
+      ]);
+      $entity->enforceIsNew(FALSE);
+      $entity->delete();
     }
     $index_storage = $this->entityTypeManager->getStorage('search_api_index');
     $datasource_id = "entity:$entity_type_id";
