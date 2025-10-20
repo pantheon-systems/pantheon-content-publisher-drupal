@@ -49,7 +49,7 @@ class PantheonDocumentDatasource extends ContentEntity {
       if ($bundles) {
         $enabled_bundles = array_unique(array_merge($bundles, $enabled_bundles));
       }
-      $all_bundles = $this->getEntityBundles();
+      $all_bundles = array_keys($this->getEntityBundles());
       $bundles_for_query = count($enabled_bundles) < count($all_bundles) ? $enabled_bundles : $all_bundles;
     }
     // Page is across all collections in this index.
