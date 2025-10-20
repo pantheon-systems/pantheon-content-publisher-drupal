@@ -137,4 +137,11 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       $pantheon_id;
   }
 
+  protected function doDelete($entities) {
+    parent::doDelete($entities);
+    foreach ($entities as $entity) {
+      $this->seenStore->delete($entity->id());
+    }
+  }
+
 }
