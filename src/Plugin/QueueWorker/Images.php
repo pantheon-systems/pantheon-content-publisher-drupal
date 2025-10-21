@@ -65,7 +65,9 @@ class Images extends QueueWorkerBase implements ContainerFactoryPluginInterface 
    * {@inheritdoc}
    */
   public function processItem($data): void {
-    $document = $this->pantheonContentPublisherStorage->load($data);
+    if (!$document = $this->pantheonContentPublisherStorage->load($data)) {
+      return;
+    }
     $content = $document->get('content');
     if ($content->isEmpty() || !($pantheon_files = static::getImageData($content->value))) {
       return;
