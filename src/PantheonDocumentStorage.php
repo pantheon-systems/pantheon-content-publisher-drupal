@@ -18,6 +18,7 @@ use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Provides a list controller for the pantheon content publisher entity type.
@@ -37,6 +38,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
     protected EntityStorageInterface $collectionStorage,
     protected PantheonContentPublisherConverter $pantheonContentPublisherConverter,
     KeyValueFactoryInterface $keyValueFactory,
+    protected RequestStack $requestStack,
   ) {
     $this->seenStore = $keyValueFactory->get('pantheon_document.seen');
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
@@ -51,7 +53,8 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       $container->get('entity_type.bundle.info'),
       $container->get('entity_type.manager')->getStorage('pantheon_document_collection'),
       $container->get('pantheon_content_publisher.converter'),
-      $container->get('keyvalue')
+      $container->get('keyvalue'),
+      $container->get('request_stack'),
     );
   }
 
@@ -71,7 +74,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       $drupal_data = $this->pantheonContentPublisherConverter
         ->convert($pantheon_data, $collection_name, $id);
       $document = PantheonDocument::create($drupal_data);
-      if ($this->seenStore->setIfNotExists($id, 1)) {
+      if ($this->requestStack->getCurrentRequest()->getMethod() === 'POST' && $this->seenStore->setIfNotExists($id, 1)) {
         $this->invokeHook('insert', $document);
       }
       $entities[$id] = $document->enforceIsNew(FALSE);
