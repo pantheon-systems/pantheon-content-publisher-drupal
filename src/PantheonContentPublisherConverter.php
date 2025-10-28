@@ -60,7 +60,7 @@ class PantheonContentPublisherConverter {
     $date_convert = fn (&$x) => $x ? $this->date($x) : (int) $_SERVER['REQUEST_TIME'];
     return $drupal_data + [
       'id' => $id,
-      'status' => $pantheon_data['publishStatus'] === 'published',
+      'status' => ($pantheon_data['publishStatus'] ?? '') === 'published',
       'collection' => $collection_name,
       'content' => $pantheon_data['content'] ?? '',
       'title' => $pantheon_data['title'] ?? '',
