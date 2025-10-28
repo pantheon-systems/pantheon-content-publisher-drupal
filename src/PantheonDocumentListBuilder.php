@@ -31,7 +31,7 @@ class PantheonDocumentListBuilder extends EntityListBuilder {
     /** @var \Drupal\pantheon_content_publisher\PantheonDocumentInterface $entity */
     $row['id'] = $entity->id();
     $row['label'] = $entity->toLink();
-    $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');
+    $row['status'] = $entity->isPublished() ? $this->t('Published') : $this->t('Draft');
     $row['created']['data'] = $entity->get('created')->view(['label' => 'hidden']);
     $row['changed']['data'] = $entity->get('changed')->view(['label' => 'hidden']);
     return $row;
