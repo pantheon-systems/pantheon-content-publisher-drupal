@@ -70,6 +70,7 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
 
     $fields = parent::baseFieldDefinitions($entity_type);
+    $fields += static::publishedBaseFieldDefinitions($entity_type);
     // In order to work around the InnoDB 191 character limit on utf8mb4
     // primary keys, we set the character set for the field to ASCII.
     $fields['id'] = BaseFieldDefinition::create('string')
