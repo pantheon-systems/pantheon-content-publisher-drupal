@@ -6,6 +6,8 @@ namespace Drupal\pantheon_content_publisher\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityPublishedInterface;
+use Drupal\Core\Entity\EntityPublishedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -47,6 +49,7 @@ use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
  *     "bundle" = "collection",
  *     "label" = "title",
  *     "uuid" = "uuid",
+ *     "published" = "status",
  *   },
  *   links = {
  *     "collection" = "/admin/content/pantheon-content-publisher",
@@ -59,6 +62,7 @@ use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
 class PantheonDocument extends ContentEntityBase implements PantheonDocumentInterface {
 
   use EntityChangedTrait;
+  use EntityPublishedTrait;
 
   /**
    * {@inheritdoc}
@@ -110,10 +114,9 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
       ])
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Status'))
-      ->setDefaultValue(TRUE)
-      ->setSetting('on_label', 'Enabled')
+    $fields['status']
+      ->setDescription(t('A boolean value indicating whether the document is published. Controlled externally by Content Publisher.'))
+      ->setDisplayConfigurable('form', FALSE)
       ->setDisplayOptions('view', [
         'region' => 'hidden',
       ])
