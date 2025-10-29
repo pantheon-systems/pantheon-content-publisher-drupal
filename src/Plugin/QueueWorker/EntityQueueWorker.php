@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Drupal\pantheon_content_publisher\Plugin\QueueWorker;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
+use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,12 +22,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class EntityQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
+  protected KeyValueStoreInterface $seenStore;
+
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
     protected EntityTypeManagerInterface $entityTypeManager,
+    KeyValueFactoryInterface $keyValueFactory,
   ) {
+    $this->seenStore = $keyValueFactory->get('pantheon_document.seen');
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 
@@ -38,6 +44,7 @@ class EntityQueueWorker extends QueueWorkerBase implements ContainerFactoryPlugi
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
+      $container->get('keyvalue')
     );
   }
 
@@ -50,6 +57,11 @@ class EntityQueueWorker extends QueueWorkerBase implements ContainerFactoryPlugi
 
     if (empty($data['delete'])) {
       $entity = $storage->load($data['entity_id']);
+      if ($this->seenStore->setIfNotExists($entity->id(), 1)) {
+        (new \ReflectionObject($storage))
+          ->getMethod('invokeHook')
+          ->invoke($storage, 'insert', $entity);
+      }
       $entity->save();
     }
     else {
@@ -60,13 +72,7 @@ class EntityQueueWorker extends QueueWorkerBase implements ContainerFactoryPlugi
       ]);
       $entity->enforceIsNew(FALSE);
       $entity->delete();
-    }
-    $index_storage = $this->entityTypeManager->getStorage('search_api_index');
-    $datasource_id = "entity:$entity_type_id";
-    // Querying for datasource_id is possible, however the default config
-    // entity query implementation loads all indexes anyways.
-    foreach ($index_storage->loadMultiple() as $index) {
-      $index->indexItems(-1, $datasource_id);
+      $this->seenStore->delete($entity->id());
     }
   }
 
