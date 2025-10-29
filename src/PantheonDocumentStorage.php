@@ -14,8 +14,6 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
-use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,8 +24,6 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
 
   const SEPARATOR = '.';
 
-  protected KeyValueStoreInterface $seenStore;
-
   public function __construct(
     EntityTypeInterface $entity_type,
     EntityFieldManagerInterface $entity_field_manager,
@@ -36,9 +32,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
     protected EntityStorageInterface $collectionStorage,
     protected PantheonContentPublisherConverter $pantheonContentPublisherConverter,
-    KeyValueFactoryInterface $keyValueFactory,
   ) {
-    $this->seenStore = $keyValueFactory->get('pantheon_document.seen');
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
   }
 
@@ -50,8 +44,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
       $container->get('entity_type.manager')->getStorage('pantheon_document_collection'),
-      $container->get('pantheon_content_publisher.converter'),
-      $container->get('keyvalue')
+      $container->get('pantheon_content_publisher.converter')
     );
   }
 
@@ -71,9 +64,6 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       $drupal_data = $this->pantheonContentPublisherConverter
         ->convert($pantheon_data, $collection_name, $id);
       $document = PantheonDocument::create($drupal_data);
-      if ($this->seenStore->setIfNotExists($id, 1)) {
-        $this->invokeHook('insert', $document);
-      }
       $entities[$id] = $document->enforceIsNew(FALSE);
     }
     return $entities;
@@ -135,13 +125,6 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
   public static function getEntityId(string|PantheonDocumentCollectionInterface $collection, string $pantheon_id): string {
     return ($collection instanceof PantheonDocumentCollectionInterface ? $collection->id() : $collection) . self::SEPARATOR .
       $pantheon_id;
-  }
-
-  protected function doDelete($entities) {
-    parent::doDelete($entities);
-    foreach ($entities as $entity) {
-      $this->seenStore->delete($entity->id());
-    }
   }
 
 }
