@@ -241,6 +241,7 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
         // it twice.
         $field_storage->setSetting('allowed_values_function', static::class . '::getPantheonListOptions');
       }
+      $field_storage->save();
     }
     $data = [
       'field_name' => $drupal_field_name,
