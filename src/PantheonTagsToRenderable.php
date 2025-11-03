@@ -42,14 +42,16 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
     $container->setAttribute('class', $uniqueClass);
 
     $metadata = new CacheableMetadata();
-    $this->processNode($node, $container, $uniqueClass, $metadata);
-    $html = Html::serialize($domDocument);
-
     $build = [
       '#type' => 'inline_template',
       '#template' => '{{ value | raw }}',
-      '#context' => ['value' => $html],
+      '#context' => ['value' => ''],
+      '#attached' => [],
     ];
+
+    $this->processNode($node, $container, $uniqueClass, $metadata, $build);
+    $html = Html::serialize($domDocument);
+    $build['#context']['value'] = $html;
     $metadata->applyTo($build);
 
     return $build;
@@ -66,8 +68,10 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
    *   The unique class used for CSS scoping.
    * @param \Drupal\Core\Cache\RefinableCacheableDependencyInterface $metadata
    *   The caching metadata.
+   * @param array &$build
+   *   The top-level render array to merge attachments into (passed by reference).
    */
-  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, RefinableCacheableDependencyInterface $metadata): void {
+  protected function processNode(array $node, \DOMElement $parent, string $uniqueClass, RefinableCacheableDependencyInterface $metadata, array &$build): void {
     $defaults = [
       'tag' => 'div',
       'data' => '',
@@ -93,8 +97,13 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
           $component = PantheonSmartInstance::create(['component' => $node['type']] + $attrs);
           // Changing the component should invalidate cache.
           $metadata->addCacheableDependency($component);
-          $build = $this->viewBuilder->view($component);
-          $html = (string) $this->renderer->renderInIsolation($build);
+          $component_build = $this->viewBuilder->view($component);
+          $html = (string) $this->renderer->renderInIsolation($component_build);
+
+          if (!empty($component_build['#attached'])) {
+            $build['#attached'] = array_merge_recursive($build['#attached'], $component_build['#attached']);
+          }
+
           $element = $domDocument->importNode(Html::load($html)->documentElement, TRUE);
           $attrs = [];
         }
@@ -115,7 +124,7 @@ class PantheonTagsToRenderable implements PantheonTagsToRenderableInterface {
       $element->setAttribute('style', implode('; ', $style));
     }
     foreach ($children as $child) {
-      $this->processNode($child, $element, $uniqueClass, $metadata);
+      $this->processNode($child, $element, $uniqueClass, $metadata, $build);
     }
     $parent->appendChild($element);
   }
