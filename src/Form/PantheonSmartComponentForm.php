@@ -6,6 +6,7 @@ namespace Drupal\pantheon_content_publisher\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\Core\Url;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 
@@ -39,13 +40,17 @@ class PantheonSmartComponentForm extends EntityForm {
       '#disabled' => !$this->entity->isNew(),
     ];
 
-    $form['icon_media'] = [
-      '#type' => 'media_library',
-      '#title' => $this->t('Icon'),
-      '#allowed_bundles' => ['image'],
-      '#default_value' => $this->entity->get('icon'),
-      '#description' => t('Upload or select the icon for this component.'),
-    ];
+    // Removed hard dependency on media_library_form_element contrib module.
+    // Only add icon field if media_library form element is available.
+    if (\Drupal::service(ElementInfoManagerInterface::class)->getDefinition('media_library', FALSE)) {
+      $form['icon_media'] = [
+        '#type' => 'media_library',
+        '#title' => $this->t('Icon'),
+        '#allowed_bundles' => ['image'],
+        '#default_value' => $this->entity->get('icon'),
+        '#description' => $this->t('Upload or select the icon for this component.'),
+      ];
+    }
 
     return $form;
   }
@@ -54,11 +59,14 @@ class PantheonSmartComponentForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state): int {
-    if ($mid = $form_state->getValue('icon_media')) {
-      $this->entity->set('icon', (int) $mid);
-    }
-    else {
-      $this->entity->set('icon', NULL);
+    // Only save icon if the field was present in the form.
+    if ($form_state->hasValue('icon_media')) {
+      if ($mid = $form_state->getValue('icon_media')) {
+        $this->entity->set('icon', (int) $mid);
+      }
+      else {
+        $this->entity->set('icon', NULL);
+      }
     }
     $message_args = ['%label' => $this->entity->label()];
     $result = parent::save($form, $form_state);
