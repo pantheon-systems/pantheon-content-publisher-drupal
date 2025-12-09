@@ -43,7 +43,7 @@ class Query extends QueryBase {
         $key = PantheonDocumentStorage::getEntityId($collection, $pantheon_record['id']);
 
         if ($target_ids !== NULL && !in_array($key, $target_ids)) {
-            continue;
+          continue;
         }
 
         $records[$key] = $this->converter->convert($pantheon_record, $collection->id());
@@ -78,4 +78,3 @@ class Query extends QueryBase {
   }
 
 }
-

@@ -3,6 +3,7 @@
 namespace Drupal\pantheon_content_publisher\Plugin\EntityReferenceSelection;
 
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
+use Drupal\Core\Entity\Query\QueryInterface;
 
 /**
  * Provides a selection plugin for Pantheon documents.
@@ -19,7 +20,7 @@ class PantheonDocumentSelection extends DefaultSelection {
   /**
    * {@inheritdoc}
    */
-   protected function buildEntityQuery($match = NULL, $match_operator = 'CONTAINS'): QueryInterface {
+  protected function buildEntityQuery($match = NULL, $match_operator = 'CONTAINS'): QueryInterface {
     $configuration = $this->getConfiguration();
     $target_type = 'pantheon_document';
     $entity_type = $this->entityTypeManager->getDefinition($target_type);
