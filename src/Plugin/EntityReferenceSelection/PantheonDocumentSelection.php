@@ -2,19 +2,21 @@
 
 namespace Drupal\pantheon_content_publisher\Plugin\EntityReferenceSelection;
 
+use Drupal\Core\Entity\Attribute\EntityReferenceSelection;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
 use Drupal\Core\Entity\Query\QueryInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides a selection plugin for Pantheon documents.
- *
- * @EntityReferenceSelection(
- *   id = "pantheon_document_selection",
- *   label = @Translation("Pantheon Document Selection"),
- *   group = "default",
- *   weight = 0
- * )
  */
+#[EntityReferenceSelection(
+  id: 'default:pantheon_document',
+  label: new TranslatableMarkup('Pantheon Document Selection'),
+  entity_types: ['pantheon_document'],
+  group: 'default',
+  weight: 1
+)]
 class PantheonDocumentSelection extends DefaultSelection {
 
   /**
