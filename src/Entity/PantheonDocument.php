@@ -57,6 +57,7 @@ use Drupal\pantheon_content_publisher\PantheonDocumentInterface;
  *     "edit-form" = "/pantheon-content-publisher/{pantheon_document}/edit",
  *   },
  *   bundle_entity_type = "pantheon_document_collection",
+ *   common_reference_target = TRUE,
  * )
  */
 class PantheonDocument extends ContentEntityBase implements PantheonDocumentInterface {
