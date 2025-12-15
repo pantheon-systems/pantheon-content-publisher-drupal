@@ -20,7 +20,6 @@
          ],
     "require": {
         "drupal/search_api": "^1.0",
-        "drupal/media_library_form_element": "^2.1",
         "drupal/imagecache_external": "^3.0",
         "dpauli/graphql-request-builder": "^1.0",
         "drupal/key": "^1.20"
