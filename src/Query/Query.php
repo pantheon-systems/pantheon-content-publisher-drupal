@@ -23,23 +23,35 @@ class Query extends QueryBase {
   public function execute() {
     $conditions = &$this->condition->conditions();
     $collections = NULL;
+    $target_ids = NULL;
     foreach ($conditions as $key => $condition) {
-      if ($condition['field'] === 'collection' && in_array(($condition['operator'] ?? '='), ['=', 'IN'])) {
+      if ($condition['field'] === 'collection' && in_array($condition['operator'] ?? '=', ['=', 'IN'])) {
         $collections = (array) $condition['value'];
         unset($conditions[$key]);
-        break;
+      }
+
+      // Extract id filters to support entity reference validation and widget rendering.
+      if ($condition['field'] === 'id' && in_array($condition['operator'] ?? '=', ['=', 'IN'])) {
+        $target_ids = (array) $condition['value'];
+        unset($conditions[$key]);
       }
     }
+
     $collections = PantheonDocumentCollection::loadMultiple($collections);
     $records = [];
     foreach ($collections as $collection) {
       foreach ($collection->getGraphQL()->getArticles() as $pantheon_record) {
         $key = PantheonDocumentStorage::getEntityId($collection, $pantheon_record['id']);
+
+        // Skip documents not in the target id list when specific ids are requested.
+        if ($target_ids !== NULL && !in_array($key, $target_ids)) {
+          continue;
+        }
+
         $records[$key] = $this->converter->convert($pantheon_record, $collection->id());
       }
     }
 
-    // Copy-paste from
     // Drupal\Core\Entity\KeyValueStore\Query\Query::execute().
     $result = $this->condition->compile($records);
 
