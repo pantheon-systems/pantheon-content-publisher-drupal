@@ -7,3 +7,4 @@ dependencies:
   - search_api:search_api (>= 8.x-1.20)
   - imagecache_external:imagecache_external
   - key:key
+  - drupal:media
