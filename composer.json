@@ -51,6 +51,8 @@
     },
     "config": {
         "allow-plugins": {
+            "composer/installers": true,
+            "drupal/core-composer-scaffold": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
