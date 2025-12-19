@@ -19,7 +19,9 @@ class PantheonContentPublisherViewController extends EntityViewController {
 
   public function pantheonView(Request $request, $pantheon_id): array {
     $query = $request->query;
-    $is_preview = $query->get('publishingLevel') === 'REALTIME';
+    $publishingLevel = $query->get('publishingLevel');
+    $versionId = $query->get('versionId');
+    $is_preview = in_array($publishingLevel, ['REALTIME', 'DRAFT'], TRUE);
     $collection = $query->get('siteId') ?: array_key_first(PantheonDocumentCollection::loadMultiple());
     try {
       $document = PantheonDocument::load(PantheonDocumentStorage::getEntityId($collection, $pantheon_id));
@@ -39,11 +41,22 @@ class PantheonContentPublisherViewController extends EntityViewController {
     }
     $page = $this->view($document);
     if ($is_preview) {
-      $page['#attached']['library'][] = 'pantheon_content_publisher/preview';
+      $page['#attached']['drupalSettings']['pantheon_content_publisher']['publishing_level'] = $publishingLevel;
       $page['#attached']['drupalSettings']['pantheon_content_publisher']['site_id'] = $collection;
+
+      // Only attach preview library for REALTIME, not for DRAFT.
+      if ($publishingLevel === 'REALTIME') {
+        $page['#attached']['library'][] = 'pantheon_content_publisher/preview';
+      }
+
+      if ($versionId) {
+        $page['#attached']['drupalSettings']['pantheon_content_publisher']['version_id'] = $versionId;
+      }
+
       $page['#attached']['http_header'][] = [PantheonContentPublisherXFrameSubscriber::HEADER_NAME, ''];
     }
     $page['#cache']['contexts'][] = 'url.query_args:publishingLevel';
+    $page['#cache']['contexts'][] = 'url.query_args:versionId';
     return $page;
   }
 

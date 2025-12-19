@@ -156,4 +156,34 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     // @TODO assert preview.js is loaded.
   }
 
+  /**
+   * Test DRAFT preview mode.
+   */
+  public function testDraftPreview(): void {
+    $response = $this->handle(sprintf(
+      '/api/pantheoncloud/document/%s?publishingLevel=DRAFT&versionId=test-version-123',
+      static::ARTICLE_ID
+    ));
+    $this->assertFalse($response->headers->has('X-Frame-Options'));
+    $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
+    $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
+    // Verify that the publishing level is DRAFT.
+    $this->assertStringContainsString('"publishing_level":"DRAFT"', $response->getContent());
+    // Verify that versionId is passed through.
+    $this->assertStringContainsString('"version_id":"test-version-123"', $response->getContent());
+  }
+
+  /**
+   * Test DRAFT preview without versionId.
+   */
+  public function testDraftPreviewWithoutVersionId(): void {
+    $response = $this->handle(sprintf(
+      '/api/pantheoncloud/document/%s?publishingLevel=DRAFT',
+      static::ARTICLE_ID
+    ));
+    $this->assertFalse($response->headers->has('X-Frame-Options'));
+    $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
+    $this->assertStringContainsString('"publishing_level":"DRAFT"', $response->getContent());
+  }
+
 }

@@ -2,31 +2,42 @@ import {ARTICLE_UPDATE_SUBSCRIPTION, PantheonClient, PublishingLevel} from "@pan
 
 const params = new URLSearchParams(window.location.search);
 const documentId = drupalSettings.path.currentPath.split('/')[3];
+const publishingLevel = drupalSettings.pantheon_content_publisher.publishing_level || 'REALTIME';
+const versionId = drupalSettings.pantheon_content_publisher.version_id;
 
 const pantheonClient = new PantheonClient({
     siteId: window.drupalSettings.pantheon_content_publisher.site_id,
     token: 'pcc_grant ' + params.get('pccGrant')
 });
 
-pantheonClient.apolloClient.subscribe({
-    query: ARTICLE_UPDATE_SUBSCRIPTION,
-    variables: {
-        id: documentId,
-        contentType: "TREE_PANTHEON_V2",
-        publishingLevel: PublishingLevel.REALTIME,
-    },
-})
-.subscribe({
-    next: ({ data }) => {
-        if (!data) return;
-        // const entryTitle = document.querySelector('h1');
-        // entryTitle.innerHTML = article.title;
+const subscriptionVariables = {
+    id: documentId,
+    contentType: "TREE_PANTHEON_V2",
+    publishingLevel: publishingLevel,
+};
 
-        const previewContentContainer = document.getElementById('pantheon-content-publisher-preview');
-        previewContentContainer.innerHTML = '';
-        previewContentContainer.appendChild(generateHTMLFromJSON(JSON.parse(data.article.content)));
-    },
-});
+if (versionId) {
+    subscriptionVariables.versionId = versionId;
+}
+
+// Only subscribe for REALTIME, not for DRAFT
+if (publishingLevel === 'REALTIME') {
+    pantheonClient.apolloClient.subscribe({
+        query: ARTICLE_UPDATE_SUBSCRIPTION,
+        variables: subscriptionVariables,
+    })
+    .subscribe({
+        next: ({ data }) => {
+            if (!data) return;
+            // const entryTitle = document.querySelector('h1');
+            // entryTitle.innerHTML = article.title;
+
+            const previewContentContainer = document.getElementById('pantheon-content-publisher-preview');
+            previewContentContainer.innerHTML = '';
+            previewContentContainer.appendChild(generateHTMLFromJSON(JSON.parse(data.article.content)));
+        },
+    });
+}
 
 function generateHTMLFromJSON(json, parentElement = null) {
     const createElement = (tag, attrs = {}, styles = {}, content = '') => {

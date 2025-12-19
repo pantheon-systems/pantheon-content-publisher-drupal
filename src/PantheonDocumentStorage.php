@@ -16,6 +16,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\pantheon_content_publisher\Entity\PantheonDocument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Provides a list controller for the pantheon content publisher entity type.
@@ -32,6 +33,7 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
     protected EntityStorageInterface $collectionStorage,
     protected PantheonContentPublisherConverter $pantheonContentPublisherConverter,
+    protected RequestStack $requestStack,
   ) {
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
   }
@@ -44,19 +46,28 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
       $container->get('entity_type.manager')->getStorage('pantheon_document_collection'),
-      $container->get('pantheon_content_publisher.converter')
+      $container->get('pantheon_content_publisher.converter'),
+      $container->get('request_stack')
     );
   }
 
   protected function doLoadMultiple(?array $ids = NULL) {
     $entities = [];
+    $request = $this->requestStack->getCurrentRequest();
+    $publishingLevel = $request?->query->get('publishingLevel');
+    $versionId = $request?->query->get('versionId');
+
     foreach ($ids as $id) {
       [$collection_name, $pantheon_id] = explode(self::SEPARATOR, $id, 2);
       if (!$collection = $this->collectionStorage->load($collection_name)) {
         continue;
       }
       try {
-        $pantheon_data = $collection->getGraphQL()->getArticle($pantheon_id);
+        $pantheon_data = $collection->getGraphQL()->getArticle(
+          $pantheon_id,
+          $publishingLevel,
+          $versionId
+        );
       }
       catch (GraphQLException $e) {
         continue;

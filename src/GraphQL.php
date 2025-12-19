@@ -23,11 +23,28 @@ class GraphQL {
   /**
    * Get an article.
    *
+   * @param string $id
+   *   The article ID.
+   * @param string|null $publishingLevel
+   *   The publishing level (PRODUCTION, REALTIME, or DRAFT).
+   * @param string|null $versionId
+   *   The version ID (used with DRAFT publishing level).
+   *
    * @return array
    *   title, content and metadata of the article.
    */
-  public function getArticle(string $id): array {
-    $query = (new RootType('article'))->addArgument(new Argument('id', $id))->addSubTypes([
+  public function getArticle(string $id, ?string $publishingLevel = NULL, ?string $versionId = NULL): array {
+    $query = (new RootType('article'))->addArgument(new Argument('id', $id));
+
+    if ($publishingLevel) {
+      $query->addArgument(new Argument('publishingLevel', $publishingLevel));
+    }
+
+    if ($versionId) {
+      $query->addArgument(new Argument('versionId', $versionId));
+    }
+
+    $query->addSubTypes([
       'title',
       'content',
       'slug',

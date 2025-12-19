@@ -209,6 +209,9 @@ trait PantheonDocumentTestTrait {
       'content' => $this->articleContent,
       'title' => 'test title',
       'slug' => 'test-slug',
+      'createdAt' => ['msSinceEpoch' => 1741385249172],
+      'publishedDate' => ['msSinceEpoch' => 1741385249172],
+      'publishStatus' => 'PUBLISHED',
     ];
   }
 
