@@ -1,4 +1,7 @@
 preview:
+  css:
+    component:
+      css/preview.css: {}
   js:
     js/preview.js: { preprocess: false }
   dependencies:

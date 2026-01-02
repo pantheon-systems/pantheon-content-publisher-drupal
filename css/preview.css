@@ -1,0 +1,93 @@
+/**
+ * @file
+ * Styling for Content Publisher preview.
+ *
+ */
+
+#pantheon-content-publisher-preview {
+  /* ==========================================================================
+     Global base elements
+     ========================================================================== */
+
+  iframe {
+    max-width: 100%;
+  }
+
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ==========================================================================
+     Responsive video wrapper patterns
+     ========================================================================== */
+
+  .responsive-video,
+  .media--type-remote-video,
+  .embedded-video {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .responsive-video iframe,
+  .media--type-remote-video iframe,
+  .embedded-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ==========================================================================
+     Generic wrapper classes
+     ========================================================================== */
+
+  .media-wrapper,
+  .video-wrapper,
+  .embed-container {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* ==========================================================================
+     Specific targeting
+     ========================================================================== */
+
+  /* Common video service embeds */
+  iframe[src*="youtube.com"],
+  iframe[src*="youtu.be"],
+  iframe[src*="vimeo.com"],
+  iframe[src*="player.vimeo.com"] {
+    max-width: 100%;
+    height: 100%;
+  }
+
+  /* video_embed_field module patterns */
+  .video-embed-field-responsive-video {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .video-embed-field-responsive-video iframe {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+}
