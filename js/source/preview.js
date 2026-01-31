@@ -8,6 +8,8 @@ const pantheonClient = new PantheonClient({
     token: 'pcc_grant ' + params.get('pccGrant')
 });
 
+// This library only loads for REALTIME publishing level.
+// DRAFT uses server-side rendering and doesn't load this library.
 pantheonClient.apolloClient.subscribe({
     query: ARTICLE_UPDATE_SUBSCRIPTION,
     variables: {

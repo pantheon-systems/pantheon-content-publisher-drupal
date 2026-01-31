@@ -152,8 +152,30 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
+    // REALTIME creates empty preview div for client-side rendering.
     $this->assertStringContainsString('<div id="pantheon-content-publisher-preview"></div>', $response->getContent());
     // @TODO assert preview.js is loaded.
+  }
+
+  public function testDraftPreview() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT', static::ARTICLE_ID));
+    $this->assertFalse($response->headers->has('X-Frame-Options'));
+    $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
+    // DRAFT uses server-side rendering, so content should be present.
+    $this->assertStringContainsString('test content', $response->getContent());
+    // DRAFT should NOT load preview.js library.
+    $this->assertStringNotContainsString('preview.js', $response->getContent());
+  }
+
+  public function testDraftPreviewWithVersionId() {
+    $versionId = 'test-version-id-123';
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&versionId=%s', static::ARTICLE_ID, $versionId));
+    $this->assertFalse($response->headers->has('X-Frame-Options'));
+    $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
+    // DRAFT uses server-side rendering, so content should be present.
+    $this->assertStringContainsString('test content', $response->getContent());
+    // DRAFT should NOT load preview.js library.
+    $this->assertStringNotContainsString('preview.js', $response->getContent());
   }
 
 }
