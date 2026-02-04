@@ -37,14 +37,14 @@ class PantheonContentPublisherViewController extends EntityViewController {
     }
     if ($is_realtime) {
       // Only REALTIME needs empty preview div for client-side rendering.
-      // DRAFT uses server-side rendering (document loaded via PantheonDocumentStorage).
+      // DRAFT and PRODUCTION use server-side rendering (document loaded via PantheonDocumentStorage).
       // PantheonTagsFormatter turns this into
       // <div id="pantheon-content-publisher-preview"></div>
       $document->get('content')->value = '{"attrs":{"id":"pantheon-content-publisher-preview"}}';
     }
     $page = $this->view($document);
-    if ($is_preview) {
-      // Remove X-Frame-Options for both REALTIME and DRAFT (iframe support).
+    if ($publishingLevel) {
+      // Remove X-Frame-Options for all publishing levels (PRODUCTION, REALTIME, DRAFT) to allow iframe embedding in Content Publisher.
       $page['#attached']['http_header'][] = [PantheonContentPublisherXFrameSubscriber::HEADER_NAME, ''];
     }
     if ($is_realtime) {
