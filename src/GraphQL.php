@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\pantheon_content_publisher;
 
 use GraphQL\RequestBuilder\Argument;
+use GraphQL\RequestBuilder\EnumArgument;
 use GraphQL\RequestBuilder\Interfaces\TypeInterface;
 use GraphQL\RequestBuilder\RootType;
 use GraphQL\RequestBuilder\Type;
@@ -44,7 +45,7 @@ class GraphQL {
       'metadata',
     ]);
     if ($publishingLevel) {
-      $query->addArgument(new Argument('publishingLevel', $publishingLevel));
+      $query->addArgument(new EnumArgument('publishingLevel', $publishingLevel));
     }
     if ($versionId) {
       $query->addArgument(new Argument('versionId', $versionId));
