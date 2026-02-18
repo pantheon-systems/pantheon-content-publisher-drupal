@@ -19,8 +19,9 @@ class PantheonContentPublisherViewController extends EntityViewController {
 
   public function pantheonView(Request $request, $pantheon_id): array {
     $query = $request->query;
-    $publishingLevel = $query->get('publishingLevel');
-    $versionId = $query->get('versionId');
+    $publishingLevel = in_array($query->get('publishingLevel'), ['PRODUCTION', 'REALTIME', 'DRAFT'], TRUE)
+      ? $query->get('publishingLevel')
+      : NULL;
     $is_preview = in_array($publishingLevel, ['REALTIME', 'DRAFT'], TRUE);
     $is_realtime = $publishingLevel === 'REALTIME';
     $collection = $query->get('siteId') ?: array_key_first(PantheonDocumentCollection::loadMultiple());

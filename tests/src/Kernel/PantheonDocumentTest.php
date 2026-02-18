@@ -158,22 +158,40 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
   }
 
   public function testDraftPreview() {
+    // Reset entity cache to force a fresh GraphQL request.
+    $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
+    // Register a mock response for the DRAFT GraphQL query with distinct
+    // content so we can verify the DRAFT query is actually being sent.
+    $draftArticle = $this->getArticle();
+    $draftArticle['content'] = 'draft content';
+    $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID);
+    $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
+
     $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT', static::ARTICLE_ID));
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
-    // DRAFT uses server-side rendering, so content should be present.
-    $this->assertStringContainsString('test content', $response->getContent());
+    // DRAFT uses server-side rendering with the draft-specific content.
+    $this->assertStringContainsString('draft content', $response->getContent());
     // DRAFT should NOT load preview.js library.
     $this->assertStringNotContainsString('preview.js', $response->getContent());
   }
 
   public function testDraftPreviewWithVersionId() {
+    // Reset entity cache to force a fresh GraphQL request.
+    $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
+    // Register a mock response for the DRAFT+versionId GraphQL query with
+    // distinct content to verify both parameters reach the API.
     $versionId = 'test-version-id-123';
+    $draftArticle = $this->getArticle();
+    $draftArticle['content'] = 'draft version content';
+    $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT,versionId:"%s"){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID, $versionId);
+    $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
+
     $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&versionId=%s', static::ARTICLE_ID, $versionId));
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
-    // DRAFT uses server-side rendering, so content should be present.
-    $this->assertStringContainsString('test content', $response->getContent());
+    // DRAFT uses server-side rendering with the version-specific content.
+    $this->assertStringContainsString('draft version content', $response->getContent());
     // DRAFT should NOT load preview.js library.
     $this->assertStringNotContainsString('preview.js', $response->getContent());
   }
