@@ -4,6 +4,8 @@ on:
     branches:
       - 1.0.x
   push:
+    branches:
+      - 1.0.x
   repository_dispatch:
     types: [run-tests]
   workflow_dispatch:
