@@ -19,7 +19,7 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
   use PantheonKernelHandleTrait;
 
   /**
-   * Test listComponents.
+   * @testdox Component schema endpoint returns correct JSON schema
    */
   public function testSchemaConversion(): void {
     // smart components are created in PantheonSmartComponentTestBase by
@@ -32,7 +32,7 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
   }
 
   /**
-   * Test component view.
+   * @testdox Component view renders field values without X-Frame-Options header
    */
   public function testView(): void {
     // @TODO write a unit test to ensure this functionality fires the

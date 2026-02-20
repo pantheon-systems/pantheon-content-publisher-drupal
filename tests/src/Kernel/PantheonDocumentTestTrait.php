@@ -56,7 +56,14 @@ trait PantheonDocumentTestTrait {
       ->disableOriginalConstructor()
       ->onlyMethods(['get', 'post'])
       ->getMock();
-    $mock->method('post')->willReturnCallback(fn ($uri, array $options) => new Response(200, [], $this->storage[json_decode($options['body'])->query]));
+    $mock->method('post')->willReturnCallback(function ($uri, array $options) {
+      $query = json_decode($options['body'])->query;
+      $query = preg_replace('/\s+/', ' ', trim($query));
+      if (!isset($this->storage[$query])) {
+        throw new \Exception(sprintf('Query not mocked: %s', $query));
+      }
+      return new Response(200, [], $this->storage[$query]);
+    });
     $mock->method('get')->willReturnCallback(fn() => new Response(200, [], $this->storage['get']));
     $this->container->set('http_client', $mock);
     // Finally, save the collection.
@@ -101,6 +108,7 @@ trait PantheonDocumentTestTrait {
     if ($callable) {
       $callable($data, $query);
     }
+    $query = preg_replace('/\s+/', ' ', trim($query));
     $this->storage[$query] = json_encode(['data' => [$type => $data]]);
   }
 
@@ -134,6 +142,13 @@ trait PantheonDocumentTestTrait {
     ];
     $request = Request::create('/api/pantheoncloud/webhook', 'POST', content: json_encode($content));
     $this->handle($request);
+    // Process the queue items created by the webhook.
+    $queue = $this->container->get('queue')->get('pantheon_content_publisher_entity');
+    $queue_worker = $this->container->get('plugin.manager.queue_worker')->createInstance('pantheon_content_publisher_entity');
+    while ($item = $queue->claimItem()) {
+      $queue_worker->processItem($item->data);
+      $queue->deleteItem($item);
+    }
   }
 
   protected function metadata(): array {

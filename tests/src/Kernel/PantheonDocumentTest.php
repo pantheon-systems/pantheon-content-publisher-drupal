@@ -10,6 +10,7 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXFrameSubscriber;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Drupal\search_api\Entity\Index;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\ExpectationFailedException;
 
 /**
@@ -17,6 +18,7 @@ use PHPUnit\Framework\ExpectationFailedException;
  *
  * @group pantheon_document
  */
+#[RunTestsInSeparateProcesses]
 class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocumentTestInterface {
 
   use PantheonDocumentTestTrait;
@@ -37,6 +39,9 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     'pantheon_content_publisher',
   ];
 
+  /**
+   * @testdox Search API index is created and tracks content with metadata fields
+   */
   public function testSearchAPIIndex() {
     // Creating the collection created a batch, let's run it.
     $batch = &batch_get();
@@ -54,6 +59,9 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertSame($newValue, $this->getSearchAPIvalue('atextareameta'));
   }
 
+  /**
+   * @testdox Collection update syncs field storage when metadata changes
+   */
   public function testCollectionUpdate(): void {
     // Setup created a collection, let's check it's correct.
     $storages = FieldStorageConfig::loadMultiple();
@@ -86,6 +94,9 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertArrayNotHasKey('pantheon_document.alistmeta', $storages);
   }
 
+  /**
+   * @testdox Entity storage loads documents with correct field values and links
+   */
   public function testStorageDoLoadMultiple(): void {
     $storage = $this->container->get('entity_type.manager')->getStorage('pantheon_document');
     $entity_id = PantheonDocumentStorage::getEntityId($this->collection->id(), self::ARTICLE_ID);
@@ -107,6 +118,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
    * but until then, for basic functionality this test is enough to test both
    * the list builder and entity query.
    *
+   * @testdox List builder renders all documents with correct links via entity query
    * @coversClass \Drupal\pantheon_content_publisher\Query\Query
    * @coversClass \Drupal\pantheon_content_publisher\PantheonDocumentListBuilder
    */
@@ -127,6 +139,9 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertStringContainsString(sprintf('<td><a href="/pantheon-content-publisher/%s" hreflang="und">test title</a></td>', $entity_id), $html);
   }
 
+  /**
+   * @testdox Content formatter renders JSON content tree as HTML with images
+   */
   public function testContentFormatter() {
     $content_base = '{"tag":"img","attrs":{"alt": "alt text","src":"https:\/\/foo\/bar.jpg"}}';
     foreach ([TRUE, FALSE] as $trigger_webhook) {
@@ -148,6 +163,9 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     }
   }
 
+  /**
+   * @testdox Realtime preview renders without X-Frame-Options header
+   */
   public function testPreview() {
     $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
     $this->assertFalse($response->headers->has('X-Frame-Options'));

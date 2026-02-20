@@ -18,13 +18,20 @@ use Drupal\search_api\Plugin\views\field\SearchApiEntityField;
  */
 function pantheon_content_publisher_theme(): array {
   return [
-    'pantheon_document' => ['render element' => 'elements'],
-    'pantheon_smart_instance' => ['render element' => 'elements'],
+    'pantheon_document' => [
+      'render element' => 'elements',
+      'initial preprocess' => 'template_preprocess_pantheon_document',
+    ],
+    'pantheon_smart_instance' => [
+      'render element' => 'elements',
+      'initial preprocess' => 'template_preprocess_pantheon_smart_instance',
+    ],
     'pantheon_progress' => [
       'variables' => [
         'items' => [],
         'current_step' => 0,
       ],
+      'initial preprocess' => 'template_preprocess_pantheon_progress',
     ],
   ];
 }

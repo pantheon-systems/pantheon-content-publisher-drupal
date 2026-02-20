@@ -47,7 +47,7 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
   }
 
   /**
-   * Test the formatter when a smart component is present.
+   * @testdox Document formatter renders smart component with field labels and values
    */
   public function testFormatter(): void {
     $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));

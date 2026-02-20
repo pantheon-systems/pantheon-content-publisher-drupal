@@ -3,9 +3,21 @@ on:
   pull_request:
     branches:
       - 1.0.x
+  push:
+  repository_dispatch:
+    types: [run-tests]
+  workflow_dispatch:
+    inputs:
+      tmate_enabled:
+        description: Enable tmate debugging
+        required: true
+        default: "0"
+
+permissions:
+  contents: read
 
 concurrency:
-  group: 'ci-${{ github.head_ref || github.ref }}'
+  group: 'pr-${{ github.head_ref || github.ref }}'
   cancel-in-progress: true
 
 jobs:
@@ -17,11 +29,17 @@ jobs:
         php-version: [8.2, 8.3, 8.4]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2
         with:
           php-version: ${{ matrix.php-version }}
+      - name: Cache Composer dependencies
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: vendor
+          key: composer-${{ matrix.php-version }}-${{ hashFiles('composer.lock', 'composer.json') }}
+          restore-keys: composer-${{ matrix.php-version }}-
       - name: Composer install
         run: composer install
       - name: Code lint
@@ -29,5 +47,98 @@ jobs:
       - name: Code sniff
         run: composer run-script codesniff
       - name: Setup tmate session
-        if: ${{ github.event.inputs.tmate_enabled == 1 }}
-        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event.inputs.tmate_enabled == '1' }}
+        uses: mxschmitt/action-tmate@c0afd6f790e3a5564914980036ebf83216678101 # v3.23
+
+  phpcompatibility:
+    runs-on: ubuntu-latest
+    name: PHP Compatibility
+    strategy:
+      matrix:
+        php-version: ['8.2', '8.3', '8.4']
+    steps:
+      - name: PHPCompatibility
+        uses: pantheon-systems/phpcompatibility-action@7bf1b2881e207c80ad4569874ceee225f59537d1 # v1.1.1
+        with:
+          test-versions: ${{ matrix.php-version }}
+
+  deploy-multidev:
+    strategy:
+      matrix:
+        drupal-version: [10, 11]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    name: Multidev test (Drupal ${{ matrix.drupal-version }})
+    needs: [linting, phpcompatibility]
+    env:
+      TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+      TERM: dumb
+      TERMINUS_TOKEN: ${{ secrets.TERMINUS_TOKEN }}
+      TERMINUS_SITE: ${{ matrix.drupal-version == 10 && vars.PANTHEON_SITE_D10 || vars.PANTHEON_SITE_D11 }}
+      GITHUB_RUN_NUMBER: ${{ github.run_number }}
+      MULTIDEV_NAME: ci-d${{ matrix.drupal-version }}-${{ github.run_number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2
+        with:
+          php-version: 8.3
+
+      - name: Install Terminus
+        run: |
+          mkdir -p $HOME/.terminus/plugins
+          curl -L https://github.com/pantheon-systems/terminus/releases/download/3.5.1/terminus.phar --output terminus
+          chmod +x terminus
+          sudo mv terminus /usr/local/bin/terminus
+          terminus --version
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git config --global user.name "Github Actions"
+
+      - name: Log in to Terminus
+        run: |
+          terminus auth:login --machine-token="$TERMINUS_TOKEN"
+          terminus auth:whoami
+
+      - name: Setup SSH Keys
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.PANTHEON_CI_SSH_KEY }}
+
+      - name: Setup tmate session
+        if: ${{ github.event.inputs.tmate_enabled == '1' }}
+        uses: mxschmitt/action-tmate@c0afd6f790e3a5564914980036ebf83216678101 # v3.23
+
+      - name: Create multidev environment
+        run: .github/scripts/create-multidev.sh "$MULTIDEV_NAME" "$TERMINUS_SITE" "$GITHUB_ENV" "dev-${{ github.head_ref || github.ref_name }}"
+
+      - name: Clear cache
+        run: |
+          terminus drush $TERMINUS_SITE.$MULTIDEV_ENV -- cr
+
+      - name: Run PHPUnit tests
+        run: |
+          bash .github/scripts/run-tests.sh
+
+      - name: Get multidev URL
+        if: always()
+        run: |
+          MULTIDEV_URL="https://$MULTIDEV_ENV-$TERMINUS_SITE.pantheonsite.io"
+          echo "Multidev URL: $MULTIDEV_URL"
+          echo "MULTIDEV_URL=$MULTIDEV_URL" >> $GITHUB_ENV
+
+      - name: Cleanup old CI multidevs
+        if: always()
+        run: |
+          CURRENT_ENV="${MULTIDEV_ENV:-}"
+          PREFIX="ci-d${{ matrix.drupal-version }}-"
+          for env in $(terminus multidev:list "$TERMINUS_SITE" --format=list 2>/dev/null); do
+            if [[ "$env" == ${PREFIX}* && "$env" != "$CURRENT_ENV" ]]; then
+              echo "Deleting stale multidev: $env"
+              terminus multidev:delete "$TERMINUS_SITE.$env" --delete-branch --yes || true
+            fi
+          done
