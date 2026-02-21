@@ -44,6 +44,16 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     ];
     $this->articleContent = json_encode($args);
     $this->documentTraitSetup();
+
+    // Force Drupal to show full error messages and stack traces.
+    $this->container->get('config.factory')
+      ->getEditable('system.logging')
+      ->set('error_level', 'verbose')
+      ->save();
+
+    // Disable the custom error handler that masks exceptions.
+    // This ensures the raw PHP error goes to the console.
+    $this->container->get('settings')->set('error_level', 'verbose');
   }
 
   /**
