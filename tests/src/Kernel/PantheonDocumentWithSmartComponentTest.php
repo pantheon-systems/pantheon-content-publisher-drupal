@@ -44,23 +44,17 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     ];
     $this->articleContent = json_encode($args);
     $this->documentTraitSetup();
-
-    // Force Drupal to show full error messages and stack traces.
-    $this->container->get('config.factory')
-      ->getEditable('system.logging')
-      ->set('error_level', 'verbose')
-      ->save();
-
-    // Disable the custom error handler that masks exceptions.
-    // This ensures the raw PHP error goes to the console.
-    $this->container->get('settings')->set('error_level', 'verbose');
+    // Show full error messages instead of "The website encountered an
+    // unexpected error" so test failures reveal the actual cause.
+    $this->config('system.logging')->set('error_level', 'verbose')->save();
   }
 
   /**
    * @testdox Document formatter renders smart component with field labels and values
    */
   public function testFormatter(): void {
-    $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
+    $this->assertEquals(200, $response->getStatusCode(), 'Response: ' . substr($response->getContent(), 0, 2000));
     // First check for the field labels.
     $this->assertText('A plain text field');
     $this->assertText('A list field');
