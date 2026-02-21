@@ -180,8 +180,9 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
     // Register a mock response for the DRAFT GraphQL query with distinct
     // content so we can verify the DRAFT query is actually being sent.
+    // Content must be valid JSON for PantheonTagsFormatter to render it.
     $draftArticle = $this->getArticle();
-    $draftArticle['content'] = 'draft content';
+    $draftArticle['content'] = json_encode(['tag' => 'div', 'data' => 'draft content']);
     $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID);
     $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
 
@@ -199,9 +200,10 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
     // Register a mock response for the DRAFT+versionId GraphQL query with
     // distinct content to verify both parameters reach the API.
+    // Content must be valid JSON for PantheonTagsFormatter to render it.
     $versionId = 'test-version-id-123';
     $draftArticle = $this->getArticle();
-    $draftArticle['content'] = 'draft version content';
+    $draftArticle['content'] = json_encode(['tag' => 'div', 'data' => 'draft version content']);
     $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT,versionId:"%s"){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID, $versionId);
     $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
 

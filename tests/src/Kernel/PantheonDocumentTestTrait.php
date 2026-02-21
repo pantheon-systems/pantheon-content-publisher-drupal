@@ -65,7 +65,7 @@ trait PantheonDocumentTestTrait {
       }
       return new Response(200, [], $this->storage[$query]);
     });
-    $mock->method('get')->willReturnCallback(fn() => new Response(200, [], $this->storage['get']));
+    $mock->method('get')->willReturnCallback(fn() => new Response(200, [], $this->storage['get'] ?? ''));
     $this->container->set('http_client', $mock);
     // Finally, save the collection.
     $this->collection->save();
