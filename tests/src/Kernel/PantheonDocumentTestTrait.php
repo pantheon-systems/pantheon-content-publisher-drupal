@@ -220,6 +220,10 @@ trait PantheonDocumentTestTrait {
     return $articleIds;
   }
 
+  protected function getArticleProduction() {
+    return $this->getArticle();
+  }
+
   protected function getArticle() {
     return [
       'metadata' => [

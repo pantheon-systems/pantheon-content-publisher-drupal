@@ -24,6 +24,7 @@ interface PantheonContentDocumentTestInterface {
   const QUERIES = [
     'metadata' => '{site(id:"%s"){metadataFields}}',
     'getArticle' => '{article(id:"%s"){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}',
+    'getArticleProduction' => '{article(id:"%s",publishingLevel:PRODUCTION){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}',
     'getArticles' => '{articlesv3{articles{id,title,metadata}}}',
     'getArticleIds' => '{articlesv3(pageSize:100){articles{id},pageInfo{nextCursor}}}',
     'getArticleIdsButJustOne' => '{articlesv3(pageSize:1){articles{id},pageInfo{nextCursor}}}',
@@ -36,6 +37,7 @@ interface PantheonContentDocumentTestInterface {
   const QUERY_TYPES = [
     'metadata' => 'site',
     'getArticle' => 'article',
+    'getArticleProduction' => 'article',
   ];
 
 }
