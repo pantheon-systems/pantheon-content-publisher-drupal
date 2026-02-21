@@ -7,6 +7,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\key\Entity\Key;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
+use Drupal\search_api\Entity\Index;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -133,6 +134,10 @@ trait PantheonDocumentTestTrait {
   }
 
   protected function executeWebhook(): void {
+    // Reset entity cache so the queue worker fetches fresh data from GraphQL.
+    // In production, webhooks arrive as separate HTTP requests with an empty
+    // memory cache; in tests everything runs in one process.
+    $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
     $content = [
       'event' => 'article.update',
       'payload' => [
@@ -148,6 +153,12 @@ trait PantheonDocumentTestTrait {
     while ($item = $queue->claimItem()) {
       $queue_worker->processItem($item->data);
       $queue->deleteItem($item);
+    }
+    // Re-index Search API items. The index does not use index_directly so
+    // items are only marked for re-indexing during entity save, not actually
+    // re-indexed until indexItems() is called.
+    foreach (Index::loadMultiple() as $index) {
+      $index->indexItems();
     }
   }
 
