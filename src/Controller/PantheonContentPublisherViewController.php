@@ -46,7 +46,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
     $page = $this->view($document);
     if ($publishingLevel) {
       // Remove X-Frame-Options for all publishing levels (PRODUCTION, REALTIME, DRAFT) to allow iframe embedding in Content Publisher.
-      $page['#attached']['http_header'][] = [PantheonContentPublisherXFrameSubscriber::HEADER_NAME, ''];
+      $request->attributes->set(PantheonContentPublisherXFrameSubscriber::REQUEST_ATTRIBUTE, TRUE);
     }
     if ($is_realtime) {
       // Only REALTIME needs preview JavaScript library for live updates.
