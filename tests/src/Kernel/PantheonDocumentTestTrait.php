@@ -225,7 +225,7 @@ trait PantheonDocumentTestTrait {
   }
 
   protected function getArticleRealtime() {
-   return $this->getArticle();
+    return $this->getArticle();
   }
 
   protected function getArticle() {
