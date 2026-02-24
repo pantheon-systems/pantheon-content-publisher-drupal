@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\pantheon_content_publisher\Unit;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Cache\MemoryCache\MemoryCache;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\pantheon_content_publisher\PantheonContentPublisherConverter;
@@ -21,6 +23,14 @@ class PantheonContentPublisherConverterTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
+
+    // MemoryCache requires the datetime.time service from the container.
+    $container = new ContainerBuilder();
+    $time = $this->createMock(TimeInterface::class);
+    $time->method('getRequestTime')->willReturn(time());
+    $time->method('getCurrentTime')->willReturn(time());
+    $container->set('datetime.time', $time);
+    \Drupal::setContainer($container);
 
     $this->kvStore = $this->createMock(KeyValueStoreInterface::class);
     $this->kvStore->method('getAll')->willReturn([]);
