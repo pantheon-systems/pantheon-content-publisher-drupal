@@ -224,6 +224,10 @@ trait PantheonDocumentTestTrait {
     return $this->getArticle();
   }
 
+  protected function getArticleRealtime() {
+   return $this->getArticle();
+  }
+
   protected function getArticle() {
     return [
       'metadata' => [
