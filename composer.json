@@ -39,7 +39,6 @@
             "vendor/bin/phpcbf . --ignore=vendor src"
         ],
         "code:lint": "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
-        "test": "bash .github/scripts/run-tests.sh",
         "pre-commit": [
             "composer validate --strict",
             "@codesniff",
