@@ -44,7 +44,7 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
     $response = $this->handle('/api/pantheoncloud/component/smart_component_test', ['attrs' => base64_encode(json_encode($values))]);
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
-    $this->assertText(htmlspecialchars($values['plain_text_field'], ENT_NOQUOTES));
+    $this->assertText(htmlspecialchars($values['plain_text_field'], ENT_QUOTES));
     $this->assertText('Option 2');
   }
 

@@ -20,7 +20,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 class PantheonDocumentSelectionTest extends KernelTestBase implements PantheonContentDocumentTestInterface {
 
-  use PantheonDocumentTestTrait;
+  use PantheonDocumentTestTrait {
+    PantheonDocumentTestTrait::setUp as traitSetUp;
+  }
+  use PantheonKernelHandleTrait;
 
   /**
    * {@inheritdoc}
@@ -43,7 +46,10 @@ class PantheonDocumentSelectionTest extends KernelTestBase implements PantheonCo
    * {@inheritdoc}
    */
   protected function setUp(): void {
-    parent::setUp();
+    // PantheonDocumentTestTrait::setUp() calls parent::setUp() and
+    // initializes $this->collection which testEntityReferenceFieldCreation
+    // depends on.
+    $this->traitSetUp();
     $this->installEntitySchema('entity_test');
     $this->installEntitySchema('user');
   }

@@ -41,7 +41,7 @@ class PantheonContentPublisherConverterTest extends UnitTestCase {
       ->with('pantheon_document.fields')
       ->willReturn($this->kvStore);
 
-    $memoryCache = new MemoryCache('test');
+    $memoryCache = new MemoryCache($time);
     $this->converter = new PantheonContentPublisherConverter($kvFactory, $memoryCache);
   }
 
