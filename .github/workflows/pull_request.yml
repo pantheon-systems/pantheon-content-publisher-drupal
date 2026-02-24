@@ -24,6 +24,8 @@ concurrency:
 
 jobs:
   linting:
+    permissions:
+      contents: read
     name: Code linting
     runs-on: ubuntu-latest
     strategy:
@@ -53,6 +55,8 @@ jobs:
         uses: mxschmitt/action-tmate@c0afd6f790e3a5564914980036ebf83216678101 # v3.23
 
   phpcompatibility:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     name: PHP Compatibility
     steps:
