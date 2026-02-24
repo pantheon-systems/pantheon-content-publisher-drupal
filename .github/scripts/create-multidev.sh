@@ -9,7 +9,7 @@ GIT_REF="${4:-dev-1.0.x}"
 # Limit multidev name to 11 characters
 MULTIDEV="${MULTIDEV_NAME:0:11}"
 
-# Check if multidev exists and delete it
+# Check if  multidev with the same name already exists, if so delete it
 if terminus multidev:list "$TERMINUS_SITE" --format=list | grep -q "^$MULTIDEV$"; then
   terminus multidev:delete "$TERMINUS_SITE.$MULTIDEV" --delete-branch --yes
 fi
