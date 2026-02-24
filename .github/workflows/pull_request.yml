@@ -62,6 +62,8 @@ jobs:
           test-versions: 8.2-
 
   deploy-multidev:
+    permissions:
+      contents: read
     strategy:
       matrix:
         drupal-version: [10, 11]
