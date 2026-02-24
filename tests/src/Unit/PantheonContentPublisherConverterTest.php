@@ -30,6 +30,7 @@ class PantheonContentPublisherConverterTest extends UnitTestCase {
     $time->method('getRequestTime')->willReturn(time());
     $time->method('getCurrentTime')->willReturn(time());
     $container->set('datetime.time', $time);
+    $container->set(TimeInterface::class, $time);
     \Drupal::setContainer($container);
 
     $this->kvStore = $this->createMock(KeyValueStoreInterface::class);
