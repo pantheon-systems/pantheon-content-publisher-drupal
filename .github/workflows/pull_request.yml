@@ -55,14 +55,11 @@ jobs:
   phpcompatibility:
     runs-on: ubuntu-latest
     name: PHP Compatibility
-    strategy:
-      matrix:
-        php-version: ['8.2', '8.3', '8.4']
     steps:
       - name: PHPCompatibility
         uses: pantheon-systems/phpcompatibility-action@7bf1b2881e207c80ad4569874ceee225f59537d1 # v1.1.1
         with:
-          test-versions: ${{ matrix.php-version }}
+          test-versions: 8.2-
 
   deploy-multidev:
     strategy:
