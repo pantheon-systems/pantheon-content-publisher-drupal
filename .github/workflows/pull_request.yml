@@ -9,11 +9,6 @@ on:
   repository_dispatch:
     types: [run-tests]
   workflow_dispatch:
-    inputs:
-      tmate_enabled:
-        description: Enable tmate debugging
-        required: true
-        default: "0"
 
 permissions:
   contents: read
@@ -50,9 +45,6 @@ jobs:
         run: composer run-script code:lint
       - name: Code sniff
         run: composer run-script codesniff
-      - name: Setup tmate session
-        if: ${{ github.event.inputs.tmate_enabled == '1' }}
-        uses: mxschmitt/action-tmate@c0afd6f790e3a5564914980036ebf83216678101 # v3.23
 
   phpcompatibility:
     permissions:
@@ -113,10 +105,6 @@ jobs:
         uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.PANTHEON_CI_SSH_KEY }}
-
-      - name: Setup tmate session
-        if: ${{ github.event.inputs.tmate_enabled == '1' }}
-        uses: mxschmitt/action-tmate@c0afd6f790e3a5564914980036ebf83216678101 # v3.23
 
       - name: Create multidev environment
         run: .github/scripts/create-multidev.sh "$MULTIDEV_NAME" "$TERMINUS_SITE" "$GITHUB_ENV" "dev-${{ github.head_ref || github.ref_name }}"
