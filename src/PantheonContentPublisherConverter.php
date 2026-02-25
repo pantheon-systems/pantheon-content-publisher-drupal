@@ -69,6 +69,8 @@ class PantheonContentPublisherConverter {
       'image' => $metadata['image'] ?? '',
       'created' => $date_convert($pantheon_data['createdAt']),
       'changed' => $date_convert($pantheon_data['publishedDate']),
+      'render_as_tabs' => $pantheon_data['renderAsTabs'] ?? FALSE,
+      'tabbed_content' => $pantheon_data['tabbedContent'] ?? '',
     ];
   }
 

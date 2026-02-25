@@ -46,7 +46,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $this->assertCount(1, $indexes);
     $index = reset($indexes);
     $this->assertSame(strtolower($this->collection->id()), $index->id());
-    $this->assertSame(['abooleanmeta', 'adatemeta', 'afilemeta', 'alistmeta', 'atextareameta', 'atextmeta', 'content', 'title'], array_keys($index->getFields()));
+    $this->assertSame(['abooleanmeta', 'adatemeta', 'afilemeta', 'alistmeta', 'atextareameta', 'atextmeta', 'content', 'tabbed_content', 'title'], array_keys($index->getFields()));
     $this->assertSame(1, $index->getTrackerInstance()->getTotalItemsCount());
     $this->assertSame(0, $index->getTrackerInstance()->getRemainingItemsCount());
     $this->assertSame('textarea test contents', $this->getSearchAPIvalue('atextareameta'));
@@ -157,6 +157,39 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     // @TODO assert preview.js is loaded.
   }
 
+  public function testTabbedContentFieldsOnEntity(): void {
+    $storage = $this->container->get('entity_type.manager')->getStorage('pantheon_document');
+    $entity_id = PantheonDocumentStorage::getEntityId($this->collection->id(), self::ARTICLE_ID);
+    $document = $storage->load($entity_id);
+    $this->assertTrue((bool) $document->get('render_as_tabs')->value);
+    $tabbed_content = $document->get('tabbed_content')->value;
+    $this->assertNotEmpty($tabbed_content);
+    $decoded = json_decode($tabbed_content, TRUE);
+    $this->assertIsArray($decoded);
+    $this->assertCount(2, $decoded);
+    $this->assertSame('t.tab1', $decoded[0]['tabProperties']['tabId']);
+    $this->assertSame('First Tab', $decoded[0]['tabProperties']['title']);
+    $this->assertSame('First tab content', $decoded[0]['documentTab']);
+    $this->assertCount(1, $decoded[0]['childTabs']);
+    $this->assertSame('t.child1', $decoded[0]['childTabs'][0]['tabProperties']['tabId']);
+    $this->assertSame('t.tab2', $decoded[1]['tabProperties']['tabId']);
+    $this->assertSame('Second Tab', $decoded[1]['tabProperties']['title']);
+  }
+
+  public function testTabbedContentNotPresent(): void {
+    // When an article has no tabbed content, fields should have defaults.
+    $this->setGuzzleResponse('getArticle', function (&$article) {
+      $article['renderAsTabs'] = FALSE;
+      unset($article['tabbedContent']);
+    });
+    $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
+    $storage = $this->container->get('entity_type.manager')->getStorage('pantheon_document');
+    $entity_id = PantheonDocumentStorage::getEntityId($this->collection->id(), self::ARTICLE_ID);
+    $document = $storage->load($entity_id);
+    $this->assertFalse((bool) $document->get('render_as_tabs')->value);
+    $this->assertEmpty($document->get('tabbed_content')->value);
+  }
+
   public function testDraftPreview() {
     // Reset entity cache to force a fresh GraphQL request.
     $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
@@ -164,7 +197,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     // content so we can verify the DRAFT query is actually being sent.
     $draftArticle = $this->getArticle();
     $draftArticle['content'] = 'draft content';
-    $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID);
+    $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT){title,content,slug,createdAt,publishedDate,publishStatus,metadata,renderAsTabs,tabbedContent}}', static::ARTICLE_ID);
     $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
 
     $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT', static::ARTICLE_ID));
@@ -184,7 +217,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $versionId = 'test-version-id-123';
     $draftArticle = $this->getArticle();
     $draftArticle['content'] = 'draft version content';
-    $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT,versionId:"%s"){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID, $versionId);
+    $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT,versionId:"%s"){title,content,slug,createdAt,publishedDate,publishStatus,metadata,renderAsTabs,tabbedContent}}', static::ARTICLE_ID, $versionId);
     $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
 
     $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&versionId=%s', static::ARTICLE_ID, $versionId));

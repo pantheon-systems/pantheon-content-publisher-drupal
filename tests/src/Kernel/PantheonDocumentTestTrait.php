@@ -212,6 +212,34 @@ trait PantheonDocumentTestTrait {
       'createdAt' => ['msSinceEpoch' => 1741385249172],
       'publishedDate' => ['msSinceEpoch' => 1741385249172],
       'publishStatus' => 'PUBLISHED',
+      'renderAsTabs' => TRUE,
+      'tabbedContent' => json_encode([
+        [
+          'tabProperties' => [
+            'tabId' => 't.tab1',
+            'title' => 'First Tab',
+          ],
+          'documentTab' => 'First tab content',
+          'childTabs' => [
+            [
+              'tabProperties' => [
+                'tabId' => 't.child1',
+                'title' => 'Child Tab',
+              ],
+              'documentTab' => 'Child tab content',
+              'childTabs' => [],
+            ],
+          ],
+        ],
+        [
+          'tabProperties' => [
+            'tabId' => 't.tab2',
+            'title' => 'Second Tab',
+          ],
+          'documentTab' => 'Second tab content',
+          'childTabs' => [],
+        ],
+      ]),
     ];
   }
 

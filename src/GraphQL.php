@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher;
 
+use GuzzleHttp\Exception\GuzzleException;
 use GraphQL\RequestBuilder\Argument;
 use GraphQL\RequestBuilder\EnumArgument;
 use GraphQL\RequestBuilder\Interfaces\TypeInterface;
@@ -43,6 +44,8 @@ class GraphQL {
       'publishedDate',
       'publishStatus',
       'metadata',
+      'renderAsTabs',
+      'tabbedContent',
     ]);
     if ($publishingLevel) {
       $query->addArgument(new EnumArgument('publishingLevel', $publishingLevel));
@@ -112,21 +115,26 @@ class GraphQL {
    * @return array
    *   The GraphQL response.
    *
-   * @throws \GuzzleHttp\Exception\GuzzleException
+   * @throws \Drupal\pantheon_content_publisher\GraphQLException
    */
   protected function request(TypeInterface $query): array {
+    $name = $query->getName();
     $uri = sprintf("%s/sites/%s/query", $this->collection->getUrl(), $this->collection->id());
-    $response = \Drupal::httpClient()->post($uri, [
-      'body' => json_encode(['query' => (string) $query]),
-      'headers' => [
-        'Accept' => 'application/graphql-response+json',
-        'Content-Type' => 'application/json',
-        'PCC-SITE-ID' => $this->collection->id(),
-        'PCC-TOKEN' => $this->collection->getToken(),
-      ],
-    ]);
+    try {
+      $response = \Drupal::httpClient()->post($uri, [
+        'body' => json_encode(['query' => (string) $query]),
+        'headers' => [
+          'Accept' => 'application/graphql-response+json',
+          'Content-Type' => 'application/json',
+          'PCC-SITE-ID' => $this->collection->id(),
+          'PCC-TOKEN' => $this->collection->getToken(),
+        ],
+      ]);
+    }
+    catch (GuzzleException $e) {
+      throw new GraphQLException("Could not execute query for $name.", 0, $e);
+    }
     if ($response->getStatusCode() === 200) {
-      $name = $query->getName();
       $result = (string) $response->getBody();
       if (($decoded = json_decode($result, TRUE)) && isset($decoded['data'][$name])) {
         return $decoded['data'][$name];

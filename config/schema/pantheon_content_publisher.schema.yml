@@ -53,3 +53,7 @@ pantheon_content_publisher.pantheon_smart_component.*:
 plugin.plugin_configuration.search_api_processor.pantheon_tags:
   type: search_api.fields_processor_configuration
   label: 'Pantheon tags processor configuration'
+
+plugin.plugin_configuration.search_api_processor.tabbed_content:
+  type: search_api.fields_processor_configuration
+  label: 'Tabbed content processor configuration'

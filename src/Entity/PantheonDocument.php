@@ -156,6 +156,25 @@ class PantheonDocument extends ContentEntityBase implements PantheonDocumentInte
       ])
       ->setDisplayConfigurable('view', FALSE);
 
+    $fields['render_as_tabs'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Render as tabs'))
+      ->setDescription(t('Whether this document should be rendered as tabs.'))
+      ->setDefaultValue(FALSE)
+      ->setDisplayOptions('view', [
+        'region' => 'hidden',
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['tabbed_content'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Tabbed content'))
+      ->setDescription(t('The structured tabbed content data.'))
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'type' => 'pantheon_tabbed_content_formatter',
+        'weight' => 25,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
     return $fields;
   }
 

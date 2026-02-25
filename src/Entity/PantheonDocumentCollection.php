@@ -176,10 +176,14 @@ class PantheonDocumentCollection extends ConfigEntityBase implements PantheonDoc
       $processor = \Drupal::service('search_api.plugin_helper')
         ->createProcessorPlugin($index, 'pantheon_tags', ['fields' => ['content']]);
       $index->addProcessor($processor);
+      $tabbed_processor = \Drupal::service('search_api.plugin_helper')
+        ->createProcessorPlugin($index, 'tabbed_content', ['fields' => ['tabbed_content']]);
+      $index->addProcessor($tabbed_processor);
       $base_fields = \Drupal::service('entity_field.manager')
         ->getBaseFieldDefinitions('pantheon_document');
       $fields[] = $base_fields['content'];
       $fields[] = $base_fields['title'];
+      $fields[] = $base_fields['tabbed_content'];
     }
     // Save automatically tracks all items in a batch. This tracking does
     // not happen during config sync so handle that separately.
