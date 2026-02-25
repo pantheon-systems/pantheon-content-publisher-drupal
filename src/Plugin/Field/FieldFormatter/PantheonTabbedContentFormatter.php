@@ -11,7 +11,7 @@ use Drupal\pantheon_content_publisher\PantheonTagsToRenderableInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Renders tabbed content JSON as a tabbed UI.
+ * Renders tabbed content JSON as heading/content sections.
  *
  * @FieldFormatter(
  *   id = "pantheon_tabbed_content_formatter",
@@ -51,74 +51,53 @@ class PantheonTabbedContentFormatter extends FormatterBase {
   }
 
   /**
-   * Build the render array for a set of tabs.
+   * Build the render array for a set of tabs as heading/content sections.
    *
    * @param array $tabs
    *   The decoded tabbed content array.
+   * @param int $heading_level
+   *   The heading level to use (2-6).
    *
    * @return array
    *   A Drupal render array.
    */
-  protected function buildTabs(array $tabs): array {
-    $headers = [];
-    $panels = [];
+  protected function buildTabs(array $tabs, int $heading_level = 2): array {
+    $sections = [];
 
     foreach ($tabs as $index => $tab) {
       if (empty($tab) || !is_array($tab)) {
         continue;
       }
-      $tab_id = $tab['tabProperties']['tabId'] ?? 'tab-' . $index;
       $title = $tab['tabProperties']['title'] ?? 'Tab ' . ($index + 1);
-      $safe_id = preg_replace('/[^a-zA-Z0-9\-]/', '-', $tab_id);
+      $tag = 'h' . min($heading_level, 6);
 
-      $headers[] = [
-        '#type' => 'html_tag',
-        '#tag' => 'button',
-        '#value' => $title,
-        '#attributes' => [
-          'class' => ['pantheon-tab-button'],
-          'data-tab-id' => $safe_id,
-          'role' => 'tab',
-          'aria-selected' => $index === 0 ? 'true' : 'false',
-          'aria-controls' => 'pantheon-tab-panel-' . $safe_id,
-        ],
-      ];
-
-      $content = $this->renderTabContent($tab['documentTab'] ?? '');
-
-      $panel = [
+      $section = [
         '#type' => 'container',
         '#attributes' => [
-          'class' => ['pantheon-tab-panel'],
-          'data-tab-id' => $safe_id,
-          'id' => 'pantheon-tab-panel-' . $safe_id,
-          'role' => 'tabpanel',
+          'class' => ['pantheon-tabbed-section'],
         ],
-        'content' => $content,
+        'heading' => [
+          '#type' => 'html_tag',
+          '#tag' => $tag,
+          '#value' => $title,
+        ],
+        'content' => $this->renderTabContent($tab['documentTab'] ?? ''),
       ];
 
-      // Render child tabs recursively if present.
+      // Render child tabs recursively with a deeper heading level.
       if (!empty($tab['childTabs']) && is_array($tab['childTabs'])) {
-        $panel['child_tabs'] = $this->buildTabs($tab['childTabs']);
+        $section['children'] = $this->buildTabs($tab['childTabs'], $heading_level + 1);
       }
 
-      $panels[] = $panel;
+      $sections[] = $section;
     }
 
     return [
       '#type' => 'container',
       '#attributes' => [
-        'class' => ['pantheon-tabs'],
+        'class' => ['pantheon-tabbed-content'],
       ],
-      'headers' => [
-        '#type' => 'container',
-        '#attributes' => [
-          'class' => ['pantheon-tab-headers'],
-          'role' => 'tablist',
-        ],
-        'buttons' => $headers,
-      ],
-      'panels' => $panels,
+      'sections' => $sections,
     ];
   }
 
