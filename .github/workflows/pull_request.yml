@@ -28,6 +28,3 @@ jobs:
         run: composer run-script code:lint
       - name: Code sniff
         run: composer run-script codesniff
-      - name: Setup tmate session
-        if: ${{ github.event.inputs.tmate_enabled == 1 }}
-        uses: mxschmitt/action-tmate@v3
