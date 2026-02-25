@@ -19,7 +19,7 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
   use PantheonKernelHandleTrait;
 
   /**
-   * Test listComponents.
+   * @testdox Component schema endpoint returns correct JSON schema
    */
   public function testSchemaConversion(): void {
     // smart components are created in PantheonSmartComponentTestBase by
@@ -32,7 +32,7 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
   }
 
   /**
-   * Test component view.
+   * @testdox Component view renders field values without X-Frame-Options header
    */
   public function testView(): void {
     // @TODO write a unit test to ensure this functionality fires the
@@ -44,7 +44,7 @@ class PantheonSmartComponentControllerTest extends PantheonSmartComponentTestBas
     $response = $this->handle('/api/pantheoncloud/component/smart_component_test', ['attrs' => base64_encode(json_encode($values))]);
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
-    $this->assertText(htmlspecialchars($values['plain_text_field'], ENT_NOQUOTES));
+    $this->assertText(htmlspecialchars($values['plain_text_field'], ENT_QUOTES));
     $this->assertText('Option 2');
   }
 

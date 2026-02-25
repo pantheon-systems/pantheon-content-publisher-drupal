@@ -2,8 +2,11 @@ name: Mirror code on D.org
 on:
   push:
 
+permissions:
+  contents: read
+
 concurrency:
-  group: 'ci-${{ github.head_ref || github.ref }}'
+  group: 'mirror-${{ github.ref }}'
   cancel-in-progress: true
 
 jobs:
@@ -29,6 +32,6 @@ jobs:
           if_key_exists: ignore
       - name: Pushes to drupal.org repository
         run: |
-          cd $WORKSPACE
+          cd "$WORKSPACE"
           git remote add drupalorg $DRUPAL_ORG_REMOTE
           git push drupalorg $BRANCH

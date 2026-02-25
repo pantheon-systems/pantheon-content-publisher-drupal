@@ -44,13 +44,17 @@ class PantheonDocumentWithSmartComponentTest extends PantheonSmartComponentTestB
     ];
     $this->articleContent = json_encode($args);
     $this->documentTraitSetup();
+    // Show full error messages instead of "The website encountered an
+    // unexpected error" so test failures reveal the actual cause.
+    $this->config('system.logging')->set('error_level', 'verbose')->save();
   }
 
   /**
-   * Test the formatter when a smart component is present.
+   * @testdox Document formatter renders smart component with field labels and values
    */
   public function testFormatter(): void {
-    $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
+    $this->assertEquals(200, $response->getStatusCode(), 'Response: ' . substr($response->getContent(), 0, 2000));
     // First check for the field labels.
     $this->assertText('A plain text field');
     $this->assertText('A list field');

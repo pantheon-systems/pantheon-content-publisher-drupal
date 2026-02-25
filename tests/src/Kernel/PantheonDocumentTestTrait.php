@@ -7,6 +7,7 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\key\Entity\Key;
 use Drupal\pantheon_content_publisher\PantheonDocumentCollectionInterface;
+use Drupal\search_api\Entity\Index;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,8 +57,15 @@ trait PantheonDocumentTestTrait {
       ->disableOriginalConstructor()
       ->onlyMethods(['get', 'post'])
       ->getMock();
-    $mock->method('post')->willReturnCallback(fn ($uri, array $options) => new Response(200, [], $this->storage[json_decode($options['body'])->query]));
-    $mock->method('get')->willReturnCallback(fn() => new Response(200, [], $this->storage['get']));
+    $mock->method('post')->willReturnCallback(function ($uri, array $options) {
+      $query = json_decode($options['body'])->query;
+      $query = preg_replace('/\s+/', ' ', trim($query));
+      if (!isset($this->storage[$query])) {
+        throw new \Exception(sprintf('Query not mocked: %s', $query));
+      }
+      return new Response(200, [], $this->storage[$query]);
+    });
+    $mock->method('get')->willReturnCallback(fn() => new Response(200, [], $this->storage['get'] ?? ''));
     $this->container->set('http_client', $mock);
     // Finally, save the collection.
     $this->collection->save();
@@ -101,6 +109,7 @@ trait PantheonDocumentTestTrait {
     if ($callable) {
       $callable($data, $query);
     }
+    $query = preg_replace('/\s+/', ' ', trim($query));
     $this->storage[$query] = json_encode(['data' => [$type => $data]]);
   }
 
@@ -125,6 +134,10 @@ trait PantheonDocumentTestTrait {
   }
 
   protected function executeWebhook(): void {
+    // Reset entity cache so the queue worker fetches fresh data from GraphQL.
+    // In production, webhooks arrive as separate HTTP requests with an empty
+    // memory cache; in tests everything runs in one process.
+    $this->container->get('entity_type.manager')->getStorage('pantheon_document')->resetCache();
     $content = [
       'event' => 'article.update',
       'payload' => [
@@ -134,6 +147,19 @@ trait PantheonDocumentTestTrait {
     ];
     $request = Request::create('/api/pantheoncloud/webhook', 'POST', content: json_encode($content));
     $this->handle($request);
+    // Process the queue items created by the webhook.
+    $queue = $this->container->get('queue')->get('pantheon_content_publisher_entity');
+    $queue_worker = $this->container->get('plugin.manager.queue_worker')->createInstance('pantheon_content_publisher_entity');
+    while ($item = $queue->claimItem()) {
+      $queue_worker->processItem($item->data);
+      $queue->deleteItem($item);
+    }
+    // Re-index Search API items. The index does not use index_directly so
+    // items are only marked for re-indexing during entity save, not actually
+    // re-indexed until indexItems() is called.
+    foreach (Index::loadMultiple() as $index) {
+      $index->indexItems();
+    }
   }
 
   protected function metadata(): array {
@@ -194,6 +220,14 @@ trait PantheonDocumentTestTrait {
     return $articleIds;
   }
 
+  protected function getArticleProduction() {
+    return $this->getArticle();
+  }
+
+  protected function getArticleRealtime() {
+    return $this->getArticle();
+  }
+
   protected function getArticle() {
     return [
       'metadata' => [
@@ -211,7 +245,7 @@ trait PantheonDocumentTestTrait {
       'slug' => 'test-slug',
       'createdAt' => ['msSinceEpoch' => 1741385249172],
       'publishedDate' => ['msSinceEpoch' => 1741385249172],
-      'publishStatus' => 'PUBLISHED',
+      'publishStatus' => 'published',
     ];
   }
 

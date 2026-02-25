@@ -7,12 +7,14 @@ namespace Drupal\Tests\pantheon_content_publisher\Kernel;
 use Drupal\file\Entity\File;
 use Drupal\media\Entity\Media;
 use Drupal\Tests\media\Kernel\MediaKernelTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Smart component test base.
  *
  * @group pantheon_content_publisher
  */
+#[RunTestsInSeparateProcesses]
 class PantheonSmartComponentTestBase extends MediaKernelTestBase {
 
   /**
