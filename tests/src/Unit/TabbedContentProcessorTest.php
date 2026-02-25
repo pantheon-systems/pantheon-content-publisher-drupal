@@ -198,6 +198,7 @@ class TabbedContentProcessorTest extends UnitTestCase {
     $this->callProcessFieldValue($value);
 
     $this->assertStringContainsString('Array content', $value);
+    $this->assertStringContainsString('Array Tab', $value);
   }
 
   /**

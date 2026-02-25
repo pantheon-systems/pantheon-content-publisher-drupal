@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\pantheon_content_publisher\Plugin\Field\FieldFormatter;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
@@ -41,7 +42,7 @@ class PantheonTabbedContentFormatter extends FormatterBase {
       if (empty($item->value)) {
         continue;
       }
-      $tabs = @json_decode($item->value, TRUE);
+      $tabs = json_decode($item->value, TRUE);
       if (!is_array($tabs) || empty($tabs)) {
         continue;
       }
@@ -79,7 +80,7 @@ class PantheonTabbedContentFormatter extends FormatterBase {
         'heading' => [
           '#type' => 'html_tag',
           '#tag' => $tag,
-          '#value' => $title,
+          '#value' => Html::escape($title),
         ],
         'content' => $this->renderTabContent($tab['documentTab'] ?? ''),
       ];
@@ -117,7 +118,7 @@ class PantheonTabbedContentFormatter extends FormatterBase {
       return $build ?: ['#markup' => ''];
     }
     if (is_string($document_tab) && !empty($document_tab)) {
-      $decoded = @json_decode($document_tab, TRUE);
+      $decoded = json_decode($document_tab, TRUE);
       if ($decoded && is_array($decoded)) {
         $build = $this->tagsToRenderable->convertJsonToRenderable($document_tab);
         return $build ?: ['#markup' => ''];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\pantheon_content_publisher\Plugin\search_api\processor;
 
 use Drupal\Core\Render\RendererInterface;
@@ -61,7 +63,7 @@ class TabbedContent extends FieldsProcessorPluginBase implements ContainerFactor
     }
 
     // Parse the TabTree array structure.
-    if (!$tabbed_content = @json_decode($value, TRUE)) {
+    if (!$tabbed_content = json_decode($value, TRUE)) {
       return;
     }
 
@@ -100,7 +102,7 @@ class TabbedContent extends FieldsProcessorPluginBase implements ContainerFactor
 
         if (is_string($document_tab)) {
           // Check if it's JSON (PantheonTree) or plain text.
-          $decoded = @json_decode($document_tab, TRUE);
+          $decoded = json_decode($document_tab, TRUE);
           if ($decoded && is_array($decoded)) {
             // It's PantheonTree JSON - process it.
             if ($build = $this->tagsToRenderable->convertJsonToRenderable($document_tab)) {
