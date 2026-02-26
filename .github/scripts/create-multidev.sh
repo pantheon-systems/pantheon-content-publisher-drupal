@@ -33,7 +33,7 @@ echo "Checking out branch $MULTIDEV..."
 git checkout "$MULTIDEV"
 
 # Add pantheon_content_publisher module via composer
-composer config repositories.pantheon_content_publisher vcs git@github.com:pantheon-systems/pantheon-content-publisher-drupal.git
+composer config repositories.pantheon_content_publisher '{"type": "vcs", "url": "git@github.com:pantheon-systems/pantheon-content-publisher-drupal.git", "canonical": false}'
 composer require drupal/pantheon_content_publisher:"${GIT_REF}"
 
 # Show where the module was installed for diagnostics.
