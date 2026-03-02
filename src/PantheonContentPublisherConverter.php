@@ -76,12 +76,15 @@ class PantheonContentPublisherConverter {
 
   protected function pantheonMetadataToDrupalRecord(array $pantheon_record): array {
     $drupal_data = [];
-    foreach ($pantheon_record['metadata'] as $pantheon_field => $metadata_value) {
+    foreach ($pantheon_record['metadata'] ?? [] as $pantheon_field => $metadata_value) {
       if ($drupal_field = $this->pantheonFieldToDrupalField($pantheon_field)) {
         // Currently only date fields need conversion but it was easier to
         // be generic.
         if (str_contains($drupal_field, '.')) {
           [$drupal_field, $method] = explode('.', $drupal_field);
+          if (!in_array($method, ['date'], TRUE)) {
+            continue;
+          }
           $metadata_value = $this->$method($metadata_value);
         }
         $drupal_data[$drupal_field] = $metadata_value;

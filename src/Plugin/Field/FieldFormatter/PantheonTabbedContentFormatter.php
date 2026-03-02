@@ -123,7 +123,7 @@ class PantheonTabbedContentFormatter extends FormatterBase {
         $build = $this->tagsToRenderable->convertJsonToRenderable($document_tab);
         return $build ?: ['#markup' => ''];
       }
-      return ['#markup' => $document_tab];
+      return ['#markup' => Html::escape($document_tab)];
     }
     return ['#markup' => ''];
   }

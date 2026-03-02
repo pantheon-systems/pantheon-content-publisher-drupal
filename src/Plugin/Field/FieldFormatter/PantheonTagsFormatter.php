@@ -34,9 +34,8 @@ class PantheonTagsFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $element = [];
-    $trimLength = (int) $this->getSetting('trim_length');
     foreach ($items as $delta => $item) {
-      $element[$delta] = $this->tagsToRenderable->convertJsonToRenderable($item->value, $trimLength);
+      $element[$delta] = $this->tagsToRenderable->convertJsonToRenderable($item->value);
     }
 
     return $element;

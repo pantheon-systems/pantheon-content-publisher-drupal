@@ -3,3 +3,4 @@ package-lock.json
 /composer.lock
 vendor/
 .DS_Store
+config.bat
