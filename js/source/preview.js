@@ -21,8 +21,10 @@ pantheonClient.apolloClient.subscribe({
 .subscribe({
     next: ({ data }) => {
         if (!data) return;
-        // const entryTitle = document.querySelector('h1');
-        // entryTitle.innerHTML = article.title;
+        const entryTitle = document.querySelector('h1');
+        if (entryTitle && data.article.title) {
+            entryTitle.innerHTML = data.article.title;
+        }
 
         const previewContentContainer = document.getElementById('pantheon-content-publisher-preview');
         previewContentContainer.innerHTML = '';
