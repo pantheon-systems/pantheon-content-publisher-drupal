@@ -6,7 +6,7 @@ namespace Drupal\pantheon_content_publisher\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\ElementInfoManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Url;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
 
@@ -40,9 +40,8 @@ class PantheonSmartComponentForm extends EntityForm {
       '#disabled' => !$this->entity->isNew(),
     ];
 
-    // Removed hard dependency on media_library_form_element contrib module.
-    // Only add icon field if media_library form element is available.
-    if (\Drupal::service(ElementInfoManagerInterface::class)->getDefinition('media_library', FALSE)) {
+    // Only add icon field if media_library_form_element contrib module is installed.
+    if (\Drupal::service(ModuleHandlerInterface::class)->moduleExists('media_library_form_element')) {
       $form['icon_media'] = [
         '#type' => 'media_library',
         '#title' => $this->t('Icon'),
