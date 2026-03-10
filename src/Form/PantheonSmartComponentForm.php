@@ -5,15 +5,32 @@ declare(strict_types=1);
 namespace Drupal\pantheon_content_publisher\Form;
 
 use Drupal\Core\Entity\EntityForm;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\pantheon_content_publisher\Entity\PantheonSmartComponent;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Pantheon smart component form.
  */
 class PantheonSmartComponentForm extends EntityForm {
+
+  /**
+   * Constructs a PantheonSmartComponentForm object.
+   */
+  public function __construct(
+    protected ModuleHandlerInterface $moduleHandler,
+  ) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): static {
+    return new static(
+      $container->get(ModuleHandlerInterface::class),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -41,7 +58,7 @@ class PantheonSmartComponentForm extends EntityForm {
     ];
 
     // Only add icon field if media_library_form_element contrib module is installed.
-    if (\Drupal::service(ModuleHandlerInterface::class)->moduleExists('media_library_form_element')) {
+    if ($this->moduleHandler->moduleExists('media_library_form_element')) {
       $form['icon_media'] = [
         '#type' => 'media_library',
         '#title' => $this->t('Icon'),
