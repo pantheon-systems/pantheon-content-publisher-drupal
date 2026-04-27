@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: [8.2, 8.3, 8.4, 8.5]
+        php-version: [8.1, 8.5]
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -65,12 +65,14 @@ jobs:
         drupal-version: [10, 11]
         php-version: ["8.2", "8.3", "8.4", "8.5"]
         exclude:
-          - drupal-version: 11
-            php-version: "8.2"
           - drupal-version: 10
-            php-version: "8.4"
+            php-version: "8.3"
           - drupal-version: 10
             php-version: "8.5"
+          - drupal-version: 11
+            php-version: "8.2"
+          - drupal-version: 11
+            php-version: "8.4"
       fail-fast: false
     runs-on: ubuntu-latest
     name: Multidev test (Drupal ${{ matrix.drupal-version }}, PHP ${{ matrix.php-version }})
@@ -121,7 +123,7 @@ jobs:
           ssh-private-key: ${{ secrets.PANTHEON_CI_SSH_KEY }}
 
       - name: Create multidev environment
-        run: .github/scripts/create-multidev.sh "$MULTIDEV_NAME" "$TERMINUS_SITE" "$GITHUB_ENV" "dev-${{ github.head_ref || github.ref_name }}"
+        run: .github/scripts/create-multidev.sh "$MULTIDEV_NAME" "$TERMINUS_SITE" "$GITHUB_ENV" "dev-${{ github.head_ref || github.ref_name }}" "${{ matrix.php-version }}"
 
       - name: Show PHP versions
         run: |

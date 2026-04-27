@@ -5,6 +5,7 @@ MULTIDEV_NAME="$1"
 TERMINUS_SITE="$2"
 GITHUB_ENV_FILE="${3:-${GITHUB_ENV:-}}"
 GIT_REF="${4:-dev-1.0.x}"
+PHP_VERSION="${5:-}"
 
 # Limit multidev name to 11 characters
 MULTIDEV="${MULTIDEV_NAME:0:11}"
@@ -53,9 +54,24 @@ if [ -n "${MODULE_INSTALL_PATH:-}" ]; then
 fi
 rm -rf vendor/*/.git/
 
+# Set PHP version in pantheon.yml if specified.
+if [ -n "$PHP_VERSION" ]; then
+  echo "Setting PHP version to ${PHP_VERSION}..."
+  if [ -f pantheon.yml ]; then
+    if grep -q "php_version:" pantheon.yml; then
+      sed -i "s/php_version:.*/php_version: ${PHP_VERSION}/" pantheon.yml
+    else
+      echo "php_version: ${PHP_VERSION}" >> pantheon.yml
+    fi
+  else
+    echo "api_version: 1" > pantheon.yml
+    echo "php_version: ${PHP_VERSION}" >> pantheon.yml
+  fi
+fi
+
 # Commit and push changes
 git add .
-git commit -m 'Add pantheon_content_publisher module'
+git commit -m "Add pantheon_content_publisher module (PHP ${PHP_VERSION:-default})"
 git push --set-upstream origin "$MULTIDEV"
 
 cd ..
