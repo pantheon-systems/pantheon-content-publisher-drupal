@@ -74,7 +74,7 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     name: Multidev test (Drupal ${{ matrix.drupal-version }}, PHP ${{ matrix.php-version }})
-    # needs: [linting, phpcompatibility]  # Temporarily disabled for testing
+    needs: [linting, phpcompatibility]
     env:
       TZ: "/usr/share/zoneinfo/America/Los_Angeles"
       TERM: dumb
@@ -127,14 +127,6 @@ jobs:
         run: |
           echo "Runner PHP: $(php -v | head -1)"
           echo "Multidev PHP: $(terminus drush $TERMINUS_SITE.$MULTIDEV_ENV -- ev "echo 'PHP ' . PHP_VERSION;")"
-
-      - name: Check for PHP deprecation warnings
-        run: |
-          echo "=== Testing if deprecation warnings are visible ==="
-          echo "--- Direct eval (stderr visible) ---"
-          terminus remote:drush $TERMINUS_SITE.$MULTIDEV_ENV -- ev "echo (integer) 1;" 2>&1 || true
-          echo "--- Error reporting level ---"
-          terminus remote:drush $TERMINUS_SITE.$MULTIDEV_ENV -- ev "echo 'error_reporting: ' . error_reporting() . PHP_EOL . 'display_errors: ' . ini_get('display_errors');" 2>&1 || true
 
       - name: Clear cache
         run: |
