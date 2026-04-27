@@ -7,6 +7,9 @@
 
 declare(strict_types=1);
 
+// TODO: REMOVE - testing if multidev catches PHP 8.5 deprecation.
+$_test_deprecation = (integer) 1;
+
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
