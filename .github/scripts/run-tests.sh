@@ -53,7 +53,6 @@ $cmd = sprintf(
 );
 
 passthru($cmd, $exit_status);
-
 if ($exit_status === 0) echo 'SENTINEL_SUCCESS';
 PHPEOF
 
