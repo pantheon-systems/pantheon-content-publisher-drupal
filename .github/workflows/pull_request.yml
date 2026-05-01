@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ["8.1", "8.5"]
+        php-version: ["8.2", "8.5"]
     name: Code linting (PHP ${{ matrix.php-version }})
     steps:
       - name: Checkout
