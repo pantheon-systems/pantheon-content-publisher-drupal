@@ -2,6 +2,8 @@
 #
 # @file Remote Test Orchestrator for Pantheon
 # Executes Unit and Kernel tests on a Multidev environment.
+# Uses sentinel strings (SENTINEL_SUCCESS/SENTINEL_ERROR) to detect pass/fail
+# since exit codes are unreliable through the terminus remote execution chain.
 #
 # Requires: TERMINUS_SITE, MULTIDEV_ENV environment variables.
 
@@ -17,6 +19,7 @@ SITE_ENV="${TERMINUS_SITE}.${MULTIDEV_ENV}"
 BASE_URL="https://${MULTIDEV_ENV}-${TERMINUS_SITE}.pantheonsite.io"
 
 # ── Ensure writable filesystem ───────────────────────────────────────
+# SFTP mode needed for PHPUnit to write temp files during test execution.
 terminus connection:set "$SITE_ENV" sftp -y 2>/dev/null || true
 
 # ── PHP payload template ─────────────────────────────────────────────
@@ -71,6 +74,7 @@ run_tests() {
   # 2>/dev/null suppresses the Terminus "[notice] Command:" line that
   # otherwise dumps the full PHP payload (including DB credentials)
   # into CI logs. Test output (stdout from passthru) is preserved.
+  # sed redacts any DB connection strings that leak through.
   local output
   output=$(terminus remote:drush "$SITE_ENV" -- ev "$php_code" 2>/dev/null \
     | sed -E 's|mysql://[^@]*@|mysql://REDACTED@|g')

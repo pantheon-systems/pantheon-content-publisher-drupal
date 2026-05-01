@@ -10,7 +10,7 @@ PHP_VERSION="${5:-}"
 # Limit multidev name to 11 characters
 MULTIDEV="${MULTIDEV_NAME:0:11}"
 
-# Check if  multidev with the same name already exists, if so delete it
+# Check if multidev with the same name already exists, if so delete it
 if terminus multidev:list "$TERMINUS_SITE" --format=list | grep -q "^$MULTIDEV$"; then
   terminus multidev:delete "$TERMINUS_SITE.$MULTIDEV" --delete-branch --yes
 fi
@@ -33,7 +33,8 @@ cd pantheon-site
 echo "Checking out branch $MULTIDEV..."
 git checkout "$MULTIDEV"
 
-# Add pantheon_content_publisher module via composer
+# Add pantheon_content_publisher module via composer.
+# VCS repo allows installing branch builds (not just tagged releases).
 composer config repositories.pantheon_content_publisher '{"type": "vcs", "url": "git@github.com:pantheon-systems/pantheon-content-publisher-drupal.git", "canonical": false}'
 composer require drupal/pantheon_content_publisher:"${GIT_REF}"
 
@@ -42,6 +43,7 @@ echo "Module installed at:"
 find . -path '*/pantheon_content_publisher/pantheon_content_publisher.info.yml' -not -path './vendor/*' | head -1
 
 # Remove git directories from submodules.
+# Pantheon's git-based deployment rejects pushes with nested .git dirs.
 # Detect the module path dynamically (nested docroot vs flat).
 if [ -d web/modules/contrib/pantheon_content_publisher/.git ]; then
   MODULE_INSTALL_PATH="web/modules/contrib/pantheon_content_publisher"
@@ -55,6 +57,7 @@ fi
 rm -rf vendor/*/.git/
 
 # Set PHP version in pantheon.yml if specified.
+# Without this, tests run under the base site's default PHP, not the matrix PHP.
 if [ -n "$PHP_VERSION" ]; then
   echo "Setting PHP version to ${PHP_VERSION}..."
   if [ -f pantheon.yml ]; then
