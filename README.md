@@ -6,7 +6,7 @@ Refer the [documentation](https://pcc.pantheon.io/pantheon-content-publisher-for
 ## Requirements
 
 -  A Google Workspace Account
--  Drupal 10+ site with PHP 8.2+
+-  Drupal 10+ site with PHP 8.2+ (tested through PHP 8.5)
 -  For sites hosted on Pantheon, enable [Pantheon Search](https://docs.pantheon.io/solr) and configure the search version in your `pantheon.yml`. Follow the instructions [here](https://docs.pantheon.io/guides/solr-drupal/solr-drupal#enable-at-the-site-level)
 
 ## Installation
