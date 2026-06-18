@@ -27,7 +27,7 @@ jobs:
     name: Code linting (PHP ${{ matrix.php-version }})
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@fcafdd6392932010c2bd5094439b8e33be2a8a09 # v2.37.0
@@ -91,7 +91,7 @@ jobs:
       TERMINUS_VERSION: '4.1.4'
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Set multidev name and composer constraint
         run: .github/scripts/set-multidev-and-constraint.sh
