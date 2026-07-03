@@ -5,7 +5,7 @@ const documentId = drupalSettings.path.currentPath.split('/')[3];
 
 const pantheonClient = new PantheonClient({
     siteId: window.drupalSettings.pantheon_content_publisher.site_id,
-    token: 'pcc_grant ' + params.get('pccGrant')
+    pccGrant: params.get('pccGrant'),
 });
 
 // This library only loads for REALTIME publishing level.
