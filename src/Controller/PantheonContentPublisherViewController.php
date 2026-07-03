@@ -11,6 +11,7 @@ use Drupal\pantheon_content_publisher\EventSubscriber\PantheonContentPublisherXF
 use Drupal\pantheon_content_publisher\GraphQLException;
 use Drupal\pantheon_content_publisher\PantheonDocumentStorage;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Returns responses for Pantheon content publisher routes.
@@ -24,6 +25,9 @@ class PantheonContentPublisherViewController extends EntityViewController {
       : NULL;
     $is_preview = in_array($publishingLevel, ['REALTIME', 'DRAFT'], TRUE);
     $is_realtime = $publishingLevel === 'REALTIME';
+    if ($is_preview && !$query->get('pccGrant')) {
+      throw new AccessDeniedHttpException();
+    }
     $collection = $query->get('siteId') ?: array_key_first(PantheonDocumentCollection::loadMultiple());
     try {
       $document = PantheonDocument::load(PantheonDocumentStorage::getEntityId($collection, $pantheon_id));
@@ -35,6 +39,9 @@ class PantheonContentPublisherViewController extends EntityViewController {
       else {
         throw $e;
       }
+    }
+    if ($is_preview && !$document instanceof PantheonDocument) {
+      throw new AccessDeniedHttpException();
     }
     if ($is_realtime) {
       // Only REALTIME needs empty preview div for client-side rendering.
