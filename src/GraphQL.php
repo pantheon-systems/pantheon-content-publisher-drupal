@@ -45,6 +45,9 @@ class GraphQL {
       'publishStatus',
       'metadata',
     ]);
+    if (in_array($publishingLevel, ['REALTIME', 'DRAFT'], TRUE) && !$pccGrant) {
+      throw new \InvalidArgumentException('DRAFT and REALTIME requests require a pccGrant token.');
+    }
     if ($publishingLevel) {
       $query->addArgument(new EnumArgument('publishingLevel', $publishingLevel));
     }

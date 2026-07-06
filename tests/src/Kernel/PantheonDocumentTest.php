@@ -228,6 +228,22 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
   }
 
   /**
+   * @testdox GraphQL layer rejects DRAFT request without pccGrant
+   */
+  public function testGraphqlRejectsDraftWithoutGrant() {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->collection->getGraphQL()->getArticle(static::ARTICLE_ID, 'DRAFT');
+  }
+
+  /**
+   * @testdox GraphQL layer rejects REALTIME request without pccGrant
+   */
+  public function testGraphqlRejectsRealtimeWithoutGrant() {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->collection->getGraphQL()->getArticle(static::ARTICLE_ID, 'REALTIME');
+  }
+
+  /**
    * @testdox PRODUCTION without pccGrant still returns 200
    */
   public function testProductionWithoutGrantStillWorks() {
