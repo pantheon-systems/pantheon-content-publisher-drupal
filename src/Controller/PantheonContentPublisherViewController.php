@@ -25,7 +25,9 @@ class PantheonContentPublisherViewController extends EntityViewController {
       : NULL;
     $is_preview = in_array($publishingLevel, ['REALTIME', 'DRAFT'], TRUE);
     $is_realtime = $publishingLevel === 'REALTIME';
-    if ($is_preview && !$query->get('pccGrant')) {
+    // DRAFT/REALTIME require a pccGrant token (short-lived JWT from PCC).
+    // The PCC API validates the token server-side.
+    if ($is_preview && !trim((string) $query->get('pccGrant'))) {
       throw new AccessDeniedHttpException();
     }
     $collection = $query->get('siteId') ?: array_key_first(PantheonDocumentCollection::loadMultiple());

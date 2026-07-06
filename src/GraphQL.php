@@ -125,6 +125,8 @@ class GraphQL {
           'Accept' => 'application/graphql-response+json',
           'Content-Type' => 'application/json',
           'PCC-SITE-ID' => $this->collection->id(),
+          // Use the short-lived grant token for preview requests; fall back to
+          // the site API key for published content.
           'PCC-TOKEN' => $pccGrant ? 'pcc_grant ' . $pccGrant : $this->collection->getToken(),
         ],
       ]);
