@@ -212,6 +212,22 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
   }
 
   /**
+   * @testdox Empty pccGrant returns 403
+   */
+  public function testEmptyGrantReturns403() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&pccGrant=', static::ARTICLE_ID));
+    $this->assertEquals(403, $response->getStatusCode());
+  }
+
+  /**
+   * @testdox Whitespace-only pccGrant returns 403
+   */
+  public function testWhitespaceGrantReturns403() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&pccGrant=%s', static::ARTICLE_ID, urlencode('  ')));
+    $this->assertEquals(403, $response->getStatusCode());
+  }
+
+  /**
    * @testdox PRODUCTION without pccGrant still returns 200
    */
   public function testProductionWithoutGrantStillWorks() {

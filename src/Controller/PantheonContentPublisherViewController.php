@@ -42,6 +42,7 @@ class PantheonContentPublisherViewController extends EntityViewController {
         throw $e;
       }
     }
+    // Deny access if the requested draft/realtime version does not exist in PCC.
     if ($is_preview && !$document instanceof PantheonDocument) {
       throw new AccessDeniedHttpException();
     }
