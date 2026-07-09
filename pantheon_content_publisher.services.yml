@@ -27,3 +27,8 @@ services:
     autowire: TRUE
     tags:
       - { name: event_subscriber }
+  pantheon_content_publisher.solr_cache_reinvalidator:
+    class: Drupal\pantheon_content_publisher\EventSubscriber\SolrCacheReInvalidator
+    arguments: ['@state']
+    tags:
+      - { name: event_subscriber }
