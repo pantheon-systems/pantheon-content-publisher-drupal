@@ -33,10 +33,9 @@ class SolrCacheReInvalidator implements EventSubscriberInterface {
 
   public function onItemsIndexed(ItemsIndexedEvent $event): void {
     $index_id = $event->getIndex()->id();
-    $this->state->set('pantheon_cp.cdn_purge_due', [
-      'time' => time() + self::SOLR_COMMIT_BUFFER_SECONDS,
-      'index_id' => $index_id,
-    ]);
+    $pending = $this->state->get('pantheon_cp.cdn_purge_due', []);
+    $pending[$index_id] = time() + self::SOLR_COMMIT_BUFFER_SECONDS;
+    $this->state->set('pantheon_cp.cdn_purge_due', $pending);
   }
 
   public function onRequest(RequestEvent $event): void {
@@ -44,24 +43,33 @@ class SolrCacheReInvalidator implements EventSubscriberInterface {
       return;
     }
 
-    $purge = $this->state->get('pantheon_cp.cdn_purge_due');
-    if (!$purge || time() < $purge['time']) {
+    $pending = $this->state->get('pantheon_cp.cdn_purge_due', []);
+    if (empty($pending)) {
       return;
     }
 
-    $this->state->delete('pantheon_cp.cdn_purge_due');
-    $index_id = $purge['index_id'];
+    $now = time();
+    $due = array_filter($pending, fn($time) => $now >= $time);
+    if (empty($due)) {
+      return;
+    }
 
-    // Re-invalidate Drupal's internal caches (page_cache, dynamic_page_cache).
-    // Uses the original tag name which internal caches store unchanged.
-    Cache::invalidateTags(["search_api_list:$index_id"]);
+    $remaining = array_diff_key($pending, $due);
+    empty($remaining)
+      ? $this->state->delete('pantheon_cp.cdn_purge_due')
+      : $this->state->set('pantheon_cp.cdn_purge_due', $remaining);
 
-    // Purge CDN with the PAPC-renamed tag. PAPC's override_list_tags
-    // renames _list → _emit_list in Surrogate-Key headers, but the
-    // normal invalidation chain sends the original name. This call
-    // sends the renamed variant so the CDN actually purges.
+    $tags = [];
+    $edge_keys = [];
+    foreach (array_keys($due) as $index_id) {
+      $tags[] = "search_api_list:$index_id";
+      $edge_keys[] = "search_api_emit_list:$index_id";
+    }
+
+    Cache::invalidateTags($tags);
+
     if (function_exists('pantheon_clear_edge_keys')) {
-      pantheon_clear_edge_keys(["search_api_emit_list:$index_id"]);
+      pantheon_clear_edge_keys($edge_keys);
     }
   }
 

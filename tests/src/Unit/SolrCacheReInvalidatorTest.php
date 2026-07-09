@@ -47,14 +47,44 @@ class SolrCacheReInvalidatorTest extends UnitTestCase {
     $index->method('id')->willReturn('primary');
     $event = new ItemsIndexedEvent($index, ['item-1']);
 
+    $this->state->method('get')
+      ->with('pantheon_cp.cdn_purge_due', [])
+      ->willReturn([]);
+
     $this->state->expects($this->once())
       ->method('set')
       ->with(
         'pantheon_cp.cdn_purge_due',
         $this->callback(function ($value) {
-          return $value['index_id'] === 'primary'
-            && $value['time'] >= time() + 5
-            && $value['time'] <= time() + 7;
+          return isset($value['primary'])
+            && $value['primary'] >= time() + 5
+            && $value['primary'] <= time() + 7;
+        }),
+      );
+
+    $this->subscriber->onItemsIndexed($event);
+  }
+
+  /**
+   * @covers ::onItemsIndexed
+   */
+  public function testOnItemsIndexedPreservesExistingIndexes(): void {
+    $index = $this->createMock(IndexInterface::class);
+    $index->method('id')->willReturn('secondary');
+    $event = new ItemsIndexedEvent($index, ['item-1']);
+
+    $existing = ['primary' => time() + 10];
+    $this->state->method('get')
+      ->with('pantheon_cp.cdn_purge_due', [])
+      ->willReturn($existing);
+
+    $this->state->expects($this->once())
+      ->method('set')
+      ->with(
+        'pantheon_cp.cdn_purge_due',
+        $this->callback(function ($value) use ($existing) {
+          return isset($value['primary'], $value['secondary'])
+            && $value['primary'] === $existing['primary'];
         }),
       );
 
@@ -66,8 +96,8 @@ class SolrCacheReInvalidatorTest extends UnitTestCase {
    */
   public function testOnRequestSkipsWhenNoPurgePending(): void {
     $this->state->method('get')
-      ->with('pantheon_cp.cdn_purge_due')
-      ->willReturn(NULL);
+      ->with('pantheon_cp.cdn_purge_due', [])
+      ->willReturn([]);
 
     $this->state->expects($this->never())->method('delete');
 
@@ -80,8 +110,8 @@ class SolrCacheReInvalidatorTest extends UnitTestCase {
    */
   public function testOnRequestSkipsWhenNotYetDue(): void {
     $this->state->method('get')
-      ->with('pantheon_cp.cdn_purge_due')
-      ->willReturn(['time' => time() + 60, 'index_id' => 'primary']);
+      ->with('pantheon_cp.cdn_purge_due', [])
+      ->willReturn(['primary' => time() + 60]);
 
     $this->state->expects($this->never())->method('delete');
 
@@ -94,12 +124,36 @@ class SolrCacheReInvalidatorTest extends UnitTestCase {
    */
   public function testOnRequestFiresWhenDue(): void {
     $this->state->method('get')
-      ->with('pantheon_cp.cdn_purge_due')
-      ->willReturn(['time' => time() - 1, 'index_id' => 'primary']);
+      ->with('pantheon_cp.cdn_purge_due', [])
+      ->willReturn(['primary' => time() - 1]);
 
     $this->state->expects($this->once())
       ->method('delete')
       ->with('pantheon_cp.cdn_purge_due');
+
+    $event = $this->createRequestEvent();
+    $this->subscriber->onRequest($event);
+  }
+
+  /**
+   * @covers ::onRequest
+   */
+  public function testOnRequestPurgesOnlyDueIndexes(): void {
+    $this->state->method('get')
+      ->with('pantheon_cp.cdn_purge_due', [])
+      ->willReturn([
+        'primary' => time() - 1,
+        'secondary' => time() + 60,
+      ]);
+
+    $this->state->expects($this->once())
+      ->method('set')
+      ->with(
+        'pantheon_cp.cdn_purge_due',
+        $this->callback(fn($v) => isset($v['secondary']) && !isset($v['primary'])),
+      );
+
+    $this->state->expects($this->never())->method('delete');
 
     $event = $this->createRequestEvent();
     $this->subscriber->onRequest($event);
