@@ -84,7 +84,7 @@ jobs:
       DRUPAL_VERSION: ${{ matrix.drupal-version }}
       GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
       GITHUB_RUN_NUMBER: ${{ github.run_number }}
-      PANTHEON_CI_SSH_KEY: ${{ secrets.PANTHEON_CI_SSH_KEY }}
+      PANTHEON_CI_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       PHP_VERSION: ${{ matrix.php-version }}
       TERMINUS_SITE: ${{ matrix.drupal-version == 10 && vars.PANTHEON_SITE_D10 || vars.PANTHEON_SITE_D11 }}
       TERMINUS_TOKEN: ${{ secrets.TERMINUS_TOKEN }}
