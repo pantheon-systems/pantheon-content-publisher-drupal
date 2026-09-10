@@ -167,7 +167,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
    * @testdox Realtime preview renders without X-Frame-Options header
    */
   public function testPreview() {
-    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME&pccGrant=test-grant', static::ARTICLE_ID));
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
     // REALTIME creates empty preview div for client-side rendering.
@@ -186,13 +186,69 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID);
     $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
 
-    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT', static::ARTICLE_ID));
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&pccGrant=test-grant', static::ARTICLE_ID));
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
     // DRAFT uses server-side rendering with the draft-specific content.
     $this->assertStringContainsString('draft content', $response->getContent());
     // DRAFT should NOT load preview.js library.
     $this->assertStringNotContainsString('preview.js', $response->getContent());
+  }
+
+  /**
+   * @testdox DRAFT without pccGrant returns 403
+   */
+  public function testDraftWithoutGrantReturns403() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT', static::ARTICLE_ID));
+    $this->assertEquals(403, $response->getStatusCode());
+  }
+
+  /**
+   * @testdox REALTIME without pccGrant returns 403
+   */
+  public function testRealtimeWithoutGrantReturns403() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=REALTIME', static::ARTICLE_ID));
+    $this->assertEquals(403, $response->getStatusCode());
+  }
+
+  /**
+   * @testdox Empty pccGrant returns 403
+   */
+  public function testEmptyGrantReturns403() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&pccGrant=', static::ARTICLE_ID));
+    $this->assertEquals(403, $response->getStatusCode());
+  }
+
+  /**
+   * @testdox Whitespace-only pccGrant returns 403
+   */
+  public function testWhitespaceGrantReturns403() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&pccGrant=%s', static::ARTICLE_ID, urlencode('  ')));
+    $this->assertEquals(403, $response->getStatusCode());
+  }
+
+  /**
+   * @testdox GraphQL layer rejects DRAFT request without pccGrant
+   */
+  public function testGraphqlRejectsDraftWithoutGrant() {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->collection->getGraphQL()->getArticle(static::ARTICLE_ID, 'DRAFT');
+  }
+
+  /**
+   * @testdox GraphQL layer rejects REALTIME request without pccGrant
+   */
+  public function testGraphqlRejectsRealtimeWithoutGrant() {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->collection->getGraphQL()->getArticle(static::ARTICLE_ID, 'REALTIME');
+  }
+
+  /**
+   * @testdox PRODUCTION without pccGrant still returns 200
+   */
+  public function testProductionWithoutGrantStillWorks() {
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=PRODUCTION', static::ARTICLE_ID));
+    $this->assertEquals(200, $response->getStatusCode());
   }
 
   public function testDraftPreviewWithVersionId() {
@@ -207,7 +263,7 @@ class PantheonDocumentTest extends KernelTestBase implements PantheonContentDocu
     $draftQuery = sprintf('{article(id:"%s",publishingLevel:DRAFT,versionId:"%s"){title,content,slug,createdAt,publishedDate,publishStatus,metadata}}', static::ARTICLE_ID, $versionId);
     $this->storage[$draftQuery] = json_encode(['data' => ['article' => $draftArticle]]);
 
-    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&versionId=%s', static::ARTICLE_ID, $versionId));
+    $response = $this->handle(sprintf('/api/pantheoncloud/document/%s?publishingLevel=DRAFT&versionId=%s&pccGrant=test-grant', static::ARTICLE_ID, $versionId));
     $this->assertFalse($response->headers->has('X-Frame-Options'));
     $this->assertFalse($response->headers->has(PantheonContentPublisherXFrameSubscriber::HEADER_NAME));
     // DRAFT uses server-side rendering with the version-specific content.

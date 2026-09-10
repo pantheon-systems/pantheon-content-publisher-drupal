@@ -35,7 +35,7 @@ class GraphQL {
    * @return array
    *   title, content and metadata of the article.
    */
-  public function getArticle(string $id, ?string $publishingLevel = NULL, ?string $versionId = NULL): array {
+  public function getArticle(string $id, ?string $publishingLevel = NULL, ?string $versionId = NULL, ?string $pccGrant = NULL): array {
     $query = (new RootType('article'))->addArgument(new Argument('id', $id))->addSubTypes([
       'title',
       'content',
@@ -45,13 +45,16 @@ class GraphQL {
       'publishStatus',
       'metadata',
     ]);
+    if (in_array($publishingLevel, ['REALTIME', 'DRAFT'], TRUE) && !$pccGrant) {
+      throw new \InvalidArgumentException('DRAFT and REALTIME requests require a pccGrant token.');
+    }
     if ($publishingLevel) {
       $query->addArgument(new EnumArgument('publishingLevel', $publishingLevel));
     }
     if ($versionId) {
       $query->addArgument(new Argument('versionId', $versionId));
     }
-    return $this->request($query);
+    return $this->request($query, $pccGrant);
   }
 
   /**
@@ -115,7 +118,7 @@ class GraphQL {
    *
    * @throws \Drupal\pantheon_content_publisher\GraphQLException
    */
-  protected function request(TypeInterface $query): array {
+  protected function request(TypeInterface $query, ?string $pccGrant = NULL): array {
     $name = $query->getName();
     $uri = sprintf("%s/sites/%s/query", $this->collection->getUrl(), $this->collection->id());
     try {
@@ -125,7 +128,9 @@ class GraphQL {
           'Accept' => 'application/graphql-response+json',
           'Content-Type' => 'application/json',
           'PCC-SITE-ID' => $this->collection->id(),
-          'PCC-TOKEN' => $this->collection->getToken(),
+          // Use the short-lived grant token for preview requests; fall back to
+          // the site API key for published content.
+          'PCC-TOKEN' => $pccGrant ? 'pcc_grant ' . $pccGrant : $this->collection->getToken(),
         ],
       ]);
     }
