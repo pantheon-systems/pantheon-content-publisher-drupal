@@ -22,6 +22,10 @@ class QueueRunner implements EventSubscriberInterface {
     if (!file_exists($drush)) {
       return;
     }
+    // Allow Content Cloud API time to propagate the document before
+    // the queue worker tries to load it. This runs after the HTTP
+    // response has been sent (TERMINATE event), so no user-facing impact.
+    sleep(5);
     $process = new Process([$drush, 'queue-run', 'pantheon_content_publisher_entity']);
     $process->setTimeout(0);
     $process->run();
