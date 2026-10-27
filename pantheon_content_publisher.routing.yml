@@ -45,6 +45,10 @@ pantheon_content_publisher.status:
     _access: 'TRUE'
 
 
+# PCC documents exist outside Drupal's user/permission model, so standard
+# entity access does not apply. Published content is public; draft/realtime
+# previews require a short-lived pccGrant token validated by the PCC API.
+# See PantheonContentPublisherViewController::pantheonView() for the grant check.
 pantheon_document.view:
   path: '/api/pantheoncloud/document/{pantheon_id}'
   defaults:

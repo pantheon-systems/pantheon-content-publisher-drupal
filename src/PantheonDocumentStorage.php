@@ -56,13 +56,14 @@ class PantheonDocumentStorage extends ContentEntityStorageBase implements Panthe
     $request = $this->requestStack->getCurrentRequest();
     $publishingLevel = $request?->query->get('publishingLevel');
     $versionId = $request?->query->get('versionId');
+    $pccGrant = $request?->query->get('pccGrant');
     foreach ($ids as $id) {
       [$collection_name, $pantheon_id] = explode(self::SEPARATOR, $id, 2);
       if (!$collection = $this->collectionStorage->load($collection_name)) {
         continue;
       }
       try {
-        $pantheon_data = $collection->getGraphQL()->getArticle($pantheon_id, $publishingLevel, $versionId);
+        $pantheon_data = $collection->getGraphQL()->getArticle($pantheon_id, $publishingLevel, $versionId, $pccGrant);
       }
       catch (GraphQLException $e) {
         continue;
