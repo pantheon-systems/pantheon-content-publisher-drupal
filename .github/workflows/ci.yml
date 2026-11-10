@@ -10,9 +10,11 @@ concurrency:
 on:
   pull_request:
     branches:
+      - 1.x
       - 1.0.x
   push:
     branches:
+      - 1.x
       - 1.0.x
   repository_dispatch:
     types: [run-tests]
