@@ -4,7 +4,7 @@ set -euo pipefail
 MULTIDEV_NAME="$1"
 TERMINUS_SITE="$2"
 GITHUB_ENV_FILE="${3:-${GITHUB_ENV:-}}"
-GIT_REF="${4:-dev-1.0.x}"
+GIT_REF="${4:-dev-1.x}"
 PHP_VERSION="${5:-}"
 
 # Limit multidev name to 11 characters
